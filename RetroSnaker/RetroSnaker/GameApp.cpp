@@ -18,6 +18,7 @@ using std::cout;
 using std::cin;
 using std::endl;
 
+constexpr Color FoodColors[] = { {14,0}, {10,0}, {13,0}, {12,0}, {9,0} };
 constexpr Color FOOD_COLOR = { 12, 0 };
 constexpr Color JUMP_COLOR = { 9 ,15 };
 constexpr Color EXIT_COLOR = { 13,15 };
@@ -46,17 +47,14 @@ inline bool GenerateEntryPoint(Map &map)
 	Point emptyPoint;
 	if (!SearchEmptyPosition(map, emptyPoint))
 		return false;
-	map.Index(emptyPoint) = E_CellType::Jump;
-	map.ColorIndex(emptyPoint) = JUMP_COLOR;
-	//Temp solution, wait to refactor.
+	map[emptyPoint].Set(E_CellType::Jump, JUMP_COLOR);
+	// ToDo: Temp solution, wait to refactor.
 	Point jumpPoint = { rand() % 38 + 81,rand() % 18 + 21 };
 	Point exitPoint = { rand() % 38 + 81,rand() % 18 + 21 };
-	map[emptyPoint].JumpPoint = jumpPoint;
-	map[jumpPoint].type = E_CellType::Jump;
-	map[jumpPoint].color = JUMP_COLOR;
-	map[exitPoint].type = E_CellType::Exit;
-	map[exitPoint].color = EXIT_COLOR;
-	map[exitPoint].JumpPoint = emptyPoint;
+	map[emptyPoint].jumpPoint = jumpPoint;
+	map[jumpPoint].Set(E_CellType::Jump, JUMP_COLOR);
+	map[exitPoint].Set(E_CellType::Jump, EXIT_COLOR);
+	map[exitPoint].jumpPoint = emptyPoint;
 
 	return true;
 }
@@ -66,54 +64,41 @@ inline bool GenerateRandomFood(Map &map)
 	Point emptyPoint;
 	if (!SearchEmptyPosition(map, emptyPoint))
 		return false;
-	map.Index(emptyPoint) = E_CellType::Food;
-	map.ColorIndex(emptyPoint) = FOOD_COLOR;
+	auto randomType = rand() % 100;
+	E_SubType subType = randomType < 0 ? E_SubType::SubType0 : 
+		randomType < 25 ? E_SubType::SubType1 : 
+		randomType < 50 ? E_SubType::SubType2 : 
+		randomType < 75 ? E_SubType::SubType3 : E_SubType::SubType4;
+
+	map[emptyPoint].Set(E_CellType::Food, subType, FoodColors[int(subType)]);
 	return true;
 }
-struct GameOverInfo
-{
-	bool isGameOver = false;
-	PlayerCtrl *winer = nullptr;
-	PlayerCtrl *loser = nullptr;
-};
-//static bool G_IsGameOver = false;
-GameOverInfo G_GameOverInfo;
+
+static bool G_IsGameOver = false;
+static int G_Player1Score = 0, G_Player2Score = 0;
 
 inline bool ProcessSnake(Map &map, PlayerCtrl &player)
 {
-	E_MoveState moveState = player.Process(SLEEP_DELTA);
-	switch (moveState)
-	{
-	case E_MoveState::Over:
-		G_GameOverInfo.loser = &player;
-		G_GameOverInfo.isGameOver = true;
-		break;
-	case E_MoveState::Eat:
-		if (!GenerateRandomFood(map))
-		{
-			G_GameOverInfo.winer = &player;
-			G_GameOverInfo.isGameOver = true;
-		}
-		player.IncreaseScore();
-		player.IncreaseSpeed();
-		return true;
-	case E_MoveState::Kill:
-		G_GameOverInfo.winer = &player;
-		G_GameOverInfo.isGameOver = true;
-		break;
-	case E_MoveState::Done:
-	default:
-		break;
-	}
-	return false;
+	auto isEatFood = player.Process(SLEEP_DELTA);
+	if (isEatFood)
+		return GenerateRandomFood(map);
+	return isEatFood;
 }
 
 inline void DrawOverPanel(PlayerCtrl &player1, PlayerCtrl &player2)
 {
-	if (G_GameOverInfo.winer == &player1 || G_GameOverInfo.loser == &player2)
-		OverSurface(player1.get_Name(), player1.get_Color(), true);
-	if (G_GameOverInfo.winer == &player2 || G_GameOverInfo.loser == &player1)
+	if (!player1.IsAlive())
+	{
+		++G_Player2Score;
 		OverSurface(player2.get_Name(), player2.get_Color(), true);
+		G_IsGameOver = true;
+	}
+	else if (!player2.IsAlive())
+	{
+		++G_Player1Score;
+		OverSurface(player1.get_Name(), player1.get_Color(), true);
+		G_IsGameOver = true;
+	}
 }
 
 void Game()
@@ -122,15 +107,17 @@ void Game()
 	bool isGamePause = false;
 	Map map;
 	InitSurface(map);
-	PlayerCtrl player1("玩家一", map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 10,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
-	PlayerCtrl player2("玩家二", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 9, 0 }, 'W', 'A', 'S', 'D');
+	PlayerCtrl player1("玩家一", map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 15,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
+	PlayerCtrl player2("玩家二", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 11,0 }, 'W', 'A', 'S', 'D');
+	player1.SetEnemy(player2);
+	player2.SetEnemy(player1);
 	int eatFoodCount = 0;
 	GenerateRandomFood(map);
 	GenerateRandomFood(map);
 	GenerateRandomFood(map);
 	GenerateEntryPoint(map);
-	ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
-	while (!G_GameOverInfo.isGameOver)
+	ShowMsg(G_Player1Score, G_Player2Score, player1.get_Speed(), player2.get_Speed());
+	while (!G_IsGameOver)
 	{
 		if (IsKeyDown(VK_SPACE))
 			isGamePause = !isGamePause;
@@ -141,7 +128,7 @@ void Game()
 		updateFlag |= ProcessSnake(map, player1);
 		updateFlag |= ProcessSnake(map, player2);
 		if (updateFlag)
-			ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
+			ShowMsg(G_Player1Score, G_Player2Score, player1.get_Speed(), player2.get_Speed());
 		DrawMap(map);
 		Sleep(SLEEP_DELTA);
 		DrawOverPanel(player1, player2);
@@ -156,7 +143,7 @@ int main()
 	char c = '\0';
 	while ('q' != c)
 	{
-		G_GameOverInfo = {};
+		G_IsGameOver = false;
 		Game();
 		fflush(stdin);
 		c = '\0';

@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\Experiment">
+      <UniqueIdentifier>{63dc837b-8268-4c16-8319-6d5c73e28540}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Experiment">
+      <UniqueIdentifier>{1b3ed7ec-4b0a-45fe-9b1a-b9b35a5dd251}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameApp.cpp">
@@ -30,11 +36,11 @@
     <ClCompile Include="GameCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="GameEvent.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="SystemInfo.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEvent.cpp">
+      <Filter>源文件\Experiment</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -53,11 +59,11 @@
     <ClInclude Include="GameCtrl.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="GameEvent.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="SystemInfo.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEvent.hpp">
+      <Filter>头文件\Experiment</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

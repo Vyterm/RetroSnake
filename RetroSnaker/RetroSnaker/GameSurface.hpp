@@ -7,8 +7,6 @@
 using std::string;
 using Msgs = std::vector<string>;
 
-const char MapItems[] = { ' ', '#', 'a', '@', 'O', 'I', 'U' };
-
 void InitSurface(Map &map);
 void DrawMap(const Map &map);
 void OverSurface(string playerName, Color playerColor, bool isWin);

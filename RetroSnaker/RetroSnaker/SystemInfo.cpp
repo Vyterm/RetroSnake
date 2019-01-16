@@ -268,7 +268,7 @@ void getNetworkInfo()
 
 			char local_mac[128] = { 0 };
 			int char_index = 0;
-			for (int i = 0; i < pIpAdapterInfo->AddressLength; i++)
+			for (size_t i = 0; i < pIpAdapterInfo->AddressLength; i++)
 			{
 				char temp_str[10] = { 0 };
 				sprintf(temp_str, "%02X-", pIpAdapterInfo->Address[i]); // X for uppercase, x for lowercase

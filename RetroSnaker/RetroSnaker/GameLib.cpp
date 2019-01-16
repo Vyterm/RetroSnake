@@ -87,7 +87,7 @@ int GetKey()
  */
 void ClearByCoord(int x, int y, int rowCount)
 {
-	COORD coordStart = { x, y };
+	COORD coordStart = { short(x), short(y) };
 	int i = 0;
 	DWORD written;
 	HANDLE handle;                              //µ±Ç°´°¿Ú¾ä±ú

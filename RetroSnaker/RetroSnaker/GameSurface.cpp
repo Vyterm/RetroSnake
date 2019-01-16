@@ -40,7 +40,7 @@ inline void DrawBorder(int posXS, int posXE, int posYS, int posYE, Map *map = nu
 		for (int ci = posXS; ci <= posXE; ++ci)
 		{
 			E_CellType cellType = (ri == posYS || ri == posYE || ci == posXS || ci == posXE) ? E_CellType::Wall : E_CellType::None;
-			cout << MapItems[int(cellType)];
+			cout << char(cellType);
 			if (nullptr != map)
 				zCachemap.Index(ci - POSITION_TOARRAY_OFFSET, ri - POSITION_TOARRAY_OFFSET)
 				= map->Index(ci - POSITION_TOARRAY_OFFSET, ri - POSITION_TOARRAY_OFFSET) = cellType;
@@ -79,7 +79,7 @@ void DrawMap(const Map &map)
 			SetPosition(GAME_MAP_S_INDEXX + ci, GAME_MAP_S_INDEXY + ri);
 			auto color = map.ColorIndex(ci, ri);
 			SetColor(color.fore, color.back);
-			cout << MapItems[(int)zCachemap.Index(ci, ri)];
+			cout << char(zCachemap.Index(ci, ri));
 		}
 	}
 	SetPosition(0, 0);
