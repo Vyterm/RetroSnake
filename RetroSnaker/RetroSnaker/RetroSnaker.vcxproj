@@ -117,6 +117,7 @@
   <ItemGroup>
     <ClCompile Include="GameApp.cpp" />
     <ClCompile Include="GameCtrl.cpp" />
+    <ClCompile Include="GameEvent.cpp" />
     <ClCompile Include="GameLib.cpp" />
     <ClCompile Include="GameModel.cpp" />
     <ClCompile Include="GameSurface.cpp" />
@@ -124,6 +125,7 @@
   <ItemGroup>
     <ClInclude Include="GameApp.hpp" />
     <ClInclude Include="GameCtrl.hpp" />
+    <ClInclude Include="GameEvent.hpp" />
     <ClInclude Include="GameLib.hpp" />
     <ClInclude Include="GameModel.hpp" />
     <ClInclude Include="GameSurface.hpp" />

@@ -1,6 +1,8 @@
 #include "GameSurface.hpp"
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 using std::cout;
 using std::cin;
@@ -43,6 +45,14 @@ inline void DrawBorder(int posXS, int posXE, int posYS, int posYE)
 	}
 }
 
+inline void SetTree(Map &map, int treeX, int treeY)
+{
+	map.Index(treeX - 2, treeY) = map.Index(treeX - 1, treeY) = map.Index(treeX, treeY) = map.Index(treeX + 1, treeY)
+		= map.Index(treeX + 2, treeY) = map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = E_MapItem::Wall;
+	map.ColorIndex(treeX - 2, treeY) = map.ColorIndex(treeX - 1, treeY) = map.ColorIndex(treeX, treeY) = map.ColorIndex(treeX + 1, treeY)
+		= map.ColorIndex(treeX + 2, treeY) = map.ColorIndex(treeX, treeY - 1) = map.ColorIndex(treeX, treeY + 1) = { 8, 0 };
+}
+
 void InitSurface(Map &map)
 {
 	for (int ri = 0; ri < GAME_HEIGHT; ++ri)
@@ -57,11 +67,10 @@ void InitSurface(Map &map)
 		}
 	}
 	DrawBorder(GAME_MSG_S_INDEXX, GAME_MSG_E_INDEXX, GAME_MSG_S_INDEXY, GAME_MSG_E_INDEXY);
-	ShowMsg({
-		"玩家一        玩家二",
-		"分数        分数",
-		"速度        速度",
-		});
+	SetTree(map, 10, 5);
+	SetTree(map, 68, 5);
+	SetTree(map, 10, 34);
+	SetTree(map, 68, 34);
 }
 
 void DrawMap(const Map &map)
@@ -94,8 +103,27 @@ void OverSurface(bool isWin)
 	cout << "输入q退出游戏，输入r重新开始";
 }
 
+void ShowMsg(int player1Score, int player2Score, int player1Speed, int player2Speed)
+{
+	const string PLAYER_SPACE = "        ";
+	Msgs msgs;
+	std::ostringstream oss;
+	oss << "玩家一" << PLAYER_SPACE << "玩家二";
+	msgs.push_back(oss.str());
+	oss.str("");
+	oss << "分数" << std::setw(3) << std::setfill('0') << player1Score << PLAYER_SPACE << "分数" << std::setw(3) << std::setfill('0') << player2Score;
+	msgs.push_back(oss.str());
+	oss.str("");
+	oss << "速度" << std::setw(3) << std::setfill('0') << player1Speed << PLAYER_SPACE << "速度" << std::setw(3) << std::setfill('0') << player2Speed;
+	msgs.push_back(oss.str());
+	oss.str("");
+	ShowMsg(std::move(msgs));
+
+}
+
 void ShowMsg(Msgs &&msgs)
 {
+	SetColor(7, 0);
 	int ri = GAME_MSG_S_INDEXY + 1;
 	for (auto msg : msgs)
 	{

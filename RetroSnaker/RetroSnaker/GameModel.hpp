@@ -46,6 +46,8 @@ public:
 	const Color& ColorIndex(Point position) const { return m_colors[position.x][position.y]; }
 	Color& ColorIndex(Point position) { return m_colors[position.x][position.y]; }
 	const Color &ColorIndex(int x, int y) const { return m_colors[x][y]; }
+	/* 0-黑色, 1-蓝色,   2-绿色,      3-浅绿色,     4-红色,   5-紫色,   6-黄色,   7-白色,
+	 * 8-灰色, 9-淡蓝色, 10-淡绿色,   11-淡浅绿色   12-淡红色 13-淡紫色 14-淡黄色 15-亮白色*/
 	Color &ColorIndex(int x, int y) { return m_colors[x][y]; }
 };
 typedef MapTemplate<GAME_WIDTH, GAME_HEIGHT> Map;
