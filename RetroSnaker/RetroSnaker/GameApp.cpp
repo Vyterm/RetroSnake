@@ -1,4 +1,4 @@
-#include "GameApp.hpp"
+Ôªø#include "GameApp.hpp"
 #include "GameLib.hpp"
 #include "GameSurface.hpp"
 #include "GameModel.hpp"
@@ -21,8 +21,8 @@ using std::endl;
 
 constexpr Color FoodColors[] = { {14,0}, {10,0}, {13,0}, {12,0}, {9,0} };
 constexpr Color FOOD_COLOR = { 12, 0 };
-constexpr Color JUMP_COLOR = { 9 ,15 };
-constexpr Color EXIT_COLOR = { 13,15 };
+constexpr Color JUMP_COLOR = { 9 , 0 };
+constexpr Color EXIT_COLOR = { 13, 0 };
 static constexpr auto SLEEP_DELTA = 10;
 
 inline bool IsKey(int vKey)
@@ -55,7 +55,7 @@ inline bool GenerateEntryPoint(Map &map, const Color &color)
 		return false;
 	map[emptyPoint].Set(E_CellType::Jump, color);
 	// ToDo: Temp solution, wait to refactor.
-	Point jumpPoint = { rand() % 38 + 81,rand() % 18 + 21 };
+	Point jumpPoint = { rand() % (MAZE_WIDTH - 2) + (GAME_WIDTH + 1),rand() % (MAZE_HEIGHT - 2) + (MSG_HEIGHT + 1) };
 	map[emptyPoint].jumpPoint = jumpPoint;
 	map[jumpPoint].Set(E_CellType::Jump, color);
 	map[jumpPoint].jumpPoint = emptyPoint;
@@ -111,8 +111,8 @@ void Game()
 	bool isGamePause = false;
 	Map map;
 	InitSurface(map);
-	PlayerCtrl player1("ÕÊº““ª", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 15,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
-	PlayerCtrl player2("ÕÊº“∂˛", map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 11,0 }, 'W', 'A', 'S', 'D');
+	PlayerCtrl player1("Áé©ÂÆ∂‰∏Ä", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 15,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
+	PlayerCtrl player2("Áé©ÂÆ∂‰∫å", map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 11,0 }, 'W', 'A', 'S', 'D');
 	player1.SetEnemy(player2);
 	player2.SetEnemy(player1);
 	int eatFoodCount = 0;
@@ -142,7 +142,7 @@ void Game()
 
 int main()
 {
-	SetTitle("Ã∞≥‘…ﬂ¥Û◊˜’Ω(Console Version) by π˘ﬁƒÃÏ");
+	SetTitle("Ë¥™ÂêÉËõáÂ§ß‰ΩúÊàò(Console Version) by ÈÉ≠ÂºàÂ§©");
 	SetConsoleWindowSize();
 	ResetCursor();
 

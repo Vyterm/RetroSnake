@@ -1,4 +1,4 @@
-#ifndef GAME_MAP_HPP
+ï»¿#ifndef GAME_MAP_HPP
 #define GAME_MAP_HPP
 
 #include "GameLib.hpp"
@@ -45,9 +45,9 @@ public:
 };
 
 /*
-ÁÁ	ºì	ÂÌ	À¶
+äº®	çº¢	ç»¿	è“
 1	1	1	1
-0x0~0xF±íÊ¾°µºÚÉ«ÖÁÁÁ°×É«
+0x0~0xFè¡¨ç¤ºæš—é»‘è‰²è‡³äº®ç™½è‰²
 */
 struct Color
 {
@@ -67,6 +67,8 @@ public:
 	Color color = DEFAULT_COLOR;
 	Point jumpPoint;
 	MapItem() { }
+	MapItem(E_CellType type) { this->type = type; }
+	MapItem(E_CellType type, Color color) { this->type = type; this->color = color; }
 	MapItem& operator=(const MapItem &rhs)
 	{
 		this->type = rhs.type;
@@ -86,9 +88,9 @@ public:
 		return m_weakQuote.expired();
 	}
 	/*
-	ÁÁ	ºì	ÂÌ	À¶
+	äº®	çº¢	ç»¿	è“
 	1	1	1	1
-	0x0~0xF±íÊ¾°µºÚÉ«ÖÁÁÁ°×É«
+	0x0~0xFè¡¨ç¤ºæš—é»‘è‰²è‡³äº®ç™½è‰²
 	*/
 	void Set(Color color) { Set(type, subType, color); }
 	void Set(E_CellType type, Color color) { Set(type, E_SubType::SubType0, color); }
@@ -146,7 +148,7 @@ class MapTemplate
 public:
 	MapTemplate()
 	{
-		m_position = { 1, 1 };
+		m_position = { 0, 0 };
 	}
 	const MapItem& operator[](Point position) const { return m_items[position.x][position.y]; }
 	MapItem& operator[](Point position) { return m_items[position.x][position.y]; }
@@ -173,5 +175,6 @@ public:
 typedef MapTemplate<GAME_WIDTH + MAZE_WIDTH, GAME_HEIGHT> Map;
 typedef MapTemplate<MAZE_WIDTH, GAME_HEIGHT> Maze;
 
-const string Map::_images[] = { " ", "#", "F", "@", "O", "J" };
+const string Map::_images[] = { "  ", "ã€“", "é£Ÿ", "â—", "Â¤", "â€»" };
+//const string Map::_images[] = { "  ", "ã€“", "â€", "â—", "Â¤", "â€»" };
 #endif

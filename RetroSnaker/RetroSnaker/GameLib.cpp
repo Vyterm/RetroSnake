@@ -51,7 +51,7 @@ void SetPosition(int x, int y) {
 	COORD cursorPosition;   //光标的坐标
 	HANDLE handle;          //当前窗口句柄
 	handle = GetStdHandle(STD_OUTPUT_HANDLE);
-	cursorPosition.X = x;   //设置x、y坐标
+	cursorPosition.X = x*2;   //设置x、y坐标
 	cursorPosition.Y = y;
 	SetConsoleCursorPosition(handle, cursorPosition);
 	//CloseHandle(handle);

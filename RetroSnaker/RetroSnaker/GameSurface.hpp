@@ -1,4 +1,4 @@
-#ifndef GAME_SURFACE_HPP
+ï»¿#ifndef GAME_SURFACE_HPP
 #define GAME_SURFACE_HPP
 
 #include "GameLib.hpp"
@@ -48,17 +48,17 @@ inline void ShowMsg(int player1Score, int player2Score, const PlayerCtrl &player
 	ShowMsg({
 		{ "" },
 		{ "" },
-		{ "Íæ¼ÒÒ»", "Íæ¼Ò¶ş" },
-		{ "·ÖÊı", player1Score, player2Score, 3, '0' },
-		{ "ËÙ¶È", player1.get_Speed(), player2.get_Speed(), 3, '0' },
+		{ "ç©å®¶ä¸€", "ç©å®¶äºŒ" },
+		{ "åˆ†æ•°", player1Score, player2Score, 3, '0' },
+		{ "é€Ÿåº¦", player1.get_Speed(), player2.get_Speed(), 3, '0' },
 		{ "" },
 		{ "" },
 		{ "" },
 		{ "" },
 		{ "" },
-		{ "¡ü,¡ı,¡û,¡ú²Ù×÷Íæ¼ÒÒ»" },
-		{ "W,A,S,D²Ù×÷Íæ¼Ò¶ş" },
-		{ "¿Õ¸ñ¼üÔİÍ£ÓÎÏ·" },
+		{ "â†‘,â†“,â†,â†’æ“ä½œç©å®¶ä¸€" },
+		{ "W,A,S,Dæ“ä½œç©å®¶äºŒ" },
+		{ "ç©ºæ ¼é”®æš‚åœæ¸¸æˆ" },
 		});
 }
 
