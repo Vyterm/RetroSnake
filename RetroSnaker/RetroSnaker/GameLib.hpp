@@ -2,20 +2,14 @@
 
 #ifndef GAMELIB_H_INCLUDED
 #define GAMELIB_H_INCLUDED
-/***************************************************
- * 文件名：GameLib.h
- * 描  述：定义游戏中常用的控制台操作
- * 创建人：老九学堂·窖头
- * 日  期：2016-11-10
- * 版  本：1.0
- * 官  网：http://www.xuetang9.com
- * 官方QQ：614940318（老九君）
- *
- **************************************************/
+
 #include <windows.h>
 #include <Windows.h>
 #include <time.h>
 #include "GameColor.hpp"
+
+constexpr auto GAME_NAME = "贪吃蛇大作战(Console Version) by 郭弈天";
+constexpr auto GAME_VERSION = "Version 0.7.3";
 
 constexpr auto WIN_HEIGHT = 43;
 constexpr auto WIN_WIDTH = 120;

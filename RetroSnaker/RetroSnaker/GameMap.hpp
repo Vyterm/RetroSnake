@@ -2,6 +2,7 @@
 #define GAME_MAP_HPP
 
 #include "GameLib.hpp"
+#include "GameEditor.hpp"
 #include "GameColor.hpp"
 
 #include <iostream>
@@ -44,15 +45,6 @@ enum class E_SubType
 	SubType7,
 	// 作为食物自己变幽灵，作为地形是
 	SubType8,
-};
-
-struct Point
-{
-public:
-	int x, y;
-	bool operator==(const Point &rhs) const { return x == rhs.x && y == rhs.y; }
-	bool operator!=(const Point &rhs) const { return x != rhs.x || y != rhs.y; }
-	void Set(const Point& point) { x = point.x; y = point.y; }
 };
 
 static constexpr auto SLEEP_DELTA = 10;
@@ -131,7 +123,7 @@ private:
 };
 
 template <int Width, int Height>
-class MapModelTemplate
+class LayerTemplate
 {
 protected:
 	MapItem m_items[Width][Height];
@@ -170,20 +162,43 @@ class MapTemplate
 			= m_staticItems[treeX][treeY - 1] = m_staticItems[treeX][treeY + 1] = color;
 	}
 
-	void SetBorder(int startPosX, int width, int startPosY, int height)
+	void SetHollowLand(int startPosX, int width, int startPosY, int height, E_SubType subType)
 	{
 		int endPosX = startPosX + width - 1, endPosY = startPosY + height - 1;
 		for (int ri = startPosY; ri <= endPosY; ++ri)
 			for (int ci = startPosX; ci <= endPosX; ++ci)
-				m_staticItems[ci][ri] = (ci == startPosX || ci == endPosX || ri == startPosY || ri == endPosY) ? E_CellType::Land : E_CellType::None;
+				if (ci == startPosX || ci == endPosX || ri == startPosY || ri == endPosY)
+					m_staticItems[ci][ri].Set(E_CellType::Land, subType, { DEFAULT_BACK_COLOR, SubTypeColors[int(subType)] });
+				else
+					m_staticItems[ci][ri].Set(E_CellType::None, E_SubType::SubType0, DEFAULT_COLOR);
 	}
 
-	void SetGrassland(int startPosX, int width, int startPosY, int height)
+	void SetCloseyLand(int startPosX, int width, int startPosY, int height, E_SubType subType)
 	{
 		int endPosX = startPosX + width - 1, endPosY = startPosY + height - 1;
 		for (int ri = startPosY; ri <= endPosY; ++ri)
 			for (int ci = startPosX; ci <= endPosX; ++ci)
-				m_staticItems[ci][ri].Set(E_CellType::Land, E_SubType::SubType1, {DEFAULT_BACK_COLOR, SubTypeColors[int(E_SubType::SubType1)]});
+				m_staticItems[ci][ri].Set(E_CellType::Land, subType, { DEFAULT_BACK_COLOR, SubTypeColors[int(subType)] });
+	}
+
+	void SetJebelLand(int startPosX, int width, int startPosY, int height)
+	{
+		SetHollowLand(startPosX, width, startPosY, height, E_SubType::SubType0);
+	}
+
+	void SetGrassLand(int startPosX, int width, int startPosY, int height)
+	{
+		SetCloseyLand(startPosX, width, startPosY, height, E_SubType::SubType1);
+	}
+
+	void SetMagmaLand(int startPosX, int width, int startPosY, int height)
+	{
+		SetCloseyLand(startPosX, width, startPosY, height, E_SubType::SubType3);
+	}
+
+	void SetFrostLand(int startPosX, int width, int startPosY, int height)
+	{
+		SetCloseyLand(startPosX, width, startPosY, height, E_SubType::SubType4);
 	}
 
 	bool SearchEmptyPosition(Point &emptyPoint)
@@ -201,22 +216,53 @@ class MapTemplate
 	MapItem MixCell(int x, int y)
 	{
 		MapItem upperLayer = m_items[x][y] == E_CellType::None ? m_staticItems[x][y] : m_items[x][y];
+		if (m_staticItems[x][y] != E_CellType::Land) return upperLayer;
+		if (m_staticItems[x][y] == E_SubType::SubType0)
+			upperLayer.Set(DEFAULT_COLOR);
 		if (upperLayer.type != E_CellType::Body && upperLayer.type != E_CellType::Head) return upperLayer;
-		if (m_staticItems[x][y] != E_CellType::Land || m_staticItems[x][y] != E_SubType::SubType1) return upperLayer;
-		auto type = upperLayer.type == E_CellType::Head ? E_CellType::Head : E_CellType::Land;
-		auto subType = upperLayer.type == E_CellType::Head ? E_SubType::SubType0 : E_SubType::SubType1;
-		Color color = { upperLayer.color.fore, m_staticItems[x][y].color.back };
-		upperLayer.Set(type, subType, color);
+		else if (m_staticItems[x][y] == E_SubType::SubType1)
+		{
+			auto type = upperLayer.type == E_CellType::Head ? E_CellType::Head : E_CellType::Land;
+			auto subType = upperLayer.type == E_CellType::Head ? E_SubType::SubType0 : E_SubType::SubType1;
+			Color color = { upperLayer.color.fore, m_staticItems[x][y].color.back };
+			upperLayer.Set(type, subType, color);
+		}
+		else if (m_staticItems[x][y] == E_SubType::SubType4)
+		{
+			auto type = upperLayer.type;
+			auto subType = upperLayer.subType;
+			Color color = { upperLayer.color.fore, m_staticItems[x][y].color.back };
+			upperLayer.Set(type, subType, color);
+		}
 		return upperLayer;
 	}
+
+	bool MoveAble(int x, int y)
+	{
+		auto item = GetItem({ x, y });
+		return E_CellType::None == item.type ||
+			(E_CellType::Land == item.type && E_SubType::SubType1 == item.subType) ||
+			//(E_CellType::Land == item.type && E_SubType::SubType4 == item.subType) ||
+			(E_CellType::Land == item.type && E_SubType::SubType4 == item.subType);
+	}
+
 public:
 	MapTemplate()
 	{
 		m_position = { 0, 0 };
-		SetBorder(0, GAME_WIDTH, 0, GAME_HEIGHT);
-		SetBorder(GAME_WIDTH, MAZE_WIDTH, MSG_HEIGHT, MAZE_HEIGHT);
-		SetBorder(GAME_WIDTH, MSG_WIDTH, 0, MSG_HEIGHT);
-		SetGrassland(10, 20, 1, 10);
+		//GameMapModel model(Width, Height);
+		//model.SetHollowLand(0, GAME_WIDTH, 0, GAME_HEIGHT, E_StaticCellType::JebelLand);
+		//model.SetHollowLand(GAME_WIDTH, MAZE_WIDTH, MSG_HEIGHT, MAZE_HEIGHT, E_StaticCellType::JebelLand);
+		//model.SetHollowLand(GAME_WIDTH, MSG_WIDTH, 0, MSG_HEIGHT, E_StaticCellType::JebelLand);
+		//model.SetCloseyLand(10, 20, 1, 10, E_StaticCellType::GrassLand);
+		//model.SetCloseyLand(1, 38, 38, 1, E_StaticCellType::MagmaLand);
+		//model.SetCloseyLand(1, 38, 36, 2, E_StaticCellType::FrostLand);
+		SetJebelLand(0, GAME_WIDTH, 0, GAME_HEIGHT);
+		SetJebelLand(GAME_WIDTH, MAZE_WIDTH, MSG_HEIGHT, MAZE_HEIGHT);
+		SetJebelLand(GAME_WIDTH, MSG_WIDTH, 0, MSG_HEIGHT);
+		SetGrassLand(10, 20, 1, 10);
+		SetMagmaLand(1, 38, 38, 1);
+		SetFrostLand(1, 38, 36, 2);
 		SetTree(5, 5);
 		SetTree(34, 5);
 		SetTree(5, 34);
@@ -227,11 +273,22 @@ public:
 	const MapItem& Index(int x, int y) const { return m_items[x][y]; }
 	MapItem& Index(int x, int y) { return m_items[x][y]; }
 	const MapItem& GetItem(Point position) { return E_CellType::None == m_items[position.x][position.y] ? m_staticItems[position.x][position.y] : m_items[position.x][position.y]; }
+	const MapItem& GetStaticItem(Point position) { return m_staticItems[position.x][position.y]; }
 
 	static string ToString(const MapItem &item)
 	{
-		if (item.type == E_CellType::Land && item.subType == E_SubType::SubType1)
-			return "≡";
+		if (item.type == E_CellType::Land)
+		{
+			switch (item.subType)
+			{
+			case E_SubType::SubType1:
+				return "≡";
+			case E_SubType::SubType3:
+				return "≈";
+			case E_SubType::SubType4:
+				return "〓";
+			}
+		}
 		return _images[int(item.type)];
 	}
 
@@ -290,16 +347,16 @@ public:
 	bool IsBlocked(const Point &position)
 	{
 		bool isBlocked = true;
-		isBlocked &= E_CellType::None != GetItem({ position.x + 1, position.y }).type;
-		isBlocked &= E_CellType::None != GetItem({ position.x - 1, position.y }).type;
-		isBlocked &= E_CellType::None != GetItem({ position.x, position.y + 1 }).type;
-		isBlocked &= E_CellType::None != GetItem({ position.x, position.y - 1 }).type;
+		isBlocked &= !MoveAble(position.x + 1, position.y);
+		isBlocked &= !MoveAble(position.x - 1, position.y);
+		isBlocked &= !MoveAble(position.x, position.y + 1);
+		isBlocked &= !MoveAble(position.x, position.y - 1);
 		return isBlocked;
 	}
 };
-typedef MapTemplate<GAME_WIDTH + MAZE_WIDTH, GAME_HEIGHT> Map;
+typedef MapTemplate<GAME_WIDTH + MAZE_WIDTH, GAME_HEIGHT> GameMap;
 typedef MapTemplate<MAZE_WIDTH, GAME_HEIGHT> Maze;
 
-const string Map::_images[] = { "  ", "■", "☆", "◎", "¤", "※" };
-//const string Map::_images[] = { "  ", "〓", "❀", "◎", "¤", "※" };
+const string GameMap::_images[] = { "  ", "■", "☆", "◎", "¤", "※" };
+//const string GameMap::_images[] = { "  ", "〓", "❀", "◎", "¤", "※" };
 #endif

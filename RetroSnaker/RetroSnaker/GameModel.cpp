@@ -21,7 +21,7 @@ Snake::~Snake()
 	Clear();
 }
 
-void Snake::Reset(Map & map, Point position)
+void Snake::Reset(GameMap & map, Point position)
 {
 	Clear();
 	m_tail = m_head = new SnakePart(position);
@@ -40,8 +40,9 @@ void Snake::Clear()
 	m_tail = nullptr;
 }
 
-void Snake::Twinkle(Map &map, const Color & color)
+void Snake::Twinkle(GameMap &map, const Color & color)
 {
+	if (nullptr == m_head || nullptr == m_tail) return;
 	m_twinkleColor = color;
 	auto tmp = m_head->m_last;
 	while (nullptr != tmp)
@@ -51,7 +52,7 @@ void Snake::Twinkle(Map &map, const Color & color)
 	}
 }
 
-void Snake::Reverse(Map & map)
+void Snake::Reverse(GameMap & map)
 {
 	map[m_head->m_position].Set(E_CellType::Body, m_twinkleColor);
 	map[m_tail->m_position].Set(E_CellType::Head, m_twinkleColor);
@@ -68,7 +69,7 @@ void Snake::Reverse(Map & map)
 	m_tail = last;
 }
 
-void Snake::TailToHead(Map &map, Point position)
+void Snake::TailToHead(GameMap &map, Point position)
 {
 	SnakePart *newTail;
 	if (nullptr != m_tail->m_next)
@@ -96,7 +97,7 @@ void Snake::TailToHead(Map &map, Point position)
 	m_tail = newTail;
 }
 
-void Snake::ExtendHead(Map &map, Point position)
+void Snake::ExtendHead(GameMap &map, Point position)
 {
 	m_head->m_next = new SnakePart(position);
 	m_head->m_next->m_last = m_head;
@@ -105,7 +106,7 @@ void Snake::ExtendHead(Map &map, Point position)
 	map[m_head->m_position].Set(E_CellType::Head, m_twinkleColor);
 }
 
-void Snake::ExtendTail(Map & map, Point position)
+void Snake::ExtendTail(GameMap & map, Point position)
 {
 	m_tail->m_last = new SnakePart(position);
 	m_tail->m_last->m_next = m_tail;
@@ -113,13 +114,42 @@ void Snake::ExtendTail(Map & map, Point position)
 	map[m_tail->m_position].Set(E_CellType::Body, m_twinkleColor);
 }
 
-void Snake::RemoveTail(Map & map)
+bool Snake::RemoveHead(GameMap & map)
 {
+	//if (m_head == m_tail) return false;
+	auto newHead = m_head->m_last;
+	map[m_head->m_position].Set(E_CellType::None, DEFAULT_COLOR);
+	delete m_head;
+	m_head = newHead;
+	if (nullptr != m_head)
+	{
+		m_head->m_next = nullptr;
+		return true;
+	}
+	else
+	{
+		m_tail = nullptr;
+		return false;
+	}
+}
+
+bool Snake::RemoveTail(GameMap & map)
+{
+	//if (m_head == m_tail) return false;
 	auto newTail = m_tail->m_next;
 	map[m_tail->m_position].Set(E_CellType::None, DEFAULT_COLOR);
 	delete m_tail;
 	m_tail = newTail;
-	m_tail->m_last = nullptr;
+	if (nullptr != m_tail)
+	{
+		m_tail->m_last = nullptr;
+		return true;
+	}
+	else
+	{
+		m_head = nullptr;
+		return false;
+	}
 }
 
 bool Snake::Contains(Point position)

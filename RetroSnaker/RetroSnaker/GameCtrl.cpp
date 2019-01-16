@@ -6,117 +6,41 @@ using namespace std;
 
 inline bool IsKey(int vKey) { return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001; }
 
-void PlayerCtrl::Reverse()
-{
-	m_direction = GetReverseDirection(m_direction);
-	m_snake.Reverse(m_map);
-}
+#pragma region Construct & Destruct
 
-PlayerCtrl::PlayerCtrl(string name, Map &map, bool &isUpdateUI, Color color, int kUp, int kLeft, int kDown, int kRight)
+PlayerCtrl::PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, Color color, int kUp, int kLeft, int kDown, int kRight)
 	: m_name(name), m_map(map), m_isUpdateUI(isUpdateUI), m_snake(color), m_speedLevel(0), m_score(0),
-	m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight), m_timer(TimerManager::get_instance().RegisterHandler<TickTock, PlayerCtrl>(*this, 100, true))
+	m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight)
 {
 }
 
 PlayerCtrl::~PlayerCtrl()
 {
-	TimerManager::get_instance().UnregiserHandler(m_timer);
 }
 
-void PlayerCtrl::ClearBuff()
+void PlayerCtrl::Clear()
 {
+	TimerManager::get_instance().UnregiserHandler(*m_timer);
 	for (int i = 0; i < BuffCount; ++i)
 		if (nullptr != m_buffs[i])
 		{
-			m_buffs[i]->Reset();
+			m_buffs[i]->RemoveBuff();
 			m_buffs[i] = nullptr;
 		}
 }
 
 void PlayerCtrl::Reset(Point position)
 {
+	m_timer = &TimerManager::get_instance().RegisterHandler<TickTock, PlayerCtrl>(*this, 100, true);
 	m_snake.Reset(m_map, position);
 	m_alive = true;
 	m_speedLevel = 0;
 	m_direction = E_Direction::None;
 }
 
-//»ÆÂÌ×ÏºìÀ¶
-void PlayerCtrl::HandleFood(const Point& position)
-{
-	++m_speedLevel;
-	switch (m_map.GetItem(position).subType)
-	{
-	case E_SubType::SubType0:
-		m_snake.ExtendHead(m_map, position);
-		++m_speedLevel;
-		break;
-	case E_SubType::SubType1:
-		m_snake.TailToHead(m_map, position);
-		Point tail = m_enemy->m_snake.get_tailPosition();
-		if (!m_enemy->MoveByPosition())
-			m_enemy->m_snake.ExtendTail(m_map, tail);
-		break;
-	case E_SubType::SubType2:
-		m_snake.TailToHead(m_map, position);
-		m_snake.RemoveTail(m_map);
-		break;
-	case E_SubType::SubType3:
-		m_snake.ExtendHead(m_map, position);
-		m_speedLevel += 25;
-		break;
-	case E_SubType::SubType4:
-		m_snake.ExtendHead(m_map, position);
-		m_enemy->m_speedLevel -= 15;
-		break;
-	case E_SubType::SubType5:
-		m_snake.ExtendHead(m_map, position);
-		m_enemy->Reverse();
-		break;
-	case E_SubType::SubType6:
-		m_snake.TailToHead(m_map, position);
-		TimerManager::get_instance().RegisterHandler<UnstoppableBuff>(*this, 15);
-		break;
-	case E_SubType::SubType7:
-		m_snake.TailToHead(m_map, position);
-		TimerManager::get_instance().RegisterHandler<IncontrollableBuff>(*m_enemy, 5);
-		break;
-	case E_SubType::SubType8:
-		m_snake.ExtendHead(m_map, position);
-		break;
-	default:
-		break;
-	}
-}
+#pragma endregion
 
-void PlayerCtrl::HandleTerrain(const Point& position)
-{
-	switch (m_map.GetItem(position).subType)
-	{
-	case E_SubType::SubType0:
-		set_Alive(false);
-		break;
-	case E_SubType::SubType1:
-		m_snake.TailToHead(m_map, position);
-		break;
-	case E_SubType::SubType2:
-		break;
-	case E_SubType::SubType3:
-		break;
-	case E_SubType::SubType4:
-		break;
-	case E_SubType::SubType5:
-		break;
-	case E_SubType::SubType6:
-		break;
-	case E_SubType::SubType7:
-		break;
-	case E_SubType::SubType8:
-		break;
-	default:
-		break;
-	}
-}
+#pragma region Process Methods
 
 void PlayerCtrl::UpdateDirection()
 {
@@ -147,13 +71,9 @@ bool PlayerCtrl::MoveByPosition(const Point &position)
 {
 	auto type = m_map.GetItem(position).type;
 	if (type == E_CellType::None || position == m_snake.get_tailPosition())
-	{
 		m_snake.TailToHead(m_map, position);
-	}
 	else if (type == E_CellType::Land)
-	{
 		HandleTerrain(position);
-	}
 	else if (type == E_CellType::Food)
 	{
 		HandleFood(position);
@@ -166,59 +86,140 @@ bool PlayerCtrl::MoveByPosition(const Point &position)
 		m_enemy->set_Alive(false);
 	}
 	else if (type == E_CellType::Jump)
-	{
 		return MoveByPosition(GetPositionByDirection(m_map[position].jumpPoint, m_direction));
-	}
 	else
 		set_Alive(false);
 	return false;
 }
 
-void PlayerCtrl::Process()
+//»ÆÂÌ×ÏºìÀ¶
+void PlayerCtrl::HandleFood(const Point& position)
 {
-	m_timer.Reset(clock_t(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel)));
-	UpdateDirection();
-	if (!MoveByPosition()) return;
-	m_map.GenerateRandomFood();
-	m_isUpdateUI = true;
+	++m_speedLevel;
+	switch (m_map.GetItem(position).subType)
+	{
+	case E_SubType::SubType0:
+		m_snake.ExtendHead(m_map, position);
+		++m_speedLevel;
+		break;
+	case E_SubType::SubType1:
+		m_snake.TailToHead(m_map, position);
+		Point tail = m_enemy->m_snake.get_tailPosition();
+		if (!m_enemy->MoveByPosition())
+			m_enemy->m_snake.ExtendTail(m_map, tail);
+		break;
+	case E_SubType::SubType2:
+		m_snake.TailToHead(m_map, position);
+		m_snake.RemoveTail(m_map);
+		break;
+	case E_SubType::SubType3:
+		m_snake.ExtendHead(m_map, position);
+		m_speedLevel += 15;
+		break;
+	case E_SubType::SubType4:
+		m_snake.ExtendHead(m_map, position);
+		m_enemy->m_speedLevel -= 10;
+		break;
+	case E_SubType::SubType5:
+		m_snake.ExtendHead(m_map, position);
+		m_enemy->Reverse();
+		break;
+	case E_SubType::SubType6:
+		m_snake.TailToHead(m_map, position);
+		TimerManager::get_instance().RegisterHandler<UnstoppableBuff>(*this, 15);
+		break;
+	case E_SubType::SubType7:
+		m_snake.TailToHead(m_map, position);
+		TimerManager::get_instance().RegisterHandler<IncontrollableBuff>(*m_enemy, 5);
+		break;
+	case E_SubType::SubType8:
+		m_snake.ExtendHead(m_map, position);
+		break;
+	default:
+		break;
+	}
 }
 
-//PlayerCtrl::PlayerBuff::PlayerBuff(PlayerCtrl & player, int clockSecond) : m_player(player), TimerManager::handler(1000, true), m_clockSecond(clockSecond)
-//{
-//	if (nullptr != m_player.m_buffs[int(this->Type())])
-//	{
-//		m_player.m_buffs[int(this->Type())]->Copy(this);
-//		StopTimer();
-//	}
-//}
-//
-//PlayerCtrl::PlayerBuff::~PlayerBuff()
-//{
-//	if (m_player.m_buffs[int(this->Type())] == this)
-//		m_player.m_buffs[int(this->Type())] = nullptr;
-//}
-
-PlayerCtrl::PlayerBuff::PlayerBuff(PlayerCtrl & player, int clockSecond)
-	: m_player(player), TimerManager::handler(200, true), m_clockSecond(clockSecond), m_tickCount(0), m_playerColor(player.get_Color().fore)
+void PlayerCtrl::HandleTerrain(const Point& position)
 {
+	auto item = m_map.GetItem(position);
+	switch (item.subType)
+	{
+	case E_SubType::SubType0:
+		set_Alive(false);
+		break;
+	case E_SubType::SubType1:
+		m_snake.TailToHead(m_map, position);
+		break;
+	case E_SubType::SubType2:
+		break;
+	case E_SubType::SubType3:
+		if (!m_snake.RemoveTail(m_map))
+			m_alive = false;
+		break;
+	case E_SubType::SubType4:
+		m_snake.TailToHead(m_map, position);
+		TimerManager::get_instance().RegisterHandler<SlippageBuff>(*this, 2);
+		break;
+	case E_SubType::SubType5:
+		break;
+	case E_SubType::SubType6:
+		break;
+	case E_SubType::SubType7:
+		break;
+	case E_SubType::SubType8:
+		break;
+	default:
+		break;
+	}
+}
+
+void PlayerCtrl::Reverse()
+{
+	m_direction = GetReverseDirection(m_direction);
+	m_snake.Reverse(m_map);
+}
+
+void PlayerCtrl::ToNextDeathAnimation()
+{
+}
+
+#pragma endregion
+
+#pragma region Player Buffs
+
+PlayerCtrl::PlayerBuff::PlayerBuff(PlayerCtrl & player, int clockSecond, E_BuffType type)
+	: m_player(player), TimerManager::handler(200, true), m_clockSecond(clockSecond), m_tickCount(0),
+	m_type(type), m_isAppend(true), m_playerColor(player.get_Color().fore)
+{
+	if (nullptr != m_player.m_buffs[int(m_type)])
+	{
+		m_player.m_buffs[int(m_type)]->Copy(this);
+		StopTimer();
+		m_isAppend = false;
+	}
+	else
+		m_player.m_buffs[int(m_type)] = this;
 }
 
 PlayerCtrl::PlayerBuff::~PlayerBuff()
 {
 	m_player.set_Color({ m_playerColor, DEFAULT_BACK_COLOR });
+	if (m_player.m_buffs[int(m_type)] == this)
+		m_player.m_buffs[int(m_type)] = nullptr;
 }
 
 void PlayerCtrl::PlayerBuff::Invoke()
 {
 	++m_tickCount;
 	if (m_tickCount % 3 == 0)
-		m_player.set_Color({ Type() == E_BuffType::Unstoppable ? E_Color::LYellow : E_Color::Green, DEFAULT_BACK_COLOR });
+		m_player.set_Color({ ShiningColour(), DEFAULT_BACK_COLOR });
 	if (m_tickCount < 5) return;
 	m_tickCount -= 5;
 	m_player.set_Color({ m_playerColor, DEFAULT_BACK_COLOR });
 
 	if (--m_clockSecond < 0)
-		Reset();
+		RemoveBuff();
 	m_player.m_isUpdateUI = true;
 }
 
@@ -233,50 +234,33 @@ int PlayerCtrl::PlayerBuff::RemainSecond() const
 	return m_clockSecond;
 }
 
-void PlayerCtrl::PlayerBuff::Reset()
+void PlayerCtrl::PlayerBuff::RemoveBuff()
 {
 	StopTimer();
 }
 
-PlayerCtrl::UnstoppableBuff::UnstoppableBuff(PlayerCtrl & player, int clockSecond) : PlayerBuff(player, clockSecond)
+PlayerCtrl::UnstoppableBuff::UnstoppableBuff(PlayerCtrl & player, int clockSecond) : PlayerBuff(player, clockSecond, E_BuffType::Unstoppable)
 {
-	if (nullptr != m_player.m_buffs[int(this->Type())])
+	if (m_isAppend)
 	{
-		m_player.m_buffs[int(this->Type())]->Copy(this);
-		StopTimer();
-	}
-	else
-	{
-		m_player.m_buffs[int(this->Type())] = this;
 		m_player.m_unstoppable = true;
-		m_player.m_speedLevel += 50;
+		m_player.m_speedLevel += 20;
 	}
 }
 
-PlayerCtrl::UnstoppableBuff::~UnstoppableBuff()
+void PlayerCtrl::UnstoppableBuff::RemoveBuff()
 {
-	if (m_player.m_buffs[int(this->Type())] == this)
-		m_player.m_buffs[int(this->Type())] = nullptr;
-}
-
-void PlayerCtrl::UnstoppableBuff::Reset()
-{
-	PlayerBuff::Reset();
+	PlayerBuff::RemoveBuff();
 	m_player.m_unstoppable = !m_player.m_unstoppable;
-	m_player.m_speedLevel -= 50;
+	m_player.m_speedLevel -= 20;
 }
 
 PlayerCtrl::IncontrollableBuff::IncontrollableBuff(PlayerCtrl & player, int clockSecond)
-	: PlayerBuff(player, clockSecond), m_kUp(m_player.m_kUp), m_kLeft(m_player.m_kLeft), m_kDown(m_player.m_kDown), m_kRight(m_player.m_kRight)
+	: PlayerBuff(player, clockSecond, E_BuffType::Incontrollable),
+	m_kUp(m_player.m_kUp), m_kLeft(m_player.m_kLeft), m_kDown(m_player.m_kDown), m_kRight(m_player.m_kRight)
 {
-	if (nullptr != m_player.m_buffs[int(this->Type())])
+	if (m_isAppend)
 	{
-		m_player.m_buffs[int(this->Type())]->Copy(this);
-		StopTimer();
-	}
-	else
-	{
-		m_player.m_buffs[int(this->Type())] = this;
 		//m_player.m_kUp = m_player.m_kLeft = m_player.m_kDown = m_player.m_kRight = 0;
 		m_player.m_kUp = m_kDown;
 		m_player.m_kLeft = m_kRight;
@@ -285,17 +269,35 @@ PlayerCtrl::IncontrollableBuff::IncontrollableBuff(PlayerCtrl & player, int cloc
 	}
 }
 
-PlayerCtrl::IncontrollableBuff::~IncontrollableBuff()
+void PlayerCtrl::IncontrollableBuff::RemoveBuff()
 {
-	if (m_player.m_buffs[int(this->Type())] == this)
-		m_player.m_buffs[int(this->Type())] = nullptr;
-}
-
-void PlayerCtrl::IncontrollableBuff::Reset()
-{
-	PlayerBuff::Reset();
+	PlayerBuff::RemoveBuff();
 	m_player.m_kUp = m_kUp;
 	m_player.m_kLeft = m_kLeft;
 	m_player.m_kDown = m_kDown;
 	m_player.m_kRight = m_kRight;
+}
+
+PlayerCtrl::SlippageBuff::SlippageBuff(PlayerCtrl & player, int clockSecond) : PlayerBuff(player, clockSecond, E_BuffType::Slippage)
+{
+	if (m_isAppend)
+		m_player.m_speedLevel += 80;
+}
+
+void PlayerCtrl::SlippageBuff::RemoveBuff()
+{
+	PlayerBuff::RemoveBuff();
+	m_player.m_speedLevel -= 80;
+}
+
+#pragma endregion
+
+void PlayerCtrl::Process()
+{
+	m_timer->Reset(clock_t(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel)));
+	if (!m_alive) return;
+	UpdateDirection();
+	if (!MoveByPosition()) return;
+	m_map.GenerateRandomFood();
+	m_isUpdateUI = true;
 }

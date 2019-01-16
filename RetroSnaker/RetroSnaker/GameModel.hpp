@@ -30,18 +30,19 @@ public:
 	Snake(Snake &&snake);
 	~Snake();
 
-	void Reset(Map &map, Point position);
+	void Reset(GameMap &map, Point position);
 	void Clear();
 
 	Point get_headPosition() const { return m_head->m_position; }
 	Point get_tailPosition() const { return m_tail->m_position; }
 	Color get_color() const { return m_color; }
-	void Twinkle(Map &map, const Color &color);
-	void Reverse(Map &map);
-	void TailToHead(Map &map, Point position);
-	void ExtendHead(Map &map, Point position);
-	void ExtendTail(Map &map, Point position);
-	void RemoveTail(Map &map);
+	void Twinkle(GameMap &map, const Color &color);
+	void Reverse(GameMap &map);
+	void TailToHead(GameMap &map, Point position);
+	void ExtendHead(GameMap &map, Point position);
+	void ExtendTail(GameMap &map, Point position);
+	bool RemoveHead(GameMap &map);
+	bool RemoveTail(GameMap &map);
 	bool Contains(Point position);
 };
 

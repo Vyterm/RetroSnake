@@ -42,6 +42,9 @@
     <ClCompile Include="GameTimer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="GameEditor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp">
@@ -72,6 +75,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GameColor.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEditor.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

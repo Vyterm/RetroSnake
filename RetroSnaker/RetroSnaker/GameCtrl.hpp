@@ -11,14 +11,15 @@
 using std::string;
 
 constexpr auto SPEED_DELTA = 50;
-constexpr auto ACCELERATING_FACTOR = 0.995;
+constexpr auto ACCELERATING_FACTOR = 0.996;
 
 enum class E_BuffType
 {
 	Unstoppable,
 	Incontrollable,
+	Slippage,
 };
-static constexpr auto BuffCount = 2;
+static constexpr auto BuffCount = 3;
 class DirectionCtrl
 {
 protected:
@@ -31,74 +32,21 @@ public:
 
 class PlayerCtrl : public virtual DirectionCtrl
 {
+private:
+	#pragma region Fields
+
 	int m_kUp, m_kLeft, m_kDown, m_kRight;
 	int m_speedLevel, m_score;
 	string m_name;
-	Map &m_map;
+	GameMap &m_map;
 	bool &m_isUpdateUI;
 	Snake m_snake;
-	bool m_alive = true, m_unstoppable = false;
+	bool m_alive = true, m_indeath = true, m_unstoppable = false;
 	PlayerCtrl *m_enemy = nullptr;
-	void HandleFood(const Point& position);
-	void HandleTerrain(const Point& position);
-	TimerManager::handler &m_timer;
 
-	class TickTock : public TimerManager::handler
-	{
-		PlayerCtrl &m_player;
-	public:
-		TickTock(PlayerCtrl &player, clock_t tickTime, bool isLoop) : TimerManager::handler(tickTime, isLoop), m_player(player) { }
-		void Invoke() { m_player.Process(); }
-	};
-
-	class PlayerBuff : public TimerManager::handler
-	{
-		int m_clockSecond;
-		int m_tickCount;
-		E_Color m_playerColor;
-	protected:
-		PlayerCtrl &m_player;
-		PlayerBuff(PlayerCtrl &player, int clockSecond);
-		virtual ~PlayerBuff();
-		virtual void Invoke();
-		virtual E_BuffType Type() const = NULL;
-		//virtual Color Color() const = NULL;
-		//virtual E_BuffType Type() const { return E_BuffType(-1); }
-	public:
-		virtual void Copy(const PlayerBuff *buff);
-		int RemainSecond() const;
-		virtual void Reset();
-	};
-	PlayerBuff *m_buffs[BuffCount];
-	class UnstoppableBuff : public PlayerBuff
-	{
-	public:
-		UnstoppableBuff(PlayerCtrl &player, int clockSecond);
-		~UnstoppableBuff();
-		E_BuffType Type() const { return E_BuffType::Unstoppable; }
-		virtual void Reset() override;
-	};
-	class IncontrollableBuff : public PlayerBuff
-	{
-		int m_kUp, m_kLeft, m_kDown, m_kRight;
-	public:
-		IncontrollableBuff(PlayerCtrl &player, int clockSecond);
-		~IncontrollableBuff();
-		E_BuffType Type() const { return E_BuffType::Incontrollable; }
-		virtual void Reset() override;
-	};
-	void Reverse();
+	#pragma endregion
 public:
-	PlayerCtrl(string name, Map &map, bool &isUpdateUI, Color color, int kUp, int kLeft, int kDown, int kRight);
-	~PlayerCtrl();
-
-	void ClearBuff();
-	void Reset(Point position);
-
-	void UpdateDirection();
-	bool MoveByPosition();
-	bool MoveByPosition(const Point &position);
-	void Process() override;
+	#pragma region Properties
 
 	int get_Speed() const { return int(SPEED_DELTA / pow(ACCELERATING_FACTOR, m_speedLevel)); }
 
@@ -122,6 +70,92 @@ public:
 	bool IsAlive() const { return m_alive; }
 
 	void SetEnemy(PlayerCtrl &enemy) { m_enemy = &enemy; }
+
+	#pragma endregion
+
+private:
+	#pragma region Process Methods
+
+	#pragma region Process Timer
+
+	TimerManager::handler *m_timer;
+
+	class TickTock : public TimerManager::handler
+	{
+		PlayerCtrl &m_player;
+	public:
+		TickTock(PlayerCtrl &player, clock_t tickTime, bool isLoop) : TimerManager::handler(tickTime, isLoop), m_player(player) { }
+		void Invoke() { m_player.Process(); }
+	};
+
+	#pragma endregion
+
+	void UpdateDirection();
+	bool MoveByPosition();
+	bool MoveByPosition(const Point &position);
+
+	void HandleFood(const Point& position);
+	void HandleTerrain(const Point& position);
+
+	void Reverse();
+
+	void ToNextDeathAnimation();
+
+	#pragma endregion
+
+	#pragma region Player Buffs
+
+	class PlayerBuff : public TimerManager::handler
+	{
+		int m_clockSecond;
+		int m_tickCount;
+		E_Color m_playerColor;
+		E_BuffType m_type;
+	protected:
+		PlayerCtrl &m_player;
+		bool m_isAppend;
+		PlayerBuff(PlayerCtrl &player, int clockSecond, E_BuffType type);
+		virtual ~PlayerBuff();
+		virtual E_Color ShiningColour() const { return m_playerColor; }
+		virtual void Invoke();
+	public:
+		virtual void Copy(const PlayerBuff *buff);
+		int RemainSecond() const;
+		virtual void RemoveBuff();
+	};
+	PlayerBuff *m_buffs[BuffCount];
+	class UnstoppableBuff : public PlayerBuff
+	{
+	public:
+		UnstoppableBuff(PlayerCtrl &player, int clockSecond);
+		E_Color ShiningColour() const { return E_Color::LYellow; }
+		virtual void RemoveBuff() override;
+	};
+	class IncontrollableBuff : public PlayerBuff
+	{
+		int m_kUp, m_kLeft, m_kDown, m_kRight;
+	public:
+		IncontrollableBuff(PlayerCtrl &player, int clockSecond);
+		E_Color ShiningColour() const { return E_Color::Green; }
+		virtual void RemoveBuff() override;
+	};
+	class SlippageBuff : public PlayerBuff
+	{
+	public:
+		SlippageBuff(PlayerCtrl &player, int clockSecond);
+		virtual void RemoveBuff() override;
+	};
+
+	#pragma endregion
+
+public:
+	PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, Color color, int kUp, int kLeft, int kDown, int kRight);
+	~PlayerCtrl();
+
+	void Clear();
+	void Reset(Point position);
+
+	void Process() override;
 };
 
 #endif

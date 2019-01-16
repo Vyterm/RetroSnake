@@ -18,7 +18,12 @@ static constexpr auto GAME_MSG_E_INDEXY = MSG_HEIGHT;
 static constexpr auto GAME_MSG_S_INDEXX = GAME_WIDTH + 1;
 static constexpr auto GAME_MSG_E_INDEXX = GAME_WIDTH + MAZE_WIDTH - 1;
 
-inline void DrawBorder(int posXS, int posXE, int posYS, int posYE, Map *map = nullptr)
+inline bool IsKeyDown(int vKey)
+{
+	return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001;
+}
+
+void DrawBorder(int posXS, int posXE, int posYS, int posYE)
 {
 	for (int ri = posYS; ri <= posYE; ++ri)
 	{
@@ -26,8 +31,83 @@ inline void DrawBorder(int posXS, int posXE, int posYS, int posYE, Map *map = nu
 		for (int ci = posXS; ci <= posXE; ++ci)
 		{
 			E_CellType cellType = (ri == posYS || ri == posYE || ci == posXS || ci == posXE) ? E_CellType::Land : E_CellType::None;
-			cout << Map::ToString({ cellType });
+			cout << GameMap::ToString({ cellType });
 		}
+	}
+}
+
+void DrawHollowBorder(int posXS, int posXE, int posYS, int posYE)
+{
+	string cellString = GameMap::ToString({ E_CellType::Land });
+	SetPosition(posXS, posYS);
+	for (int ci = posXS; ci <= posXE; ++ci)
+		cout << cellString;
+	SetPosition(posXS, posYE);
+	for (int ci = posXS; ci <= posXE; ++ci)
+		cout << cellString;
+	for (int ri = posYS + 1; ri < posYE; ++ri)
+	{
+		SetPosition(posXS, ri);
+		cout << cellString;
+		SetPosition(posXE, ri);
+		cout << cellString;
+	}
+}
+
+void UnfinishedSurface(int x, int y, DWORD millseconds, string text)
+{
+	SetColor(DEFAULT_COLOR);
+	system("cls");
+	SetPosition(x, y);
+	cout << text;
+	Sleep(millseconds);
+	while (!IsKeyDown(VK_RETURN))
+		continue;
+}
+
+void StartSurface(size_t &selectIndex)
+{
+	Msgs msgs = {
+		{"单人游戏"},
+		{"双人游戏"},
+		{"游戏设置"},
+		{"地图编辑器"},
+		{"退出游戏"}
+	};
+	SetColor(DEFAULT_COLOR);
+	system("cls");
+	DrawHollowBorder(0, 59, 0, 3);
+	DrawHollowBorder(0, 59, 3, 40);
+	SetPosition(21, 1);
+	SetColor({ E_Color::LCyan, DEFAULT_BACK_COLOR });
+	cout << GAME_NAME;
+	SetPosition(27, 2);
+	SetColor({ E_Color::LWhite, DEFAULT_BACK_COLOR });
+	cout << GAME_VERSION;
+	for (size_t i = 0; i < msgs.size(); ++i)
+	{
+		SetPosition(28, 20 + i);
+		cout << msgs[i];
+	}
+	bool isUpdateUI = true;
+	size_t minIndex = 0, maxIndex = msgs.size() - 1;
+	while (!IsKeyDown(VK_RETURN))
+	{
+		if (isUpdateUI)
+		{
+			for (size_t i = 0; i < msgs.size(); ++i)
+			{
+				SetPosition(25, 20 + i);
+				cout << (i == selectIndex ? "→_→" : "     ");
+			}
+		}
+		isUpdateUI = true;
+		if (IsKeyDown(VK_UP) || IsKeyDown('W'))
+			selectIndex = selectIndex == minIndex ? maxIndex : --selectIndex;
+		else if (IsKeyDown(VK_DOWN) || IsKeyDown('S'))
+			selectIndex = selectIndex == maxIndex ? minIndex : ++selectIndex;
+		else
+			isUpdateUI = false;
 	}
 }
 
@@ -52,7 +132,7 @@ void ShowMsg(Msgs && msgs)
 	{
 		if (++ri >= (GAME_MSG_E_INDEXY - 1))
 			break;
-		int ci = GAME_MSG_S_INDEXX + (GAME_MSG_E_INDEXX - GAME_MSG_S_INDEXX - msg.size()/2) / 2;
+		int ci = GAME_MSG_S_INDEXX + (GAME_MSG_E_INDEXX - GAME_MSG_S_INDEXX - msg.size() / 2) / 2;
 		SetPosition(ci, ri);
 		cout << msg;
 	}
