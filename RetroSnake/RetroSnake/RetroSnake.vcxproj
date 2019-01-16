@@ -21,8 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B62FC9C3-E896-4387-AEDB-BC14E8C8DCE5}</ProjectGuid>
-    <RootNamespace>RetroSnaker</RootNamespace>
+    <RootNamespace>RetroSnake</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>RetroSnake</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
