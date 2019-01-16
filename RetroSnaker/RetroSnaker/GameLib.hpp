@@ -16,9 +16,9 @@
 #include <Windows.h>
 #include <time.h>
 
-constexpr auto WIN_HEIGHT = 62;
-constexpr auto WIN_WIDTH = 82;
-constexpr auto GAME_HEIGHT = 60;
+constexpr auto WIN_HEIGHT = 42;
+constexpr auto WIN_WIDTH = 122;
+constexpr auto GAME_HEIGHT = 40;
 constexpr auto GAME_WIDTH = 80;
 
  /* 设置控制台窗口标题 */

@@ -11,7 +11,10 @@ enum class E_MapItem
 };
 struct Point
 {
+public:
 	int x, y;
+	bool operator==(const Point &rhs) const { return x == rhs.x && y == rhs.y; }
+	bool operator!=(const Point &rhs) const { return x != rhs.x || y != rhs.y; }
 };
 struct Color
 {
@@ -49,11 +52,11 @@ typedef MapTemplate<GAME_WIDTH, GAME_HEIGHT> Map;
 
 enum class E_Direction
 {
-	None,
-	Left,
-	Right,
-	Up,
-	Down,
+	None  =  0,
+	Left  =  1,
+	Right = -1,
+	Up    =  2,
+	Down  = -2,
 };
 
 enum class E_MoveState
@@ -78,6 +81,11 @@ class Snake
 	Color m_color;
 public:
 	Snake(Point position, Color color) : m_head(new SnakePart(position)), m_color(color) { }
+	Snake(Map &map, Point position, Color color) : m_head(new SnakePart(position)), m_color(color)
+	{
+		map[position] = E_MapItem::Head;
+		map.ColorIndex(position) = color;
+	}
 	Snake(Snake &&snake)
 	{
 		if (this == &snake) return;
@@ -95,7 +103,37 @@ public:
 			delete tmp;
 		}
 	}
+	Point get_headPosition() const { return m_head->m_position; }
+	Point get_tailPosition() const {
+		auto tail = m_head;
+		while (nullptr != tail->m_last)
+			tail = tail->m_last;
+		return tail->m_position;
+	}
 	E_Direction get_direction() const { return m_direction; }
 	void set_direction(E_Direction direction) { m_direction = direction; }
 	E_MoveState MoveByDirection(Map &m_map);
 };
+
+inline Point GetPositionByDirection(Point startPos, E_Direction direction)
+{
+	switch (direction)
+	{
+	case E_Direction::Left:
+		startPos.x -= 1;
+		break;
+	case E_Direction::Right:
+		startPos.x += 1;
+		break;
+	case E_Direction::Up:
+		startPos.y -= 1;
+		break;
+	case E_Direction::Down:
+		startPos.y += 1;
+		break;
+	case E_Direction::None:
+	default:
+		break;
+	}
+	return startPos;
+}

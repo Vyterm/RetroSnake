@@ -2,35 +2,12 @@
 
 const Color Map::DefaultColor = { 7,0 };
 
-inline Point GetPositionByDirection(Point startPos, E_Direction direction)
-{
-	switch (direction)
-	{
-	case E_Direction::Left:
-		startPos.x -= 1;
-		break;
-	case E_Direction::Right:
-		startPos.x += 1;
-		break;
-	case E_Direction::Up:
-		startPos.y -= 1;
-		break;
-	case E_Direction::Down:
-		startPos.y += 1;
-		break;
-	case E_Direction::None:
-	default:
-		break;
-	}
-	return startPos;
-}
-
 E_MoveState Snake::MoveByDirection(Map &map)
 {
 	if (E_Direction::None == m_direction)
 		return E_MoveState::Done;
 	auto tmpPoint = GetPositionByDirection(m_head->m_position, m_direction);
-	if (map[tmpPoint] == E_MapItem::None)
+	if (map[tmpPoint] == E_MapItem::None || tmpPoint == get_tailPosition())
 	{
 		auto tail = m_head;
 		while (nullptr != tail->m_last)

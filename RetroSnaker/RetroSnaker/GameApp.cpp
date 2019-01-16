@@ -2,6 +2,7 @@
 #include "GameLib.hpp"
 #include "GameSurface.hpp"
 #include "GameModel.hpp"
+#include "GameCtrl.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -10,6 +11,7 @@
 #include <Windows.h>
 #include <conio.h>
 #include <time.h>
+#include <math.h>
 
 using std::cout;
 using std::cin;
@@ -52,17 +54,9 @@ inline bool GenerateRandomFood(Map &map)
 }
 static bool G_IsGameOver = false;
 
-inline Snake CreateSnake(Map &map, Point point, Color color)
+inline void ProcessSnake(Map &map, E_MoveState moveState, int &eatFoodCount)
 {
-	Snake snake(point, color);
-	map[point] = E_MapItem::Head;
-	map.ColorIndex(point) = color;
-	return snake;
-}
-
-inline void ProcessSnake(Map &map, Snake &snake, int &eatFoodCount)
-{
-	switch (snake.MoveByDirection(map))
+	switch (moveState)
 	{
 	case E_MoveState::Over:
 		OverSurface(false);
@@ -86,18 +80,22 @@ void Game()
 {
 	Map map;
 	InitSurface(map);
-	Snake snake1 = CreateSnake(map, { 40,30 }, { 10,0 });
-	Snake snake2 = CreateSnake(map, { 30,30 }, { 9,0 });
+	PlayerCtrl player1(map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 10,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
+	PlayerCtrl player2(map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 9, 0 }, 'W', 'A', 'S', 'D');
+	//Snake snake1(map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 10,0 });
+	//Snake snake2(map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 9,0 });
 	int eatFoodCount = 0;
 	GenerateRandomFood(map);
 	while (!G_IsGameOver)
 	{
 		DrawMap(map);
-		Sleep(100 - eatFoodCount/5);
-		snake1.set_direction(GetInputDirection(snake1.get_direction()));
-		ProcessSnake(map, snake1, eatFoodCount);
-		snake2.set_direction(GetInputDirection(snake2.get_direction(), 'A', 'D', 'W', 'S'));
-		ProcessSnake(map, snake2, eatFoodCount);
+		Sleep(200 * pow(0.98, eatFoodCount));
+		//snake1.set_direction(GetInputDirection(snake1.get_direction()));
+		//ProcessSnake(map, snake1, eatFoodCount);
+		//snake2.set_direction(GetInputDirection(snake2.get_direction(), 'A', 'D', 'W', 'S'));
+		//ProcessSnake(map, snake2, eatFoodCount);
+		ProcessSnake(map, player1.Process(), eatFoodCount);
+		ProcessSnake(map, player2.Process(), eatFoodCount);
 	}
 }
 
@@ -116,6 +114,9 @@ int main()
 		while ('q' != c && 'r' != c)
 			c = _getch();
 	}
+	//for (int i = 0; i < 50; ++i)
+	//	cout << "Level " << i << " Speed:" << int(200 * pow(0.98, i)) << endl;
+	//cin.get();
 
 	return 0;
 }
