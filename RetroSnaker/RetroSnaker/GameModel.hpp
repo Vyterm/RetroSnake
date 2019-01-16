@@ -8,6 +8,8 @@ enum class E_CellType
 	Food = 2,
 	Head = 3,
 	Body = 4,
+	Jump = 5,
+	Exit = 6,
 };
 struct Point
 {
@@ -16,10 +18,10 @@ public:
 	bool operator==(const Point &rhs) const { return x == rhs.x && y == rhs.y; }
 	bool operator!=(const Point &rhs) const { return x != rhs.x || y != rhs.y; }
 };
+/* 0-黑色, 1-蓝色,   2-绿色,      3-浅绿色,     4-红色,   5-紫色,   6-黄色,   7-白色,
+ * 8-灰色, 9-淡蓝色, 10-淡绿色,   11-淡浅绿色   12-淡红色 13-淡紫色 14-淡黄色 15-亮白色*/
 struct Color
 {
-	/* 0-黑色, 1-蓝色,   2-绿色,      3-浅绿色,     4-红色,   5-紫色,   6-黄色,   7-白色,
-	 * 8-灰色, 9-淡蓝色, 10-淡绿色,   11-淡浅绿色   12-淡红色 13-淡紫色 14-淡黄色 15-亮白色*/
 	int fore, back;
 };
 
@@ -28,8 +30,9 @@ class MapTemplate
 {
 	struct MapItem
 	{
-		E_CellType type;
+		E_CellType type = E_CellType::None;
 		Color color = Map::DefaultColor;
+		Point JumpPoint = { -1, -1 };
 	};
 	MapItem m_items[Width][Height];
 public:
@@ -50,7 +53,7 @@ public:
 	 * 8-灰色, 9-淡蓝色, 10-淡绿色,   11-淡浅绿色   12-淡红色 13-淡紫色 14-淡黄色 15-亮白色*/
 	Color &ColorIndex(int x, int y) { return m_items[x][y].color; }
 };
-typedef MapTemplate<GAME_WIDTH, GAME_HEIGHT> Map;
+typedef MapTemplate<GAME_WIDTH + MAZE_WIDTH, GAME_HEIGHT + MAZE_HEIGHT> Map;
 
 enum class E_Direction
 {
@@ -82,6 +85,7 @@ class Snake
 	SnakePart *m_head, *m_tail;
 	E_Direction m_direction;
 	Color m_color;
+	void TailToHead(Map &map, Point position);
 public:
 	Snake(Map &map, Point position, Color color) : m_head(new SnakePart(position)), m_tail(m_head), m_color(color)
 	{

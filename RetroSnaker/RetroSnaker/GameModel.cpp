@@ -2,6 +2,38 @@
 
 const Color Map::DefaultColor = { 7,0 };
 
+
+void Snake::TailToHead(Map &map, Point position)
+{
+	SnakePart *newTail;
+	if (nullptr != m_tail->m_next)
+	{
+		newTail = m_tail->m_next;
+		m_tail->m_next->m_last = nullptr;
+		m_tail->m_next = nullptr;
+	}
+	else if (m_tail == m_head)
+	{
+		newTail = m_head;
+		m_head->m_next = new SnakePart(position);
+		m_tail = m_head->m_next;
+	}
+	else
+		throw "Bad tail";
+	m_tail->m_last = m_head;
+	m_head->m_next = m_tail;
+
+	map.Index(m_tail->m_position) = E_CellType::None;
+	map.ColorIndex(m_tail->m_position) = Map::DefaultColor;
+	map.Index(m_head->m_position) = E_CellType::Body;
+	map.ColorIndex(m_head->m_position) = m_color;
+	m_tail->m_position = position;
+	map.Index(m_tail->m_position) = E_CellType::Head;
+	map.ColorIndex(m_tail->m_position) = m_color;
+	m_head = m_tail;
+	m_tail = newTail;
+}
+
 E_MoveState Snake::MoveByDirection(Map &map)
 {
 	if (E_Direction::None == m_direction)
@@ -9,33 +41,7 @@ E_MoveState Snake::MoveByDirection(Map &map)
 	auto tmpPoint = GetPositionByDirection(m_head->m_position, m_direction);
 	if (map.Index(tmpPoint) == E_CellType::None || tmpPoint == get_tailPosition())
 	{
-		SnakePart *newTail;
-		if (nullptr != m_tail->m_next)
-		{
-			newTail = m_tail->m_next;
-			m_tail->m_next->m_last = nullptr;
-			m_tail->m_next = nullptr;
-		}
-		else if (m_tail == m_head)
-		{
-			newTail = m_head;
-			m_head->m_next = new SnakePart(tmpPoint);
-			m_tail = m_head->m_next;
-		}
-		else
-			throw "Bad tail";
-		m_tail->m_last = m_head;
-		m_head->m_next = m_tail;
-
-		map.Index(m_tail->m_position) = E_CellType::None;
-		map.ColorIndex(m_tail->m_position) = Map::DefaultColor;
-		map.Index(m_head->m_position) = E_CellType::Body;
-		map.ColorIndex(m_head->m_position) = m_color;
-		m_tail->m_position = tmpPoint;
-		map.Index(m_tail->m_position) = E_CellType::Head;
-		map.ColorIndex(m_tail->m_position) = m_color;
-		m_head = m_tail;
-		m_tail = newTail;
+		TailToHead(map, tmpPoint);
 		return E_MoveState::Done;
 	}
 	else if (map.Index(tmpPoint) == E_CellType::Food)
@@ -59,6 +65,11 @@ E_MoveState Snake::MoveByDirection(Map &map)
 			tmpBody = tmpBody->m_last;
 		}
 		return E_MoveState::Kill;
+	}
+	else if (map.Index(tmpPoint) == E_CellType::Jump || map.Index(tmpPoint) == E_CellType::Exit)
+	{
+		TailToHead(map, map[tmpPoint].JumpPoint);
+		return E_MoveState::Done;
 	}
 	else
 		return E_MoveState::Over;

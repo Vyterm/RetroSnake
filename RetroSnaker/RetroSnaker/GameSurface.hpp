@@ -7,7 +7,7 @@
 using std::string;
 using Msgs = std::vector<string>;
 
-const char MapItems[5] = { ' ', '#', 'a', '@', 'O' };
+const char MapItems[] = { ' ', '#', 'a', '@', 'O', 'I', 'U' };
 
 void InitSurface(Map &map);
 void DrawMap(const Map &map);

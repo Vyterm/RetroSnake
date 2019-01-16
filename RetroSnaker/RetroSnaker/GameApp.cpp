@@ -19,6 +19,8 @@ using std::cin;
 using std::endl;
 
 constexpr Color FOOD_COLOR = { 12, 0 };
+constexpr Color JUMP_COLOR = { 9 ,15 };
+constexpr Color EXIT_COLOR = { 13,15 };
 static constexpr auto SLEEP_DELTA = 10;
 
 inline bool IsKeyDown(int vKey)
@@ -26,7 +28,7 @@ inline bool IsKeyDown(int vKey)
 	return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001;
 }
 
-inline bool GenerateRandomFood(Map &map)
+inline bool SearchEmptyPosition(Map &map, Point &emptyPoint)
 {
 	std::vector<Point> emptyPoints;
 	for (int ri = 0; ri < GAME_HEIGHT; ++ri)
@@ -35,9 +37,37 @@ inline bool GenerateRandomFood(Map &map)
 				emptyPoints.push_back({ ci,ri });
 	if (0 == emptyPoints.size())
 		return false;
-	auto point = emptyPoints[rand() % emptyPoints.size()];
-	map.Index(point) = E_CellType::Food;
-	map.ColorIndex(point) = FOOD_COLOR;
+	emptyPoint = emptyPoints[rand() % emptyPoints.size()];
+	return true;
+}
+
+inline bool GenerateEntryPoint(Map &map)
+{
+	Point emptyPoint;
+	if (!SearchEmptyPosition(map, emptyPoint))
+		return false;
+	map.Index(emptyPoint) = E_CellType::Jump;
+	map.ColorIndex(emptyPoint) = JUMP_COLOR;
+	//Temp solution, wait to refactor.
+	Point jumpPoint = { rand() % 38 + 81,rand() % 18 + 21 };
+	Point exitPoint = { rand() % 38 + 81,rand() % 18 + 21 };
+	map[emptyPoint].JumpPoint = jumpPoint;
+	map[jumpPoint].type = E_CellType::Jump;
+	map[jumpPoint].color = JUMP_COLOR;
+	map[exitPoint].type = E_CellType::Exit;
+	map[exitPoint].color = EXIT_COLOR;
+	map[exitPoint].JumpPoint = emptyPoint;
+
+	return true;
+}
+
+inline bool GenerateRandomFood(Map &map)
+{
+	Point emptyPoint;
+	if (!SearchEmptyPosition(map, emptyPoint))
+		return false;
+	map.Index(emptyPoint) = E_CellType::Food;
+	map.ColorIndex(emptyPoint) = FOOD_COLOR;
 	return true;
 }
 static bool G_IsGameOver = false;
@@ -83,6 +113,7 @@ void Game()
 	GenerateRandomFood(map);
 	GenerateRandomFood(map);
 	GenerateRandomFood(map);
+	GenerateEntryPoint(map);
 	ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
 	while (!G_IsGameOver)
 	{
