@@ -153,3 +153,20 @@ void PlayerCtrl::Process()
 	m_map.GenerateRandomFood();
 	m_isUpdateUI = true;
 }
+
+PlayerCtrl::PlayerBuff::PlayerBuff(PlayerCtrl & player) : m_player(player)
+{
+	m_player.m_buffs.push_back(this);
+}
+
+PlayerCtrl::PlayerBuff::~PlayerBuff()
+{
+	for (auto iter = m_player.m_buffs.begin(); iter != m_player.m_buffs.end(); ++iter)
+	{
+		if (*iter == this)
+		{
+			m_player.m_buffs.erase(iter);
+			return;
+		}
+	}
+}

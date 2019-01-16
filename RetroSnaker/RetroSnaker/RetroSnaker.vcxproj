@@ -122,7 +122,6 @@
     <ClCompile Include="GameModel.cpp" />
     <ClCompile Include="GameSurface.cpp" />
     <ClCompile Include="GameTimer.cpp" />
-    <ClCompile Include="SystemInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp" />
@@ -135,7 +134,6 @@
     <ClInclude Include="GameSurface.hpp" />
     <ClInclude Include="GameTimer.hpp" />
     <ClInclude Include="PointerVector.hpp" />
-    <ClInclude Include="SystemInfo.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

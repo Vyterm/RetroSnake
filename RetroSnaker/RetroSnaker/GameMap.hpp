@@ -47,7 +47,7 @@ public:
 };
 
 static constexpr auto SLEEP_DELTA = 10;
-constexpr E_Color FoodColors[] = { E_Color::LYellow, E_Color::LGreen, E_Color::LPurple, E_Color::LRed, E_Color::LBlue };
+constexpr E_Color FoodColors[] = { E_Color::White, E_Color::LGreen, E_Color::LPurple, E_Color::LRed, E_Color::LBlue, E_Color::LYellow };
 class PlayerCtrl;
 
 class MapItem
@@ -121,6 +121,7 @@ private:
 template <int Width, int Height>
 class MapModelTemplate
 {
+protected:
 	MapItem m_items[Width][Height];
 public:
 	const MapItem& operator[](Point position) const { return m_items[position.x][position.y]; }
@@ -149,12 +150,12 @@ class MapTemplate
 		SetColor(color);
 		cout << ToString(m_zCacheItems[x][y]);
 	}
-	void SetTree(int treeX, int treeY)
+	void SetTree(int treeX, int treeY, const Color &color = DEFAULT_COLOR)
 	{
 		m_staticItems[treeX - 1][treeY] = m_staticItems[treeX][treeY] = m_staticItems[treeX + 1][treeY]
 			= m_staticItems[treeX][treeY - 1] = m_staticItems[treeX][treeY + 1] = E_CellType::Wall;
 		m_staticItems[treeX - 1][treeY] = m_staticItems[treeX][treeY] = m_staticItems[treeX + 1][treeY]
-			= m_staticItems[treeX][treeY - 1] = m_staticItems[treeX][treeY + 1] = DEFAULT_COLOR;
+			= m_staticItems[treeX][treeY - 1] = m_staticItems[treeX][treeY + 1] = color;
 	}
 
 	void SetBorder(int startPosX, int width, int startPosY, int height)
@@ -218,9 +219,10 @@ public:
 			return false;
 		auto randomType = rand() % 100;
 		E_SubType subType = randomType < 0 ? E_SubType::SubType0 :
-			randomType < 40 ? E_SubType::SubType1 :
-			randomType < 60 ? E_SubType::SubType2 :
-			randomType < 80 ? E_SubType::SubType3 : E_SubType::SubType4;
+			randomType < 20 ? E_SubType::SubType1 :
+			randomType < 40 ? E_SubType::SubType2 :
+			randomType < 60 ? E_SubType::SubType3 :
+			randomType < 80 ? E_SubType::SubType4 : E_SubType::SubType5;
 
 		m_items[emptyPoint.x][emptyPoint.y].Set(E_CellType::Food, subType, { FoodColors[int(subType)] ,DEFAULT_BACK_COLOR });
 		return true;
@@ -245,6 +247,15 @@ public:
 		m_items[jumpPoint.x][jumpPoint.y].jumpPoint = emptyPoint;
 
 		return true;
+	}
+	bool IsBlocked(const Point &position)
+	{
+		bool isBlocked = true;
+		isBlocked &= E_CellType::None != GetType({ position.x + 1, position.y });
+		isBlocked &= E_CellType::None != GetType({ position.x - 1, position.y });
+		isBlocked &= E_CellType::None != GetType({ position.x, position.y + 1 });
+		isBlocked &= E_CellType::None != GetType({ position.x, position.y - 1 });
+		return isBlocked;
 	}
 };
 typedef MapTemplate<GAME_WIDTH + MAZE_WIDTH, GAME_HEIGHT> Map;
