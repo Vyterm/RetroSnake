@@ -74,5 +74,8 @@
     <ClInclude Include="PointerVector.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="GameMap.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

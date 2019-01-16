@@ -1,8 +1,5 @@
 #include "GameModel.hpp"
 
-const string Map::_images[] = { " ", "#", "F", "@", "O", "J" };
-
-const Color Map::DefaultColor = { 7,0 };
 
 Snake::Snake(Map & map, Point position, Color color) : m_head(new SnakePart(position)), m_tail(m_head), m_color(color)
 {
@@ -50,7 +47,7 @@ void Snake::TailToHead(Map &map, Point position)
 	m_tail->m_last = m_head;
 	m_head->m_next = m_tail;
 
-	map[m_tail->m_position].Set(E_CellType::None, Map::DefaultColor);
+	map[m_tail->m_position].Set(E_CellType::None, DEFAULT_COLOR);
 	map[m_head->m_position].Set(E_CellType::Body, m_color);
 	m_tail->m_position = position;
 	map[m_tail->m_position].Set(E_CellType::Head, m_color);
@@ -78,7 +75,7 @@ void Snake::ExtendTail(Map & map, Point position)
 void Snake::RemoveTail(Map & map)
 {
 	auto newTail = m_tail->m_next;
-	map[m_tail->m_position].Set(E_CellType::None, Map::DefaultColor);
+	map[m_tail->m_position].Set(E_CellType::None, DEFAULT_COLOR);
 	delete m_tail;
 	m_tail = newTail;
 }

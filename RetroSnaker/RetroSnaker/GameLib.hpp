@@ -20,6 +20,8 @@ constexpr auto WIN_HEIGHT = 42;
 constexpr auto WIN_WIDTH = 122;
 constexpr auto GAME_HEIGHT = 40;
 constexpr auto GAME_WIDTH = 80;
+constexpr auto MSG_WIDTH = 40;
+constexpr auto MSG_HEIGHT = 20;
 constexpr auto MAZE_HEIGHT = 20;
 constexpr auto MAZE_WIDTH = 40;
 

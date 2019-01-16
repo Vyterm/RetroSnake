@@ -112,18 +112,4 @@ void ClearByCoord(int x, int y, int rowCount)
 		FillConsoleOutputCharacter(handle, ' ', WIN_WIDTH, coordStart, &written);
 		coordStart.Y++;
 	}
-
-
-
-	//CloseHandle(handle);
-	//SetConsoleCursorPosition(handle, coordStart);
-	/*
-	int i, j;
-	x = 0;
-	SetPosition(x, y);
-	//SetConsoleCursorPosition(handle, coordStart);
-	for(i = 0; i < WIN_WIDTH * rowCount; i++)
-	{
-		printf(" ");
-	}*/
 }

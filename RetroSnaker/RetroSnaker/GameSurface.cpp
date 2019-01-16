@@ -58,31 +58,19 @@ inline void SetTree(Map &map, int treeX, int treeY)
 
 void InitSurface(Map &map)
 {
-	DrawBorder(GAME_MAP_S_INDEXX, GAME_MAP_E_INDEXX, GAME_MAP_S_INDEXY, GAME_MAP_E_INDEXY, &map);
-	DrawBorder(GAME_MSG_S_INDEXX, GAME_MSG_E_INDEXX, GAME_MSG_S_INDEXY, GAME_MSG_E_INDEXY);
-	DrawBorder(GAME_MAZE_S_INDEXX, GAME_MAZE_E_INDEXX, GAME_MAZE_S_INDEXY, GAME_MAZE_E_INDEXY, &map);
+	map.Init(0, GAME_WIDTH, 0, GAME_HEIGHT);
+	map.Init(GAME_WIDTH, MAZE_WIDTH, MSG_HEIGHT, MAZE_HEIGHT);
+	map.Init(GAME_WIDTH, MSG_WIDTH, 0, MSG_HEIGHT);
 	SetTree(map, 10, 5);
 	SetTree(map, 68, 5);
 	SetTree(map, 10, 34);
 	SetTree(map, 68, 34);
+	map.Draw(true);
 }
 
-void DrawMap(const Map &map)
+void DrawMap(Map &map)
 {
-	for (int ri = 0; ri < 60; ++ri)
-	{
-		for (int ci = 0; ci < 120; ++ci)
-		{
-			if (zCachemap.Index(ci, ri) == map.Index(ci, ri))
-				continue;
-			zCachemap.Index(ci, ri) = map.Index(ci, ri);
-			SetPosition(GAME_MAP_S_INDEXX + ci, GAME_MAP_S_INDEXY + ri);
-			auto color = map.Index(ci, ri).color;
-			SetColor(color.fore, color.back);
-			cout << zCachemap.ToString(zCachemap.Index(ci, ri));
-		}
-	}
-	SetPosition(0, 0);
+	map.Draw();
 }
 
 void OverSurface(string playerName, Color playerColor, bool isWin)

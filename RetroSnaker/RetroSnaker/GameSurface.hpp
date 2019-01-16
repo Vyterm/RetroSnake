@@ -2,13 +2,13 @@
 #define GAME_SURFACE_HPP
 
 #include "GameLib.hpp"
-#include "GameModel.hpp"
 #include "GameCtrl.hpp"
 
 #include <vector>
 #include <string>
 #include <sstream>
 using std::string;
+
 class SurfaceText
 {
 	string m_text;
@@ -38,7 +38,7 @@ public:
 using Msgs = std::vector<SurfaceText>;
 
 void InitSurface(Map &map);
-void DrawMap(const Map &map);
+void DrawMap(Map &map);
 void OverSurface(string playerName, Color playerColor, bool isWin);
 
 void ShowMsg(Msgs &&msgs);

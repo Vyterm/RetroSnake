@@ -129,6 +129,7 @@
     <ClInclude Include="GameCtrl.hpp" />
     <ClInclude Include="GameEvent.hpp" />
     <ClInclude Include="GameLib.hpp" />
+    <ClInclude Include="GameMap.hpp" />
     <ClInclude Include="GameModel.hpp" />
     <ClInclude Include="GameSurface.hpp" />
     <ClInclude Include="GameTimer.hpp" />
