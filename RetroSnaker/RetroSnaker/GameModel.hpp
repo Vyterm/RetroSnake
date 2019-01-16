@@ -83,7 +83,6 @@ class Snake
 	E_Direction m_direction;
 	Color m_color;
 public:
-	Snake(Point position, Color color) : m_head(new SnakePart(position)), m_tail(m_head), m_color(color) { }
 	Snake(Map &map, Point position, Color color) : m_head(new SnakePart(position)), m_tail(m_head), m_color(color)
 	{
 		map.Index(position) = E_CellType::Head;

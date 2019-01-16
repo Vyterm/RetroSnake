@@ -121,6 +121,7 @@
     <ClCompile Include="GameLib.cpp" />
     <ClCompile Include="GameModel.cpp" />
     <ClCompile Include="GameSurface.cpp" />
+    <ClCompile Include="SystemInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp" />
@@ -129,6 +130,7 @@
     <ClInclude Include="GameLib.hpp" />
     <ClInclude Include="GameModel.hpp" />
     <ClInclude Include="GameSurface.hpp" />
+    <ClInclude Include="SystemInfo.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

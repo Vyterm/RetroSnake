@@ -4,8 +4,8 @@
 
 using std::string;
 
-constexpr auto SPEED_DELTA = 100;
-constexpr auto ACCELERATING_FACTOR = 0.995;
+constexpr auto SPEED_DELTA = 80;
+constexpr auto ACCELERATING_FACTOR = 0.99;
 
 class DirectionCtrl
 {
@@ -35,7 +35,7 @@ public:
 	int get_Score() const { return m_score; }
 
 	void IncreaseSpeed() { ++m_speedLevel; }
-	int get_Speed() const { return 1 + int(SPEED_DELTA - SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel)); }
+	int get_Speed() const { return int(SPEED_DELTA / pow(ACCELERATING_FACTOR, m_speedLevel)); }
 
 	Color get_Color() const { return m_snake.get_color(); }
 	string get_Name() const { return m_name; }

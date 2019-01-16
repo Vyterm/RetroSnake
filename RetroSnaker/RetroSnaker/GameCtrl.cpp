@@ -29,7 +29,7 @@ E_MoveState PlayerCtrl::Process(int timeDelta)
 	m_moveRemain -= timeDelta;
 	if (m_moveRemain <= 0)
 	{
-		m_moveRemain = SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel);
+		m_moveRemain = int(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel));
 		UpdateDirection();
 		return m_snake.MoveByDirection(m_map);
 	}

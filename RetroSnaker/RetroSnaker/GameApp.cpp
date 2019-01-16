@@ -42,7 +42,7 @@ inline bool GenerateRandomFood(Map &map)
 }
 static bool G_IsGameOver = false;
 
-inline void ProcessSnake(Map &map, PlayerCtrl &player, int &eatFoodCount)
+inline bool ProcessSnake(Map &map, PlayerCtrl &player)
 {
 	E_MoveState moveState = player.Process(SLEEP_DELTA);
 	switch (moveState)
@@ -58,8 +58,8 @@ inline void ProcessSnake(Map &map, PlayerCtrl &player, int &eatFoodCount)
 			G_IsGameOver = true;
 		}
 		player.IncreaseScore();
-		++eatFoodCount;
-		break;
+		player.IncreaseSpeed();
+		return true;
 	case E_MoveState::Kill:
 		OverSurface(player.get_Name(), player.get_Color(), true);
 		G_IsGameOver = true;
@@ -68,6 +68,7 @@ inline void ProcessSnake(Map &map, PlayerCtrl &player, int &eatFoodCount)
 	default:
 		break;
 	}
+	return false;
 }
 
 void Game()
@@ -80,24 +81,23 @@ void Game()
 	PlayerCtrl player2("玩家二", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 9, 0 }, 'W', 'A', 'S', 'D');
 	int eatFoodCount = 0;
 	GenerateRandomFood(map);
+	GenerateRandomFood(map);
+	GenerateRandomFood(map);
 	ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
 	while (!G_IsGameOver)
 	{
 		if (IsKeyDown(VK_SPACE))
 			isGamePause = !isGamePause;
+
 		if (isGamePause)
 			continue;
 		DrawMap(map);
 		Sleep(SLEEP_DELTA);
-		auto befc = eatFoodCount;
-		ProcessSnake(map, player1, eatFoodCount);
-		ProcessSnake(map, player2, eatFoodCount);
-		if (befc != eatFoodCount)
-		{
-			player1.IncreaseSpeed();
-			player2.IncreaseSpeed();
+		bool updateFlag = false;
+		updateFlag |= ProcessSnake(map, player1);
+		updateFlag |= ProcessSnake(map, player2);
+		if (updateFlag)
 			ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
-		}
 	}
 }
 
@@ -106,25 +106,10 @@ int main()
 	SetTitle("贪吃蛇大作战(Console Version) by 郭弈天");
 	SetConsoleWindowSize();
 
-	cout << "请输入激活码" << endl;
-	string sign = "";
-	while ("CRAZY" != sign)
-		getline(cin, sign);
-	system("cls");
-	if ("CRAZY" != sign)
-		return 0;
-
 	char c = '\0';
 	while ('q' != c)
 	{
 		G_IsGameOver = false;
-		if ("CRAZY" != sign)
-		{
-			cout << "输入的激活码已失效，输入q以退出游戏";
-			while ('q' != (c = _getch()))
-				continue;
-			return 0;
-		}
 		Game();
 		fflush(stdin);
 		c = '\0';
