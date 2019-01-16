@@ -15,21 +15,22 @@ using std::cout;
 using std::cin;
 using std::endl;
 
+constexpr Color FOOD_COLOR = { 12, 0 };
 
 inline bool IsKeyDown(int vKey)
 {
 	return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001;
 }
 
-inline E_Direction GetInputDirection(E_Direction direction)
+inline E_Direction GetInputDirection(E_Direction direction, int kLeft = VK_LEFT, int kRight = VK_RIGHT, int kUp = VK_UP, int kDown = VK_DOWN)
 {
-	if (IsKeyDown(VK_LEFT) && direction != E_Direction::Right)
+	if (IsKeyDown(kLeft) && direction != E_Direction::Right)
 		direction = E_Direction::Left;
-	else if (IsKeyDown(VK_UP) && direction != E_Direction::Down)
+	else if (IsKeyDown(kUp) && direction != E_Direction::Down)
 		direction = E_Direction::Up;
-	else if (IsKeyDown(VK_RIGHT) && direction != E_Direction::Left)
+	else if (IsKeyDown(kRight) && direction != E_Direction::Left)
 		direction = E_Direction::Right;
-	else if (IsKeyDown(VK_DOWN) && direction != E_Direction::Up)
+	else if (IsKeyDown(kDown) && direction != E_Direction::Up)
 		direction = E_Direction::Down;
 	return direction;
 }
@@ -44,41 +45,59 @@ inline bool GenerateRandomFood(Map &map)
 				emptyPoints.push_back({ ci,ri });
 	if (0 == emptyPoints.size())
 		return false;
-	map[emptyPoints[rand() % emptyPoints.size()]] = E_MapItem::Food;
+	auto point = emptyPoints[rand() % emptyPoints.size()];
+	map[point] = E_MapItem::Food;
+	map.ColorIndex(point) = FOOD_COLOR;
 	return true;
 }
 static bool G_IsGameOver = false;
+
+inline Snake CreateSnake(Map &map, Point point, Color color)
+{
+	Snake snake(point, color);
+	map[point] = E_MapItem::Head;
+	map.ColorIndex(point) = color;
+	return snake;
+}
+
+inline void ProcessSnake(Map &map, Snake &snake, int &eatFoodCount)
+{
+	switch (snake.MoveByDirection(map))
+	{
+	case E_MoveState::Over:
+		OverSurface(false);
+		G_IsGameOver = true;
+		break;
+	case E_MoveState::Eat:
+		if (!GenerateRandomFood(map))
+		{
+			OverSurface(true);
+			G_IsGameOver = true;
+		}
+		++eatFoodCount;
+		break;
+	case E_MoveState::Done:
+	default:
+		break;
+	}
+}
 
 void Game()
 {
 	Map map;
 	InitSurface(map);
-	Point point = { 40, 30 };
-	Snake snake(point);
-	map[point] = E_MapItem::Head;
+	Snake snake1 = CreateSnake(map, { 40,30 }, { 10,0 });
+	Snake snake2 = CreateSnake(map, { 30,30 }, { 9,0 });
+	int eatFoodCount = 0;
 	GenerateRandomFood(map);
 	while (!G_IsGameOver)
 	{
 		DrawMap(map);
-		Sleep(100);
-		snake.set_direction(GetInputDirection(snake.get_direction()));
-		switch (snake.MoveByDirection(map))
-		{
-		case E_MoveState::Over:
-			OverSurface(false);
-			G_IsGameOver = true;
-			break;
-		case E_MoveState::Eat:
-			if (!GenerateRandomFood(map))
-			{
-				OverSurface(true);
-				G_IsGameOver = true;
-			}
-			break;
-		case E_MoveState::Done:
-		default:
-			break;
-		}
+		Sleep(100 - eatFoodCount/5);
+		snake1.set_direction(GetInputDirection(snake1.get_direction()));
+		ProcessSnake(map, snake1, eatFoodCount);
+		snake2.set_direction(GetInputDirection(snake2.get_direction(), 'A', 'D', 'W', 'S'));
+		ProcessSnake(map, snake2, eatFoodCount);
 	}
 }
 
@@ -86,7 +105,6 @@ int main()
 {
 	SetTitle("贪吃蛇大作战(Console Version) by 郭弈天");
 	SetConsoleWindowSize();
-	SetColor(10, 0);
 
 	char c = '\0';
 	while ('q' != c)

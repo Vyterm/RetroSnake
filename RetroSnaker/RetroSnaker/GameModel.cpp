@@ -1,5 +1,7 @@
 #include "GameModel.hpp"
 
+const Color Map::DefaultColor = { 7,0 };
+
 inline Point GetPositionByDirection(Point startPos, E_Direction direction)
 {
 	switch (direction)
@@ -23,12 +25,12 @@ inline Point GetPositionByDirection(Point startPos, E_Direction direction)
 	return startPos;
 }
 
-E_MoveState Snake::MoveByDirection(Map &m_map)
+E_MoveState Snake::MoveByDirection(Map &map)
 {
 	if (E_Direction::None == m_direction)
 		return E_MoveState::Done;
 	auto tmpPoint = GetPositionByDirection(m_head->m_position, m_direction);
-	if (m_map[tmpPoint] == E_MapItem::None)
+	if (map[tmpPoint] == E_MapItem::None)
 	{
 		auto tail = m_head;
 		while (nullptr != tail->m_last)
@@ -46,20 +48,25 @@ E_MoveState Snake::MoveByDirection(Map &m_map)
 		tail->m_last = m_head;
 		m_head->m_next = tail;
 
-		m_map[tail->m_position] = E_MapItem::None;
-		m_map[m_head->m_position] = E_MapItem::Body;
+		map[tail->m_position] = E_MapItem::None;
+		map.ColorIndex(tail->m_position) = Map::DefaultColor;
+		map[m_head->m_position] = E_MapItem::Body;
+		map.ColorIndex(m_head->m_position) = m_color;
 		tail->m_position = tmpPoint;
-		m_map[tail->m_position] = E_MapItem::Head;
+		map[tail->m_position] = E_MapItem::Head;
+		map.ColorIndex(tail->m_position) = m_color;
 		m_head = tail;
 		return E_MoveState::Done;
 	}
-	else if (m_map[tmpPoint] == E_MapItem::Food)
+	else if (map[tmpPoint] == E_MapItem::Food)
 	{
 		m_head->m_next = new SnakePart(tmpPoint);
 		m_head->m_next->m_last = m_head;
-		m_map[m_head->m_position] = E_MapItem::Body;
+		map[m_head->m_position] = E_MapItem::Body;
+		map.ColorIndex(m_head->m_position) = m_color;
 		m_head = m_head->m_next;
-		m_map[m_head->m_position] = E_MapItem::Head;
+		map[m_head->m_position] = E_MapItem::Head;
+		map.ColorIndex(m_head->m_position) = m_color;
 		return E_MoveState::Eat;
 	}
 	else

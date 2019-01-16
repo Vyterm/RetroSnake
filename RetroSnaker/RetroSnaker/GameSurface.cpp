@@ -50,6 +50,8 @@ void DrawMap(const Map &map)
 				continue;
 			zCacheMap[ci][ri] = map.Index(ci, ri);
 			SetPosition(GAME_MAP_STARTPOSX + ci, GAME_MAP_STARTPOSY + ri);
+			auto color = map.ColorIndex(ci, ri);
+			SetColor(color.fore, color.back);
 			cout << MapItems[(int)zCacheMap[ci][ri]];
 		}
 	}
@@ -58,6 +60,7 @@ void DrawMap(const Map &map)
 
 void OverSurface(bool isWin)
 {
+	SetColor(15, 0);
 	for (int ri = GAME_OVER_S_INDEXY; ri <= GAME_OVER_E_INDEXY; ++ri)
 	{
 		SetPosition(GAME_MAP_STARTPOSX, GAME_MAP_STARTPOSY + ri);
