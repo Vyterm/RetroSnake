@@ -66,9 +66,9 @@ inline bool GenerateRandomFood(Map &map)
 		return false;
 	auto randomType = rand() % 100;
 	E_SubType subType = randomType < 0 ? E_SubType::SubType0 : 
-		randomType < 25 ? E_SubType::SubType1 : 
-		randomType < 50 ? E_SubType::SubType2 : 
-		randomType < 75 ? E_SubType::SubType3 : E_SubType::SubType4;
+		randomType < 40 ? E_SubType::SubType1 : 
+		randomType < 60 ? E_SubType::SubType2 : 
+		randomType < 80 ? E_SubType::SubType3 : E_SubType::SubType4;
 
 	map[emptyPoint].Set(E_CellType::Food, subType, FoodColors[int(subType)]);
 	return true;
@@ -139,6 +139,7 @@ int main()
 {
 	SetTitle("贪吃蛇大作战(Console Version) by 郭弈天");
 	SetConsoleWindowSize();
+	ResetCursor();
 
 	char c = '\0';
 	while ('q' != c)

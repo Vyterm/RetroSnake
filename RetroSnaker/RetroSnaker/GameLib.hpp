@@ -32,7 +32,7 @@ void SetColor(int, int);
 
 /* 根据宽高设置控制台窗口的大小 */
 void SetConsoleWindowSize();
-
+void ResetCursor();
 /* 设置光标的x、y坐标-正常坐标轴 */
 void SetPosition(int x, int y);
 

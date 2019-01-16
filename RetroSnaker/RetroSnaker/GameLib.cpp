@@ -37,6 +37,16 @@ void SetConsoleWindowSize() {
 	SetConsoleWindowInfo(handle, 1, &rect);
 	//CloseHandle(handle);
 }
+void ResetCursor()
+{
+	keybd_event(VK_SHIFT, 0, 0, 0);
+	keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
+	CONSOLE_CURSOR_INFO cci;                    //控制台光标信息结构类型
+	cci.dwSize = 1;                             //光标大小
+	cci.bVisible = FALSE;                       //是否显示光标
+	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorInfo(handle, &cci);      //设置指定控制台屏幕缓冲区光标大小和可见性
+}
 void SetPosition(int x, int y) {
 	COORD cursorPosition;   //光标的坐标
 	HANDLE handle;          //当前窗口句柄

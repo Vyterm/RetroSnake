@@ -7,11 +7,11 @@ inline bool IsKeyDown(int vKey) { return (GetAsyncKeyState(vKey) & 0x0001) == 0x
 //»ÆÂÌ×ÏºìÀ¶
 void PlayerCtrl::HandleFood(const Point& position)
 {
+	++m_speedLevel;
 	switch (m_map[position].subType)
 	{
 	case E_SubType::SubType0:
 		m_snake.ExtendHead(m_map, position);
-		++m_speedLevel;
 		break;
 	case E_SubType::SubType1:
 		m_snake.TailToHead(m_map, position);
@@ -25,11 +25,11 @@ void PlayerCtrl::HandleFood(const Point& position)
 		break;
 	case E_SubType::SubType3:
 		m_snake.ExtendHead(m_map, position);
-		m_speedLevel += 20;
+		m_speedLevel += 25;
 		break;
 	case E_SubType::SubType4:
 		m_snake.ExtendHead(m_map, position);
-		m_enemy->m_speedLevel -= 10;
+		m_enemy->m_speedLevel -= 15;
 		break;
 	case E_SubType::SubType5:
 		break;
