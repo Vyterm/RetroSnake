@@ -57,6 +57,16 @@ namespace vyt
 		{
 			m_vector.push_back(new TItem(arg1, arg2));
 		}
+		template <typename TItem, typename TArg1, typename TArg2, typename TArg3>
+		void Append(TArg1 &arg1, TArg2 &arg2, TArg3 &arg3)
+		{
+			m_vector.push_back(new TItem(arg1, arg2, arg3));
+		}
+		template <typename TItem, typename TArg1, typename TArg2, typename TArg3>
+		void Append(const TArg1 &arg1, const TArg2 &arg2, const TArg3 &arg3)
+		{
+			m_vector.push_back(new TItem(arg1, arg2, arg3));
+		}
 		void AppendRange(size_t TCount, std::function<T*(size_t)> generator)
 		{
 			for (size_t i = 0; i < TCount; ++i)
@@ -125,7 +135,7 @@ namespace vyt
 		size_t deleteCount = 0;
 		for (auto iter = m_vector.begin(); iter != m_vector.end();)
 		{
-			if (*iter == item)
+			if (*(*iter) == item)
 			{
 				T *obj = *iter;
 				iter = m_vector.erase(iter);
@@ -136,6 +146,18 @@ namespace vyt
 				++iter;
 		}
 		return deleteCount;
+	}
+
+	bool DeleteByReference(T *item)
+	{
+		for (auto iter = m_vector.begin(); iter != m_vector.end(); ++iter)
+		{
+			if (*iter != item) continue;
+			delete *iter;
+			iter = m_vector.erase(iter);
+			return true;
+		}
+		return false;
 	}
 
 	void Clear()

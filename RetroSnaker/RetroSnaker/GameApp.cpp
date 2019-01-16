@@ -4,6 +4,7 @@
 #include "GameModel.hpp"
 #include "GameCtrl.hpp"
 #include "PointerVector.hpp"
+#include "GameTimer.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -105,10 +106,26 @@ inline void DrawOverPanel(PlayerCtrl &player1, PlayerCtrl &player2)
 	}
 }
 
+class SecondHandler : public TimerManager::handler
+{
+	int m_id;
+	int m_invokeCount;
+public:
+	SecondHandler(clock_t invokeTime, bool isLoop, int id) : TimerManager::handler(invokeTime, isLoop), m_invokeCount(0), m_id(id) { }
+	void Invoke() override
+	{
+		SetPosition(m_id*10, 41);
+		cout << "Timer" << m_id << "Invoke" << ++m_invokeCount << "  ";
+	}
+};
+
 void Game()
 {
 	srand((unsigned)time(nullptr));
 	bool isGamePause = false;
+	int timer1InvokeCount = 0, timer2InvokeCount = 0;
+	auto &timer1 = TimerManager::get_instance().RegisterHandler<SecondHandler>(1000, true, 0);
+	auto &timer2 = TimerManager::get_instance().RegisterHandler<SecondHandler>(2000, true, 1);
 	Map map;
 	InitSurface(map);
 	PlayerCtrl player1("玩家一", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 15,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
@@ -135,16 +152,19 @@ void Game()
 		if (updateFlag)
 			ShowMsg(G_Player1Score, G_Player2Score, player1, player2);
 		DrawMap(map);
+		TimerManager::get_instance().HandleClock();
 		Sleep(SLEEP_DELTA);
 		DrawOverPanel(player1, player2);
 	}
+	TimerManager::get_instance().UnregiserHandler(timer1);
+	TimerManager::get_instance().UnregiserHandler(timer2);
 }
 
 int main()
 {
 	SetTitle("贪吃蛇大作战(Console Version) by 郭弈天");
 	SetConsoleWindowSize();
-	ResetCursor();
+	//ResetCursor();
 
 	char c = '\0';
 	while ('q' != c)
