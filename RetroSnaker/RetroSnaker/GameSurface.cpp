@@ -28,7 +28,7 @@ static constexpr auto GAME_MSG_E_INDEXY = 20;
 static constexpr auto GAME_MSG_S_INDEXX = GAME_MAP_ENDPOSX + 1;
 static constexpr auto GAME_MSG_E_INDEXX = WIN_WIDTH - 2;
 
-static E_MapItem zCacheMap[GAME_WIDTH][GAME_HEIGHT];
+static Map zCachemap;
 
 inline void DrawBorder(int posXS, int posXE, int posYS, int posYE)
 {
@@ -48,7 +48,7 @@ inline void DrawBorder(int posXS, int posXE, int posYS, int posYE)
 inline void SetTree(Map &map, int treeX, int treeY)
 {
 	map.Index(treeX - 2, treeY) = map.Index(treeX - 1, treeY) = map.Index(treeX, treeY) = map.Index(treeX + 1, treeY)
-		= map.Index(treeX + 2, treeY) = map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = E_MapItem::Wall;
+		= map.Index(treeX + 2, treeY) = map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = E_CellType::Wall;
 	map.ColorIndex(treeX - 2, treeY) = map.ColorIndex(treeX - 1, treeY) = map.ColorIndex(treeX, treeY) = map.ColorIndex(treeX + 1, treeY)
 		= map.ColorIndex(treeX + 2, treeY) = map.ColorIndex(treeX, treeY - 1) = map.ColorIndex(treeX, treeY + 1) = { 8, 0 };
 }
@@ -60,10 +60,10 @@ void InitSurface(Map &map)
 		SetPosition(GAME_MAP_STARTPOSX, GAME_MAP_STARTPOSY + ri);
 		for (int ci = 0; ci < GAME_WIDTH; ++ci)
 		{
-			E_MapItem item = (ri == GAME_MAP_S_INDEXY || ri == GAME_MAP_E_INDEXY || ci == GAME_MAP_S_INDEXX || ci == GAME_MAP_E_INDEXX)
-				? E_MapItem::Wall : E_MapItem::None;
-			zCacheMap[ci][ri] = map.Index(ci, ri) = item;
-			cout << MapItems[(int)zCacheMap[ci][ri]];
+			E_CellType item = (ri == GAME_MAP_S_INDEXY || ri == GAME_MAP_E_INDEXY || ci == GAME_MAP_S_INDEXX || ci == GAME_MAP_E_INDEXX)
+				? E_CellType::Wall : E_CellType::None;
+			zCachemap.Index(ci, ri) = map.Index(ci, ri) = item;
+			cout << MapItems[(int)zCachemap.Index(ci, ri)];
 		}
 	}
 	DrawBorder(GAME_MSG_S_INDEXX, GAME_MSG_E_INDEXX, GAME_MSG_S_INDEXY, GAME_MSG_E_INDEXY);
@@ -79,15 +79,15 @@ void DrawMap(const Map &map)
 	{
 		for (int ci = 0; ci < GAME_WIDTH; ++ci)
 		{
-			//if (map[0][ci][ri] == E_MapItem::Head)
+			//if (map.Index(0][ci][ri) == E_MapItem::Head)
 			//	continue;
-			if (zCacheMap[ci][ri] == map.Index(ci, ri))
+			if (zCachemap.Index(ci, ri) == map.Index(ci, ri))
 				continue;
-			zCacheMap[ci][ri] = map.Index(ci, ri);
+			zCachemap.Index(ci, ri) = map.Index(ci, ri);
 			SetPosition(GAME_MAP_STARTPOSX + ci, GAME_MAP_STARTPOSY + ri);
 			auto color = map.ColorIndex(ci, ri);
 			SetColor(color.fore, color.back);
-			cout << MapItems[(int)zCacheMap[ci][ri]];
+			cout << MapItems[(int)zCachemap.Index(ci, ri)];
 		}
 	}
 	SetPosition(0, 0);
@@ -118,7 +118,6 @@ void ShowMsg(int player1Score, int player2Score, int player1Speed, int player2Sp
 	msgs.push_back(oss.str());
 	oss.str("");
 	ShowMsg(std::move(msgs));
-
 }
 
 void ShowMsg(Msgs &&msgs)

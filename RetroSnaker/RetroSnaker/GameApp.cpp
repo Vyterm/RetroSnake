@@ -18,6 +18,7 @@ using std::cin;
 using std::endl;
 
 constexpr Color FOOD_COLOR = { 12, 0 };
+static constexpr auto SLEEP_DELTA = 10;
 
 inline bool IsKeyDown(int vKey)
 {
@@ -29,12 +30,12 @@ inline bool GenerateRandomFood(Map &map)
 	std::vector<Point> emptyPoints;
 	for (int ri = 0; ri < GAME_HEIGHT; ++ri)
 		for (int ci = 0; ci < GAME_WIDTH; ++ci)
-			if (E_MapItem::None == map.Index(ci, ri))
+			if (E_CellType::None == map.Index(ci, ri))
 				emptyPoints.push_back({ ci,ri });
 	if (0 == emptyPoints.size())
 		return false;
 	auto point = emptyPoints[rand() % emptyPoints.size()];
-	map[point] = E_MapItem::Food;
+	map.Index(point) = E_CellType::Food;
 	map.ColorIndex(point) = FOOD_COLOR;
 	return true;
 }
@@ -42,7 +43,7 @@ static bool G_IsGameOver = false;
 
 inline void ProcessSnake(Map &map, PlayerCtrl &player, int &eatFoodCount)
 {
-	E_MoveState moveState = player.Process();
+	E_MoveState moveState = player.Process(SLEEP_DELTA);
 	switch (moveState)
 	{
 	case E_MoveState::Over:
@@ -74,6 +75,7 @@ void Game()
 	PlayerCtrl player2(map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 9, 0 }, 'W', 'A', 'S', 'D');
 	int eatFoodCount = 0;
 	GenerateRandomFood(map);
+	ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
 	while (!G_IsGameOver)
 	{
 		if (IsKeyDown(VK_SPACE))
@@ -81,11 +83,16 @@ void Game()
 		if (isGamePause)
 			continue;
 		DrawMap(map);
-		auto speed = 200 * pow(0.98, eatFoodCount);
-		ShowMsg(player1.get_Score(), player2.get_Score(), int(200 - speed), int(200 - speed));
-		Sleep(speed);
+		Sleep(SLEEP_DELTA);
+		auto befc = eatFoodCount;
 		ProcessSnake(map, player1, eatFoodCount);
 		ProcessSnake(map, player2, eatFoodCount);
+		if (befc != eatFoodCount)
+		{
+			player1.IncreaseSpeed();
+			player2.IncreaseSpeed();
+			ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
+		}
 	}
 }
 

@@ -1,5 +1,7 @@
 #include "GameCtrl.hpp"
 
+#include <math.h>
+
 inline bool IsKeyDown(int vKey) { return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001; }
 
 void PlayerCtrl::UpdateDirection()
@@ -14,16 +16,22 @@ void PlayerCtrl::UpdateDirection()
 	else if (IsKeyDown(m_kDown))
 		target = E_Direction::Down;
 	
-	if ((int(target) + int(m_snake.get_direction())) == 0)
-		return;
+	//if ((int(target) + int(m_snake.get_direction())) == 0)
+	//	return;
 	auto targetPosition = GetPositionByDirection(m_snake.get_headPosition(), target);
-	if (m_map[targetPosition] == E_MapItem::Body && targetPosition != m_snake.get_tailPosition())
+	if (m_map.Index(targetPosition) == E_CellType::Body && targetPosition != m_snake.get_tailPosition())
 		return;
 	m_snake.set_direction(target);
 }
 
-E_MoveState PlayerCtrl::Process()
+E_MoveState PlayerCtrl::Process(int timeDelta)
 {
 	UpdateDirection();
-	return m_snake.MoveByDirection(m_map);
+	m_moveRemain -= timeDelta;
+	if (m_moveRemain <= 0)
+	{
+		m_moveRemain = 200 * pow(0.98, m_speedLevel - 1);
+		return m_snake.MoveByDirection(m_map);
+	}
+	return E_MoveState::Done;
 }

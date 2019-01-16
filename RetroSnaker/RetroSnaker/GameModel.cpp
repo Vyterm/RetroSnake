@@ -7,42 +7,45 @@ E_MoveState Snake::MoveByDirection(Map &map)
 	if (E_Direction::None == m_direction)
 		return E_MoveState::Done;
 	auto tmpPoint = GetPositionByDirection(m_head->m_position, m_direction);
-	if (map[tmpPoint] == E_MapItem::None || tmpPoint == get_tailPosition())
+	if (map.Index(tmpPoint) == E_CellType::None || tmpPoint == get_tailPosition())
 	{
-		auto tail = m_head;
-		while (nullptr != tail->m_last)
-			tail = tail->m_last;
-		if (nullptr != tail->m_next)
+		SnakePart *newTail;
+		if (nullptr != m_tail->m_next)
 		{
-			tail->m_next->m_last = nullptr;
-			tail->m_next = nullptr;
+			newTail = m_tail->m_next;
+			m_tail->m_next->m_last = nullptr;
+			m_tail->m_next = nullptr;
 		}
-		if (tail == m_head)
+		else if (m_tail == m_head)
 		{
+			newTail = m_head;
 			m_head->m_next = new SnakePart(tmpPoint);
-			tail = m_head->m_next;
+			m_tail = m_head->m_next;
 		}
-		tail->m_last = m_head;
-		m_head->m_next = tail;
+		else
+			throw "Bad tail";
+		m_tail->m_last = m_head;
+		m_head->m_next = m_tail;
 
-		map[tail->m_position] = E_MapItem::None;
-		map.ColorIndex(tail->m_position) = Map::DefaultColor;
-		map[m_head->m_position] = E_MapItem::Body;
+		map.Index(m_tail->m_position) = E_CellType::None;
+		map.ColorIndex(m_tail->m_position) = Map::DefaultColor;
+		map.Index(m_head->m_position) = E_CellType::Body;
 		map.ColorIndex(m_head->m_position) = m_color;
-		tail->m_position = tmpPoint;
-		map[tail->m_position] = E_MapItem::Head;
-		map.ColorIndex(tail->m_position) = m_color;
-		m_head = tail;
+		m_tail->m_position = tmpPoint;
+		map.Index(m_tail->m_position) = E_CellType::Head;
+		map.ColorIndex(m_tail->m_position) = m_color;
+		m_head = m_tail;
+		m_tail = newTail;
 		return E_MoveState::Done;
 	}
-	else if (map[tmpPoint] == E_MapItem::Food)
+	else if (map.Index(tmpPoint) == E_CellType::Food)
 	{
 		m_head->m_next = new SnakePart(tmpPoint);
 		m_head->m_next->m_last = m_head;
-		map[m_head->m_position] = E_MapItem::Body;
+		map.Index(m_head->m_position) = E_CellType::Body;
 		map.ColorIndex(m_head->m_position) = m_color;
 		m_head = m_head->m_next;
-		map[m_head->m_position] = E_MapItem::Head;
+		map.Index(m_head->m_position) = E_CellType::Head;
 		map.ColorIndex(m_head->m_position) = m_color;
 		return E_MoveState::Eat;
 	}
