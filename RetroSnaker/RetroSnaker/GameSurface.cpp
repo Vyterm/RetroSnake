@@ -52,8 +52,8 @@ inline void SetTree(Map &map, int treeX, int treeY)
 {
 	map.Index(treeX - 2, treeY) = map.Index(treeX - 1, treeY) = map.Index(treeX, treeY) = map.Index(treeX + 1, treeY)
 		= map.Index(treeX + 2, treeY) = map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = E_CellType::Wall;
-	map.ColorIndex(treeX - 2, treeY) = map.ColorIndex(treeX - 1, treeY) = map.ColorIndex(treeX, treeY) = map.ColorIndex(treeX + 1, treeY)
-		= map.ColorIndex(treeX + 2, treeY) = map.ColorIndex(treeX, treeY - 1) = map.ColorIndex(treeX, treeY + 1) = { 8, 0 };
+	map.Index(treeX - 2, treeY) = map.Index(treeX - 1, treeY) = map.Index(treeX, treeY) = map.Index(treeX + 1, treeY)
+		= map.Index(treeX + 2, treeY) = map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = { 8, 0 };
 }
 
 void InitSurface(Map &map)
@@ -77,9 +77,9 @@ void DrawMap(const Map &map)
 				continue;
 			zCachemap.Index(ci, ri) = map.Index(ci, ri);
 			SetPosition(GAME_MAP_S_INDEXX + ci, GAME_MAP_S_INDEXY + ri);
-			auto color = map.ColorIndex(ci, ri);
+			auto color = map.Index(ci, ri).color;
 			SetColor(color.fore, color.back);
-			cout << char(zCachemap.Index(ci, ri));
+			cout << zCachemap.ToString(zCachemap.Index(ci, ri));
 		}
 	}
 	SetPosition(0, 0);
@@ -98,24 +98,7 @@ void OverSurface(string playerName, Color playerColor, bool isWin)
 	cout << "输入q退出游戏，输入r重新开始";
 }
 
-void ShowMsg(int player1Score, int player2Score, int player1Speed, int player2Speed)
-{
-	const string PLAYER_SPACE = "        ";
-	Msgs msgs;
-	std::ostringstream oss;
-	oss << "玩家一" << PLAYER_SPACE << "玩家二";
-	msgs.push_back(oss.str());
-	oss.str("");
-	oss << "分数" << std::setw(3) << std::setfill('0') << player1Score << PLAYER_SPACE << "分数" << std::setw(3) << std::setfill('0') << player2Score;
-	msgs.push_back(oss.str());
-	oss.str("");
-	oss << "速度" << std::setw(3) << std::setfill('0') << player1Speed << PLAYER_SPACE << "速度" << std::setw(3) << std::setfill('0') << player2Speed;
-	msgs.push_back(oss.str());
-	oss.str("");
-	ShowMsg(std::move(msgs));
-}
-
-void ShowMsg(Msgs &&msgs)
+void ShowMsg(Msgs && msgs)
 {
 	SetColor(7, 0);
 	int ri = GAME_MSG_S_INDEXY + 1;

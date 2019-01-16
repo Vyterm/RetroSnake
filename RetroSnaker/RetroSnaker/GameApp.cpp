@@ -3,6 +3,7 @@
 #include "GameSurface.hpp"
 #include "GameModel.hpp"
 #include "GameCtrl.hpp"
+#include "PointerVector.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -24,6 +25,11 @@ constexpr Color JUMP_COLOR = { 9 ,15 };
 constexpr Color EXIT_COLOR = { 13,15 };
 static constexpr auto SLEEP_DELTA = 10;
 
+inline bool IsKey(int vKey)
+{
+	return (GetAsyncKeyState(vKey) & 0x8000) == 0x8000;
+}
+
 inline bool IsKeyDown(int vKey)
 {
 	return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001;
@@ -42,19 +48,17 @@ inline bool SearchEmptyPosition(Map &map, Point &emptyPoint)
 	return true;
 }
 
-inline bool GenerateEntryPoint(Map &map)
+inline bool GenerateEntryPoint(Map &map, const Color &color)
 {
 	Point emptyPoint;
 	if (!SearchEmptyPosition(map, emptyPoint))
 		return false;
-	map[emptyPoint].Set(E_CellType::Jump, JUMP_COLOR);
+	map[emptyPoint].Set(E_CellType::Jump, color);
 	// ToDo: Temp solution, wait to refactor.
 	Point jumpPoint = { rand() % 38 + 81,rand() % 18 + 21 };
-	Point exitPoint = { rand() % 38 + 81,rand() % 18 + 21 };
 	map[emptyPoint].jumpPoint = jumpPoint;
-	map[jumpPoint].Set(E_CellType::Jump, JUMP_COLOR);
-	map[exitPoint].Set(E_CellType::Jump, EXIT_COLOR);
-	map[exitPoint].jumpPoint = emptyPoint;
+	map[jumpPoint].Set(E_CellType::Jump, color);
+	map[jumpPoint].jumpPoint = emptyPoint;
 
 	return true;
 }
@@ -107,16 +111,17 @@ void Game()
 	bool isGamePause = false;
 	Map map;
 	InitSurface(map);
-	PlayerCtrl player1("玩家一", map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 15,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
-	PlayerCtrl player2("玩家二", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 11,0 }, 'W', 'A', 'S', 'D');
+	PlayerCtrl player1("玩家一", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 15,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
+	PlayerCtrl player2("玩家二", map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 11,0 }, 'W', 'A', 'S', 'D');
 	player1.SetEnemy(player2);
 	player2.SetEnemy(player1);
 	int eatFoodCount = 0;
 	GenerateRandomFood(map);
 	GenerateRandomFood(map);
 	GenerateRandomFood(map);
-	GenerateEntryPoint(map);
-	ShowMsg(G_Player1Score, G_Player2Score, player1.get_Speed(), player2.get_Speed());
+	GenerateEntryPoint(map, JUMP_COLOR);
+	GenerateEntryPoint(map, EXIT_COLOR);
+	ShowMsg(G_Player1Score, G_Player2Score, player1, player2);
 	while (!G_IsGameOver)
 	{
 		if (IsKeyDown(VK_SPACE))
@@ -128,7 +133,7 @@ void Game()
 		updateFlag |= ProcessSnake(map, player1);
 		updateFlag |= ProcessSnake(map, player2);
 		if (updateFlag)
-			ShowMsg(G_Player1Score, G_Player2Score, player1.get_Speed(), player2.get_Speed());
+			ShowMsg(G_Player1Score, G_Player2Score, player1, player2);
 		DrawMap(map);
 		Sleep(SLEEP_DELTA);
 		DrawOverPanel(player1, player2);

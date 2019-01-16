@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-inline bool IsKeyDown(int vKey) { return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001; }
+inline bool IsKey(int vKey) { return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001; }
 
 //»ÆÂÌ×ÏºìÀ¶
 void PlayerCtrl::HandleFood(const Point& position)
@@ -16,7 +16,7 @@ void PlayerCtrl::HandleFood(const Point& position)
 	case E_SubType::SubType1:
 		m_snake.TailToHead(m_map, position);
 		Point tail = m_enemy->m_snake.get_tailPosition();
-		if (!m_enemy->MoveByDirection())
+		if (!m_enemy->MoveByPosition())
 			m_enemy->m_snake.ExtendTail(m_map, tail);
 		break;
 	case E_SubType::SubType2:
@@ -74,45 +74,49 @@ void PlayerCtrl::HandleTerrain(const Point& position)
 void PlayerCtrl::UpdateDirection()
 {
 	E_Direction target = m_direction;
-	if (IsKeyDown(m_kLeft))
+	if (IsKey(m_kLeft))
 		target = E_Direction::Left;
-	else if (IsKeyDown(m_kUp))
+	else if (IsKey(m_kUp))
 		target = E_Direction::Up;
-	else if (IsKeyDown(m_kRight))
+	else if (IsKey(m_kRight))
 		target = E_Direction::Right;
-	else if (IsKeyDown(m_kDown))
+	else if (IsKey(m_kDown))
 		target = E_Direction::Down;
 	
 	auto targetPosition = GetPositionByDirection(m_snake.get_headPosition(), target);
-	if (m_map.Index(targetPosition) == E_CellType::Body && targetPosition != m_snake.get_tailPosition())
+	if (m_map[targetPosition] == E_CellType::Body && targetPosition != m_snake.get_tailPosition())
 		return;
 	m_direction = target;
 }
 
-bool PlayerCtrl::MoveByDirection()
+bool PlayerCtrl::MoveByPosition()
 {
 	if (E_Direction::None == m_direction)
 		return false;
-	auto tmpPoint = GetPositionByDirection(m_snake.get_headPosition(), m_direction);
-	if (m_map.Index(tmpPoint) == E_CellType::None || tmpPoint == m_snake.get_tailPosition())
+	return MoveByPosition(GetPositionByDirection(m_snake.get_headPosition(), m_direction));
+}
+
+bool PlayerCtrl::MoveByPosition(const Point &position)
+{
+	if (m_map[position] == E_CellType::None || position == m_snake.get_tailPosition())
 	{
-		m_snake.TailToHead(m_map, tmpPoint);
-		HandleTerrain(tmpPoint);
+		m_snake.TailToHead(m_map, position);
+		HandleTerrain(position);
 	}
-	else if (m_map.Index(tmpPoint) == E_CellType::Food)
+	else if (m_map[position] == E_CellType::Food)
 	{
-		HandleFood(tmpPoint);
+		HandleFood(position);
 		return true;
 	}
-	else if (m_map.Index(tmpPoint) == E_CellType::Body)
+	else if (m_map[position] == E_CellType::Body)
 	{
-		if (m_snake.Contains(tmpPoint))
+		if (m_snake.Contains(position))
 			m_alive = false;
 		m_enemy->m_alive = false;
 	}
-	else if (m_map.Index(tmpPoint) == E_CellType::Jump)
+	else if (m_map[position] == E_CellType::Jump)
 	{
-		m_snake.TailToHead(m_map, m_map[tmpPoint].jumpPoint);
+		return MoveByPosition(GetPositionByDirection(m_map[position].jumpPoint, m_direction));
 	}
 	else
 		m_alive = false;
@@ -126,7 +130,7 @@ bool PlayerCtrl::Process(int timeDelta)
 	{
 		m_moveRemain += int(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel));
 		UpdateDirection();
-		return MoveByDirection();
+		return MoveByPosition();
 	}
 	return false;
 }

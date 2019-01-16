@@ -42,6 +42,9 @@
     <ClCompile Include="GameEvent.cpp">
       <Filter>源文件\Experiment</Filter>
     </ClCompile>
+    <ClCompile Include="GameTimer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp">
@@ -64,6 +67,12 @@
     </ClInclude>
     <ClInclude Include="GameEvent.hpp">
       <Filter>头文件\Experiment</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTimer.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PointerVector.hpp">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,3 +1,6 @@
+#ifndef GAME_CTRL_HPP
+#define GAME_CTRL_HPP
+
 #include "GameModel.hpp"
 #include <string>
 #include <math.h>
@@ -33,7 +36,8 @@ public:
 		: m_name(name), m_map(map), m_snake(map, position, color), m_speedLevel(0), 
 		m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight) { }
 	void UpdateDirection();
-	bool MoveByDirection();
+	bool MoveByPosition();
+	bool MoveByPosition(const Point &position);
 	bool Process(int timeDelta) override;
 
 	int get_Speed() const { return int(SPEED_DELTA / pow(ACCELERATING_FACTOR, m_speedLevel)); }
@@ -47,3 +51,5 @@ public:
 
 	void SetEnemy(PlayerCtrl &enemy) { m_enemy = &enemy; }
 };
+
+#endif

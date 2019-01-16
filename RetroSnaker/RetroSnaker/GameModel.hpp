@@ -1,15 +1,19 @@
-#pragma once
+#ifndef GAME_MODEL_HPP
+#define GAME_MODEL_HPP
+
 #include "GameLib.hpp"
 #include <memory>
+#include <string>
+using std::string;
 
-enum class E_CellType : char
+enum class E_CellType
 {
-	None = ' ',
-	Wall = '#',
-	Food = 'F',
-	Head = '@',
-	Body = '0',
-	Jump = 'J',
+	None = 0,
+	Wall = 1,
+	Food = 2,
+	Head = 3,
+	Body = 4,
+	Jump = 5,
 };
 
 enum class E_SubType
@@ -56,6 +60,9 @@ public:
 struct Color
 {
 	int fore, back;
+	bool operator==(const Color &rhs) const { return fore == rhs.fore && back == rhs.back; }
+	bool operator!=(const Color &rhs) const { return fore != rhs.fore || back != rhs.back; }
+	void Set(const Color& color) { fore = color.fore; back = color.back; }
 };
 
 template <int Width, int Height>
@@ -77,10 +84,10 @@ class MapTemplate
 			quote = m_weakQuote.lock();
 			return m_weakQuote.expired();
 		}
-		void Set(E_CellType type, Color color)
-		{
-			Set(type, E_SubType::SubType0, color);
-		}
+		/* 0-黑色, 1-蓝色,   2-绿色,      3-浅绿色,     4-红色,   5-紫色,   6-黄色,   7-白色,
+		 * 8-灰色, 9-淡蓝色, 10-淡绿色,   11-淡浅绿色   12-淡红色 13-淡紫色 14-淡黄色 15-亮白色*/
+		void Set(Color color) { Set(type, subType, color); }
+		void Set(E_CellType type, Color color) { Set(type, E_SubType::SubType0, color); }
 		void Set(E_CellType type, E_SubType subType, Color color)
 		{
 			this->type = type;
@@ -102,27 +109,28 @@ class MapTemplate
 			this->color = color;
 			return *this;
 		}
+		bool operator==(const MapItem &rhs) const { return type == rhs.type && subType == rhs.subType && color == rhs.color; }
+		bool operator!=(const MapItem &rhs) const { return type != rhs.type || subType != rhs.subType || color != rhs.color; }
+		bool operator==(const E_CellType &rhs) const { return rhs == type; }
+		bool operator==(const E_SubType &rhs) const { return rhs == subType; }
+		bool operator==(const Color &rhs) const { return rhs == color; }
+		friend bool operator==(const E_CellType &lhs, const MapItem &rhs) { return lhs == rhs.type; }
+		friend bool operator==(const E_SubType &lhs, const MapItem &rhs) { return lhs == rhs.subType; }
+		friend bool operator==(const Color &lhs, const MapItem &rhs) { return lhs == rhs.color; }
 	private:
 		std::weak_ptr<void> m_weakQuote;
 	};
+	static const string _images[];
 	MapItem m_items[Width][Height];
 public:
 	static const Color DefaultColor;
 	MapTemplate() { }
 	const MapItem& operator[](Point position) const { return m_items[position.x][position.y]; }
 	MapItem& operator[](Point position) { return m_items[position.x][position.y]; }
+	const MapItem& Index(int x, int y) const { return m_items[x][y]; }
+	MapItem& Index(int x, int y) { return m_items[x][y]; }
 
-	const E_CellType& Index(Point position) const { return m_items[position.x][position.y].type; }
-	E_CellType& Index(Point position) { return m_items[position.x][position.y].type; }
-	const E_CellType& Index(int x, int y) const { return m_items[x][y].type; }
-	E_CellType& Index(int x, int y) { return m_items[x][y].type; }
-
-	const Color& ColorIndex(Point position) const { return m_items[position.x][position.y].color; }
-	Color& ColorIndex(Point position) { return m_items[position.x][position.y].color; }
-	const Color &ColorIndex(int x, int y) const { return m_items[x][y].color; }
-	/* 0-黑色, 1-蓝色,   2-绿色,      3-浅绿色,     4-红色,   5-紫色,   6-黄色,   7-白色,
-	 * 8-灰色, 9-淡蓝色, 10-淡绿色,   11-淡浅绿色   12-淡红色 13-淡紫色 14-淡黄色 15-亮白色*/
-	Color &ColorIndex(int x, int y) { return m_items[x][y].color; }
+	static const string& ToString(const MapItem &item) { return _images[int(item.type)]; }
 };
 typedef MapTemplate<GAME_WIDTH + MAZE_WIDTH, GAME_HEIGHT + MAZE_HEIGHT> Map;
 
@@ -161,3 +169,5 @@ inline Point GetPositionByDirection(Point startPos, E_Direction direction)
 	startPos.y += (shift >> 3) & 1;
 	return startPos;
 }
+
+#endif

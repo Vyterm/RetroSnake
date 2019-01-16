@@ -1,5 +1,7 @@
 #include "GameModel.hpp"
 
+const string Map::_images[] = { " ", "#", "F", "@", "O", "J" };
+
 const Color Map::DefaultColor = { 7,0 };
 
 Snake::Snake(Map & map, Point position, Color color) : m_head(new SnakePart(position)), m_tail(m_head), m_color(color)
