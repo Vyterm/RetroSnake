@@ -1,103 +1,103 @@
 #include "GameApp.hpp"
 #include "GameLib.hpp"
 #include "GameSurface.hpp"
+#include "GameModel.hpp"
 
 #include <iostream>
 #include <iomanip>
+#include <vector>
 
 #include <Windows.h>
 #include <conio.h>
+#include <time.h>
 
 using std::cout;
 using std::cin;
 using std::endl;
 
-enum class E_Direction
-{
-	None,
-	Left,
-	Right,
-	Up,
-	Down,
-};
-
-struct Point
-{
-	int x, y;
-};
-
-struct SnakePart
-{
-	Point position;
-	SnakePart *next, *last;
-};
 
 inline bool IsKeyDown(int vKey)
 {
 	return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001;
 }
 
+inline E_Direction GetInputDirection(E_Direction direction)
+{
+	if (IsKeyDown(VK_LEFT) && direction != E_Direction::Right)
+		direction = E_Direction::Left;
+	else if (IsKeyDown(VK_UP) && direction != E_Direction::Down)
+		direction = E_Direction::Up;
+	else if (IsKeyDown(VK_RIGHT) && direction != E_Direction::Left)
+		direction = E_Direction::Right;
+	else if (IsKeyDown(VK_DOWN) && direction != E_Direction::Up)
+		direction = E_Direction::Down;
+	return direction;
+}
+
+inline bool GenerateRandomFood(Map &map)
+{
+	srand((unsigned)time(nullptr));
+	std::vector<Point> emptyPoints;
+	for (int ri = 0; ri < GAME_HEIGHT; ++ri)
+		for (int ci = 0; ci < GAME_WIDTH; ++ci)
+			if (E_MapItem::None == map.Index(ci, ri))
+				emptyPoints.push_back({ ci,ri });
+	if (0 == emptyPoints.size())
+		return false;
+	map[emptyPoints[rand() % emptyPoints.size()]] = E_MapItem::Food;
+	return true;
+}
+static bool G_IsGameOver = false;
+
+void Game()
+{
+	Map map;
+	InitSurface(map);
+	Point point = { 40, 30 };
+	Snake snake(point);
+	map[point] = E_MapItem::Head;
+	GenerateRandomFood(map);
+	while (!G_IsGameOver)
+	{
+		DrawMap(map);
+		Sleep(100);
+		snake.set_direction(GetInputDirection(snake.get_direction()));
+		switch (snake.MoveByDirection(map))
+		{
+		case E_MoveState::Over:
+			OverSurface(false);
+			G_IsGameOver = true;
+			break;
+		case E_MoveState::Eat:
+			if (!GenerateRandomFood(map))
+			{
+				OverSurface(true);
+				G_IsGameOver = true;
+			}
+			break;
+		case E_MoveState::Done:
+		default:
+			break;
+		}
+	}
+}
 
 int main()
 {
 	SetTitle("贪吃蛇大作战(Console Version) by 郭弈天");
 	SetConsoleWindowSize();
 	SetColor(10, 0);
-	E_MapItem map[GAME_WIDTH][GAME_HEIGHT];
-	//Map map;
-	InitSurface(&map);
-	Point point = { 40, 30 };
-	map[point.x][point.y] = E_MapItem::Head;
-	E_Direction direction = E_Direction::None;
-	while (true)
+
+	char c = '\0';
+	while ('q' != c)
 	{
-		if (IsKeyDown(VK_LEFT) && direction != E_Direction::Right)
-			direction = E_Direction::Left;
-		else if (IsKeyDown(VK_UP) && direction != E_Direction::Down)
-			direction = E_Direction::Up;
-		else if (IsKeyDown(VK_RIGHT) && direction != E_Direction::Left)
-			direction = E_Direction::Right;
-		else if (IsKeyDown(VK_DOWN) && direction != E_Direction::Up)
-			direction = E_Direction::Down;
-		auto tmpPoint = point;
-		switch (direction)
-		{
-		case E_Direction::None:
-			break;
-		case E_Direction::Left:
-			point.x -= 1;
-			break;
-		case E_Direction::Right:
-			point.x += 1;
-			break;
-		case E_Direction::Up:
-			point.y -= 1;
-			break;
-		case E_Direction::Down:
-			point.y += 1;
-			break;
-		default:
-			break;
-		}
-		if (map[point.x][point.y] == E_MapItem::None)
-		{
-			map[point.x][point.y] = E_MapItem::Head;
-			map[tmpPoint.x][tmpPoint.y] = E_MapItem::None;
-		}
-		else if (map[point.x][point.y] == E_MapItem::Food)
-		{
-			map[point.x][point.y] = E_MapItem::Head;
-			map[tmpPoint.x][tmpPoint.y] = E_MapItem::Body;
-		}
-		else
-			point = tmpPoint;// ToDo: GameOver
-
-		DrawMap(&map);
-		Sleep(100);
+		G_IsGameOver = false;
+		Game();
+		fflush(stdin);
+		c = '\0';
+		while ('q' != c && 'r' != c)
+			c = _getch();
 	}
-
-
-	cin.get();
 
 	return 0;
 }

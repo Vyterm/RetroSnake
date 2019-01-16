@@ -16,9 +16,14 @@ static constexpr auto GAME_MAP_E_INDEXY = 59;
 static constexpr auto GAME_MAP_S_INDEXX = 0;
 static constexpr auto GAME_MAP_E_INDEXX = 79;
 
+static constexpr auto GAME_OVER_S_INDEXY = 20;
+static constexpr auto GAME_OVER_E_INDEXY = 39;
+static constexpr auto GAME_OVER_S_INDEXX = 0;
+static constexpr auto GAME_OVER_E_INDEXX = 79;
+
 static E_MapItem zCacheMap[GAME_WIDTH][GAME_HEIGHT];
 
-void InitSurface(E_MapItem(*map)[GAME_WIDTH][GAME_HEIGHT])
+void InitSurface(Map &map)
 {
 	for (int ri = 0; ri < GAME_HEIGHT; ++ri)
 	{
@@ -27,13 +32,13 @@ void InitSurface(E_MapItem(*map)[GAME_WIDTH][GAME_HEIGHT])
 		{
 			E_MapItem item = (ri == GAME_MAP_S_INDEXY || ri == GAME_MAP_E_INDEXY || ci == GAME_MAP_S_INDEXX || ci == GAME_MAP_E_INDEXX)
 				? E_MapItem::Wall : E_MapItem::None;
-			zCacheMap[ci][ri] = map[0][ci][ri] = item;
+			zCacheMap[ci][ri] = map.Index(ci, ri) = item;
 			cout << MapItems[(int)zCacheMap[ci][ri]];
 		}
 	}
 }
 
-void DrawMap(const E_MapItem(*map)[GAME_WIDTH][GAME_HEIGHT])
+void DrawMap(const Map &map)
 {
 	for (int ri = 0; ri < GAME_HEIGHT; ++ri)
 	{
@@ -41,12 +46,31 @@ void DrawMap(const E_MapItem(*map)[GAME_WIDTH][GAME_HEIGHT])
 		{
 			//if (map[0][ci][ri] == E_MapItem::Head)
 			//	continue;
-			if (zCacheMap[ci][ri] == map[0][ci][ri])
+			if (zCacheMap[ci][ri] == map.Index(ci, ri))
 				continue;
-			zCacheMap[ci][ri] = map[0][ci][ri];
+			zCacheMap[ci][ri] = map.Index(ci, ri);
 			SetPosition(GAME_MAP_STARTPOSX + ci, GAME_MAP_STARTPOSY + ri);
 			cout << MapItems[(int)zCacheMap[ci][ri]];
 		}
 	}
 	SetPosition(0, 0);
+}
+
+void OverSurface(bool isWin)
+{
+	for (int ri = GAME_OVER_S_INDEXY; ri <= GAME_OVER_E_INDEXY; ++ri)
+	{
+		SetPosition(GAME_MAP_STARTPOSX, GAME_MAP_STARTPOSY + ri);
+		for (int ci = GAME_OVER_S_INDEXX; ci < GAME_OVER_E_INDEXX; ++ci)
+		{
+			if (ri == GAME_MAP_S_INDEXY || ri == GAME_MAP_E_INDEXY || ci == GAME_MAP_S_INDEXX || ci == GAME_MAP_E_INDEXX)
+				cout << "#";
+			else
+				cout << " ";
+		}
+	}
+	SetPosition(10, 30);
+	cout << (isWin ? "你赢了" : "你输了");
+	SetPosition(10, 31);
+	cout << "输入q退出游戏，输入r重新开始";
 }
