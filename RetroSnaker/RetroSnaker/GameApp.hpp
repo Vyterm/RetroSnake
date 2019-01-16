@@ -9,9 +9,7 @@ class GameApp
 {
 	bool m_isUpdateUI;
 
-	void GameInit(GameMap &map, PlayerCtrl &player1, PlayerCtrl &player2);
-	void GameMain(GameMap &map, PlayerCtrl &player1, PlayerCtrl &player2);
-	void GameOver(PlayerCtrl &player1, PlayerCtrl &player2, bool &isGameOver);
+	void GameMain(GameMap &map);
 public:
 	GameApp();
 	void Run();

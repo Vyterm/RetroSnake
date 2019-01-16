@@ -92,7 +92,6 @@ bool PlayerCtrl::MoveByPosition(const Point &position)
 	return false;
 }
 
-//»ÆÂÌ×ÏºìÀ¶
 void PlayerCtrl::HandleFood(const Point& position)
 {
 	++m_speedLevel;
@@ -154,6 +153,10 @@ void PlayerCtrl::HandleTerrain(const Point& position)
 	case E_SubType::SubType2:
 		break;
 	case E_SubType::SubType3:
+		//if (!m_snake.RemoveTail(m_map))
+		//	m_alive = false;
+		//else
+		//	m_snake.TailToHead(m_map, position);
 		if (!m_snake.RemoveTail(m_map))
 			m_alive = false;
 		break;

@@ -48,6 +48,7 @@ public:
 struct CellModel
 {
 	E_StaticCellType type;
+	int id = 0;
 	CellModel& operator=(E_StaticCellType type) { this->type = type; return *this; }
 };
 
@@ -57,6 +58,7 @@ private:
 	size_t m_width, m_height;
 	CellModel *m_cellModels;
 	std::map<E_FoodType, size_t> m_foodWeights;
+	size_t m_foodCount = 1;
 public:
 	GameMapModel(size_t width, size_t height) : m_width(width), m_height(height), m_cellModels(new CellModel[width*height])
 	{
@@ -71,8 +73,10 @@ public:
 		m_foodWeights[E_FoodType::BuffGhost] = 10;
 	}
 	~GameMapModel() { delete[] m_cellModels; }
-	const CellModel& get_Index(size_t x, size_t y) const { return m_cellModels[x + y * m_width]; }
-	void set_Index(size_t x, size_t y, const CellModel &cell) { m_cellModels[x + y * m_width] = cell; }
+	//const CellModel& get_Index(size_t x, size_t y) const { return m_cellModels[x + y * m_width]; }
+	//void set_Index(size_t x, size_t y, const CellModel &cell) { m_cellModels[x + y * m_width] = cell; }
+	CellModel& Index(int x, int y) { return m_cellModels[x + y * m_width]; }
+	const CellModel& Index(int x, int y) const { return m_cellModels[x + y * m_width]; }
 
 	void SetHollowLand(size_t startPosX, size_t width, size_t startPosY, size_t height, E_StaticCellType staticType)
 	{
@@ -93,7 +97,15 @@ public:
 				m_cellModels[x + y * m_width] = staticType;
 	}
 
+	void SetCross(size_t x, size_t y)
+	{
+		Index(x - 1, y) = Index(x, y) = Index(x + 1, y)
+			= Index(x, y - 1) = Index(x, y + 1) = E_StaticCellType::JebelLand;
+	}
+
 	size_t& FoodWeight(E_FoodType type) {  }
+	size_t get_FoodCount() const { return m_foodCount; }
+	void set_FoodCount(size_t foodCount) { m_foodCount = foodCount; }
 };
 
 #endif
