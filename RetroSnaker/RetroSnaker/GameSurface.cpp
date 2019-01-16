@@ -93,12 +93,15 @@ void DrawMap(const Map &map)
 	SetPosition(0, 0);
 }
 
-void OverSurface(bool isWin)
+void OverSurface(string playerName, Color playerColor, bool isWin)
 {
 	SetColor(15, 0);
 	DrawBorder(GAME_OVER_S_INDEXX, GAME_OVER_E_INDEXX, GAME_OVER_S_INDEXY, GAME_OVER_E_INDEXY);
 	SetPosition(GAME_OVER_S_INDEXX + 17, GAME_OVER_S_INDEXY + 4);
-	cout << (isWin ? "你赢了" : "你输了");
+	SetColor(playerColor.fore, playerColor.back);
+	cout << playerName;
+	SetColor(15, 0);
+	cout << (isWin ? "胜利" : "失败");
 	SetPosition(GAME_OVER_S_INDEXX + 6, GAME_OVER_S_INDEXY + 5);
 	cout << "输入q退出游戏，输入r重新开始";
 }

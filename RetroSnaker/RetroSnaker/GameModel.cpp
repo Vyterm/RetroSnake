@@ -49,6 +49,17 @@ E_MoveState Snake::MoveByDirection(Map &map)
 		map.ColorIndex(m_head->m_position) = m_color;
 		return E_MoveState::Eat;
 	}
+	else if (map.Index(tmpPoint) == E_CellType::Body)
+	{
+		auto tmpBody = m_head;
+		while (nullptr != tmpBody)
+		{
+			if (tmpBody->m_position == tmpPoint)
+				return E_MoveState::Over;
+			tmpBody = tmpBody->m_last;
+		}
+		return E_MoveState::Kill;
+	}
 	else
 		return E_MoveState::Over;
 }

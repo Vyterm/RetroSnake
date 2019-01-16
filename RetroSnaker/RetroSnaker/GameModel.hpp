@@ -65,6 +65,7 @@ enum class E_MoveState
 {
 	Done,
 	Eat,
+	Kill,
 	Over,
 };
 
@@ -112,6 +113,7 @@ public:
 	Point get_tailPosition() const { return m_tail->m_position; }
 	E_Direction get_direction() const { return m_direction; }
 	void set_direction(E_Direction direction) { m_direction = direction; }
+	Color get_color() const { return m_color; }
 	E_MoveState MoveByDirection(Map &m_map);
 };
 

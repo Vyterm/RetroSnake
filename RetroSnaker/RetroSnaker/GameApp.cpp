@@ -12,6 +12,7 @@
 #include <conio.h>
 #include <time.h>
 #include <math.h>
+#include <stdlib.h>
 
 using std::cout;
 using std::cin;
@@ -47,17 +48,21 @@ inline void ProcessSnake(Map &map, PlayerCtrl &player, int &eatFoodCount)
 	switch (moveState)
 	{
 	case E_MoveState::Over:
-		OverSurface(false);
+		OverSurface(player.get_Name(), player.get_Color(), false);
 		G_IsGameOver = true;
 		break;
 	case E_MoveState::Eat:
 		if (!GenerateRandomFood(map))
 		{
-			OverSurface(true);
+			OverSurface(player.get_Name(), player.get_Color(), true);
 			G_IsGameOver = true;
 		}
 		player.IncreaseScore();
 		++eatFoodCount;
+		break;
+	case E_MoveState::Kill:
+		OverSurface(player.get_Name(), player.get_Color(), true);
+		G_IsGameOver = true;
 		break;
 	case E_MoveState::Done:
 	default:
@@ -71,8 +76,8 @@ void Game()
 	bool isGamePause = false;
 	Map map;
 	InitSurface(map);
-	PlayerCtrl player1(map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 10,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
-	PlayerCtrl player2(map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 9, 0 }, 'W', 'A', 'S', 'D');
+	PlayerCtrl player1("玩家一", map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 10,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
+	PlayerCtrl player2("玩家二", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 9, 0 }, 'W', 'A', 'S', 'D');
 	int eatFoodCount = 0;
 	GenerateRandomFood(map);
 	ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
@@ -101,10 +106,25 @@ int main()
 	SetTitle("贪吃蛇大作战(Console Version) by 郭弈天");
 	SetConsoleWindowSize();
 
+	cout << "请输入激活码" << endl;
+	string sign = "";
+	while ("CRAZY" != sign)
+		getline(cin, sign);
+	system("cls");
+	if ("CRAZY" != sign)
+		return 0;
+
 	char c = '\0';
 	while ('q' != c)
 	{
 		G_IsGameOver = false;
+		if ("CRAZY" != sign)
+		{
+			cout << "输入的激活码已失效，输入q以退出游戏";
+			while ('q' != (c = _getch()))
+				continue;
+			return 0;
+		}
 		Game();
 		fflush(stdin);
 		c = '\0';
