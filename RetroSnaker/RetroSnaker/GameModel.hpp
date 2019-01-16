@@ -26,9 +26,13 @@ class Snake
 	SnakePart *m_head, *m_tail;
 	Color m_color;
 public:
-	Snake(Map &map, Point position, Color color);
+	Snake(Color color);
 	Snake(Snake &&snake);
 	~Snake();
+
+	void Reset(Map &map, Point position);
+	void Clear();
+
 	Point get_headPosition() const { return m_head->m_position; }
 	Point get_tailPosition() const { return m_tail->m_position; }
 	Color get_color() const { return m_color; }

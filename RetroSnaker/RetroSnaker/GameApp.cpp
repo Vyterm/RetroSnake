@@ -20,11 +20,8 @@ using std::cout;
 using std::cin;
 using std::endl;
 
-constexpr Color FoodColors[] = { {14,0}, {10,0}, {13,0}, {12,0}, {9,0} };
-constexpr Color FOOD_COLOR = { 12, 0 };
-constexpr Color JUMP_COLOR = { 9 , 0 };
-constexpr Color EXIT_COLOR = { 13, 0 };
-static constexpr auto SLEEP_DELTA = 10;
+constexpr Color JUMP_COLOR = { E_Color::LBlue, DEFAULT_BACK_COLOR };
+constexpr Color EXIT_COLOR = { E_Color::LPurple, DEFAULT_BACK_COLOR };
 
 inline bool IsKey(int vKey)
 {
@@ -36,166 +33,84 @@ inline bool IsKeyDown(int vKey)
 	return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001;
 }
 
-inline bool SearchEmptyPosition(Map &map, Point &emptyPoint)
+int main()
 {
-	std::vector<Point> emptyPoints;
-	for (int ri = 0; ri < GAME_HEIGHT; ++ri)
-		for (int ci = 0; ci < GAME_WIDTH; ++ci)
-			if (E_CellType::None == map.Index(ci, ri))
-				emptyPoints.push_back({ ci,ri });
-	if (0 == emptyPoints.size())
-		return false;
-	emptyPoint = emptyPoints[rand() % emptyPoints.size()];
-	return true;
+	GameApp app;
+	app.Run();
+
+	return 0;
 }
 
-inline bool GenerateEntryPoint(Map &map, const Color &color)
+void GameApp::Run()
 {
-	Point emptyPoint;
-	if (!SearchEmptyPosition(map, emptyPoint))
-		return false;
-	map[emptyPoint].Set(E_CellType::Jump, color);
-	// ToDo: Temp solution, wait to refactor.
-	Point jumpPoint = { rand() % (MAZE_WIDTH - 2) + (GAME_WIDTH + 1),rand() % (MAZE_HEIGHT - 2) + (MSG_HEIGHT + 1) };
-	map[emptyPoint].jumpPoint = jumpPoint;
-	map[jumpPoint].Set(E_CellType::Jump, color);
-	map[jumpPoint].jumpPoint = emptyPoint;
+	SetTitle("贪吃蛇大作战(Console Version) by 郭弈天");
+	SetConsoleWindowSize();
+	ResetCursor();
 
-	return true;
-}
-
-inline bool GenerateRandomFood(Map &map)
-{
-	Point emptyPoint;
-	if (!SearchEmptyPosition(map, emptyPoint))
-		return false;
-	auto randomType = rand() % 100;
-	E_SubType subType = randomType < 0 ? E_SubType::SubType0 : 
-		randomType < 40 ? E_SubType::SubType1 : 
-		randomType < 60 ? E_SubType::SubType2 : 
-		randomType < 80 ? E_SubType::SubType3 : E_SubType::SubType4;
-
-	map[emptyPoint].Set(E_CellType::Food, subType, FoodColors[int(subType)]);
-	return true;
-}
-
-static bool G_IsGameOver = false;
-static int G_Player1Score = 0, G_Player2Score = 0;
-
-inline bool ProcessSnake(Map &map, PlayerCtrl &player)
-{
-	auto isEatFood = player.Process(SLEEP_DELTA);
-	if (isEatFood)
-		return GenerateRandomFood(map);
-	return isEatFood;
-}
-
-inline void DrawOverPanel(PlayerCtrl &player1, PlayerCtrl &player2)
-{
-	if (!player1.IsAlive())
+	char c = '\0';
+	while ('q' != c)
 	{
-		++G_Player2Score;
-		OverSurface(player2.get_Name(), player2.get_Color(), true);
-		G_IsGameOver = true;
-	}
-	else if (!player2.IsAlive())
-	{
-		++G_Player1Score;
-		OverSurface(player1.get_Name(), player1.get_Color(), true);
-		G_IsGameOver = true;
+		Reset();
+		Game();
+		while (_kbhit())
+			_getch();
+		c = '\0';
+		while ('q' != c && 'r' != c)
+			c = _getch();
 	}
 }
 
-class SecondHandler : public TimerManager::handler
+void GameApp::Game()
 {
-	int m_id;
-	int m_invokeCount;
-public:
-	SecondHandler(clock_t invokeTime, bool isLoop, int id) : TimerManager::handler(invokeTime, isLoop), m_invokeCount(0), m_id(id) { }
-	void Invoke() override
-	{
-		SetPosition(m_id*10, 41);
-		cout << "Timer" << m_id << "Invoke" << ++m_invokeCount << "  ";
-	}
-};
-
-void Game()
-{
-	srand((unsigned)time(nullptr));
 	bool isGamePause = false;
-	int timer1InvokeCount = 0, timer2InvokeCount = 0;
-	auto &timer1 = TimerManager::get_instance().RegisterHandler<SecondHandler>(1000, true, 0);
-	auto &timer2 = TimerManager::get_instance().RegisterHandler<SecondHandler>(2000, true, 1);
-	Map map;
-	InitSurface(map);
-	PlayerCtrl player1("玩家一", map, { GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 }, { 15,0 }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT);
-	PlayerCtrl player2("玩家二", map, { GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 }, { 11,0 }, 'W', 'A', 'S', 'D');
-	player1.SetEnemy(player2);
-	player2.SetEnemy(player1);
-	int eatFoodCount = 0;
-	GenerateRandomFood(map);
-	GenerateRandomFood(map);
-	GenerateRandomFood(map);
-	GenerateEntryPoint(map, JUMP_COLOR);
-	GenerateEntryPoint(map, EXIT_COLOR);
-	ShowMsg(G_Player1Score, G_Player2Score, player1, player2);
-	while (!G_IsGameOver)
+	while (!m_isGameOver)
 	{
 		if (IsKeyDown(VK_SPACE))
 			isGamePause = !isGamePause;
 
 		if (isGamePause)
 			continue;
-		bool updateFlag = false;
-		updateFlag |= ProcessSnake(map, player1);
-		updateFlag |= ProcessSnake(map, player2);
-		if (updateFlag)
-			ShowMsg(G_Player1Score, G_Player2Score, player1, player2);
-		DrawMap(map);
 		TimerManager::get_instance().HandleClock();
-		Sleep(SLEEP_DELTA);
-		DrawOverPanel(player1, player2);
+		if (m_isUpdateUI)
+		{
+			ShowMsg(m_player1, m_player2);
+			m_isUpdateUI = false;
+		}
+		m_map.Draw();
+		//Sleep(SLEEP_DELTA);
+		CheckOver();
 	}
-	TimerManager::get_instance().UnregiserHandler(timer1);
-	TimerManager::get_instance().UnregiserHandler(timer2);
 }
 
-int main()
+void GameApp::Reset()
 {
-	SetTitle("贪吃蛇大作战(Console Version) by 郭弈天");
-	SetConsoleWindowSize();
-	//ResetCursor();
-
-	char c = '\0';
-	while ('q' != c)
-	{
-		G_IsGameOver = false;
-		Game();
-		fflush(stdin);
-		c = '\0';
-		while ('q' != c && 'r' != c)
-			c = _getch();
-	}
-
-	return 0;
+	srand((unsigned)time(nullptr));
+	m_isGameOver = false;
+	m_isUpdateUI = false;
+	SetColor(DEFAULT_COLOR);
+	system("cls");
+	m_map.Init();
+	m_player1.Reset({ GAME_WIDTH / 2 + 5,GAME_HEIGHT / 2 });
+	m_player2.Reset({ GAME_WIDTH / 2 - 5,GAME_HEIGHT / 2 });
+	m_map.GenerateRandomFood(3);
+	m_map.GenerateEntryPoint(JUMP_COLOR);
+	m_map.GenerateEntryPoint(EXIT_COLOR);
+	m_map.Draw();
+	ShowMsg(m_player1, m_player2);
 }
 
-void TestGetAsyncKeyState()
+void GameApp::CheckOver()
 {
-	int invokeCount = 0;
-	while (true)
+	if (!m_player1.IsAlive())
 	{
-		Sleep(80);
-		SetPosition(0, 0);
-		SHORT key;
-		key = GetAsyncKeyState(VK_LEFT);
-		cout << std::hex << std::setw(4) << std::setfill('0') << key << endl;
-		key = GetAsyncKeyState(VK_RIGHT);
-		cout << std::hex << std::setw(4) << std::setfill('0') << key << endl;
-		key = GetAsyncKeyState(VK_UP);
-		cout << std::hex << std::setw(4) << std::setfill('0') << key << endl;
-		key = GetAsyncKeyState(VK_DOWN);
-		cout << std::hex << std::setw(4) << std::setfill('0') << key << endl;
-		cout << "InvokeCount : " << ++invokeCount << endl;
+		m_player2.IncreaseScore();
+		OverSurface(m_player2, true);
+		m_isGameOver = true;
+	}
+	else if (!m_player2.IsAlive())
+	{
+		m_player1.IncreaseScore();
+		OverSurface(m_player1, true);
+		m_isGameOver = true;
 	}
 }

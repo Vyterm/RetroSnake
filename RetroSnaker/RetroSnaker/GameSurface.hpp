@@ -37,19 +37,17 @@ public:
 };
 using Msgs = std::vector<SurfaceText>;
 
-void InitSurface(Map &map);
-void DrawMap(Map &map);
-void OverSurface(string playerName, Color playerColor, bool isWin);
+void OverSurface(const PlayerCtrl &winer, bool isWin);
 
 void ShowMsg(Msgs &&msgs);
 
-inline void ShowMsg(int player1Score, int player2Score, const PlayerCtrl &player1, const PlayerCtrl &player2)
+inline void ShowMsg(const PlayerCtrl &player1, const PlayerCtrl &player2)
 {
 	ShowMsg({
 		{ "" },
 		{ "" },
 		{ "玩家一", "玩家二" },
-		{ "分数", player1Score, player2Score, 3, '0' },
+		{ "分数", player1.get_Score(), player2.get_Score(), 3, '0' },
 		{ "速度", player1.get_Speed(), player2.get_Speed(), 3, '0' },
 		{ "" },
 		{ "" },

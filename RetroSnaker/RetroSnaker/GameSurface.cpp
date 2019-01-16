@@ -31,43 +31,14 @@ inline void DrawBorder(int posXS, int posXE, int posYS, int posYE, Map *map = nu
 	}
 }
 
-inline void SetTree(Map &map, int treeX, int treeY)
+void OverSurface(const PlayerCtrl &winer, bool isWin)
 {
-	//map.Index(treeX - 2, treeY) = map.Index(treeX - 1, treeY) = map.Index(treeX, treeY) = map.Index(treeX + 1, treeY)
-	//	= map.Index(treeX + 2, treeY) = map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = E_CellType::Wall;
-	//map.Index(treeX - 2, treeY) = map.Index(treeX - 1, treeY) = map.Index(treeX, treeY) = map.Index(treeX + 1, treeY)
-	//	= map.Index(treeX + 2, treeY) = map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = { 8, 0 };
-	map.Index(treeX - 1, treeY) = map.Index(treeX, treeY) = map.Index(treeX + 1, treeY)
-		= map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = E_CellType::Wall;
-	map.Index(treeX - 1, treeY) = map.Index(treeX, treeY) = map.Index(treeX + 1, treeY)
-		= map.Index(treeX, treeY - 1) = map.Index(treeX, treeY + 1) = { 8, 0 };
-}
-
-void InitSurface(Map &map)
-{
-	map.Init(0, GAME_WIDTH, 0, GAME_HEIGHT);
-	map.Init(GAME_WIDTH, MAZE_WIDTH, MSG_HEIGHT, MAZE_HEIGHT);
-	map.Init(GAME_WIDTH, MSG_WIDTH, 0, MSG_HEIGHT);
-	SetTree(map, 5, 5);
-	SetTree(map, 34, 5);
-	SetTree(map, 5, 34);
-	SetTree(map, 34, 34);
-	map.Draw(true);
-}
-
-void DrawMap(Map &map)
-{
-	map.Draw();
-}
-
-void OverSurface(string playerName, Color playerColor, bool isWin)
-{
-	SetColor(15, 0);
+	SetColor(DEFAULT_COLOR);
 	DrawBorder(GAME_OVER_S_INDEXX, GAME_OVER_E_INDEXX, GAME_OVER_S_INDEXY, GAME_OVER_E_INDEXY);
 	SetPosition(GAME_OVER_S_INDEXX + 13, GAME_OVER_S_INDEXY + 4);
-	SetColor(playerColor.fore, playerColor.back);
-	cout << playerName;
-	SetColor(15, 0);
+	SetColor(winer.get_Color());
+	cout << winer.get_Name();
+	SetColor(DEFAULT_COLOR);
 	cout << (isWin ? "胜利" : "失败");
 	SetPosition(GAME_OVER_S_INDEXX + 8, GAME_OVER_S_INDEXY + 5);
 	cout << "输入q退出游戏，输入r重新开始";
@@ -75,7 +46,7 @@ void OverSurface(string playerName, Color playerColor, bool isWin)
 
 void ShowMsg(Msgs && msgs)
 {
-	SetColor(7, 0);
+	SetColor(DEFAULT_COLOR);
 	int ri = GAME_MSG_S_INDEXY + 1;
 	for (auto msg : msgs)
 	{

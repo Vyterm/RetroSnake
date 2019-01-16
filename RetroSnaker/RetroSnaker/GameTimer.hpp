@@ -12,12 +12,14 @@ class TimerManager
 public:
 	class handler
 	{
-		const clock_t m_invokeTime;
-		const bool m_isLoop;
+	private:
 		clock_t m_timer;
+		clock_t m_invokeTime;
+		bool m_isLoop;
 	protected:
 		handler(clock_t invokeTime, bool isLoop) : m_invokeTime(invokeTime), m_isLoop(isLoop), m_timer(m_invokeTime) { }
 	public:
+		virtual ~handler() { }
 		virtual void Invoke() = NULL;
 		bool Clock(clock_t timeDelta)
 		{
@@ -27,6 +29,16 @@ public:
 			if (!m_isLoop) return true;
 			m_timer += m_invokeTime;
 			return false;
+		}
+		void Reset(clock_t invokeTime)
+		{
+			Reset(invokeTime, m_isLoop);
+		}
+		void Reset(clock_t invokeTime, bool isLoop)
+		{
+			m_invokeTime = invokeTime;
+			m_timer = invokeTime;
+			m_isLoop = isLoop;
 		}
 	};
 	static TimerManager& get_instance() { return m_instance; }
@@ -38,7 +50,7 @@ public:
 		return m_handlers[index];
 	}
 	template <typename TItem, typename TArg1>
-	handler& RegisterHandler(clock_t invokeTime, bool isLoop, const TArg1 &arg1)
+	handler& RegisterHandler(clock_t invokeTime, bool isLoop, TArg1 &arg1)
 	{
 		auto index = m_handlers.size();
 		m_handlers.Append<TItem>(invokeTime, isLoop, arg1);

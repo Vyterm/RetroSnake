@@ -21,9 +21,9 @@ void SetTitle(const char * title) {
 }
 /* 0-黑色, 1-蓝色,   2-绿色,      3-浅绿色,     4-红色,   5-紫色,   6-黄色,   7-白色,
  * 8-灰色, 9-淡蓝色, 10-淡绿色,   11-淡浅绿色   12-淡红色 13-淡紫色 14-淡黄色 15-亮白色*/
-void SetColor(int ForeColor, int BackGroundColor) {
+void SetColor(Color color) {
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);                    //获取当前窗口句柄
-	SetConsoleTextAttribute(handle, ForeColor + BackGroundColor * 0x10);//设置颜色
+	SetConsoleTextAttribute(handle, short(color.fore) + short(color.back) * 0x10);//设置颜色
 	//CloseHandle(handle);
 }
 /* 根据宽高设置控制台窗口的大小 */

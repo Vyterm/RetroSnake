@@ -15,8 +15,9 @@
 #include <windows.h>
 #include <Windows.h>
 #include <time.h>
+#include "GameColor.hpp"
 
-constexpr auto WIN_HEIGHT = 41;
+constexpr auto WIN_HEIGHT = 43;
 constexpr auto WIN_WIDTH = 120;
 constexpr auto GAME_HEIGHT = 40;
 constexpr auto GAME_WIDTH = 40;
@@ -30,7 +31,7 @@ void SetTitle(const char * title);
 /* 0-黑色, 1-蓝色,   2-绿色,      3-浅绿色,     4-红色,   5-紫色,   6-黄色,   7-白色,
  * 8-灰色, 9-淡蓝色, 10-淡绿色,   11-淡浅绿色   12-淡红色 13-淡紫色 14-淡黄色 15-亮白色
  */
-void SetColor(int, int);
+void SetColor(Color);
 
 /* 根据宽高设置控制台窗口的大小 */
 void SetConsoleWindowSize();

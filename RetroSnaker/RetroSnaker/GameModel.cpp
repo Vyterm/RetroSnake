@@ -1,9 +1,8 @@
 #include "GameModel.hpp"
 
 
-Snake::Snake(Map & map, Point position, Color color) : m_head(new SnakePart(position)), m_tail(m_head), m_color(color)
+Snake::Snake(Color color) : m_head(nullptr), m_tail(m_head), m_color(color)
 {
-	map[position].Set(E_CellType::Head, color);
 }
 
 Snake::Snake(Snake && snake)
@@ -17,6 +16,18 @@ Snake::Snake(Snake && snake)
 }
 
 Snake::~Snake()
+{
+	Clear();
+}
+
+void Snake::Reset(Map & map, Point position)
+{
+	Clear();
+	m_tail = m_head = new SnakePart(position);
+	map[position].Set(E_CellType::Head, m_color);
+}
+
+void Snake::Clear()
 {
 	while (nullptr != m_head)
 	{

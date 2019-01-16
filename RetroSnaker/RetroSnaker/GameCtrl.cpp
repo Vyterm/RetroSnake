@@ -1,8 +1,29 @@
 #include "GameCtrl.hpp"
 
 #include <math.h>
+#include <iostream>
+using namespace std;
 
 inline bool IsKey(int vKey) { return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001; }
+
+PlayerCtrl::PlayerCtrl(string name, Map &map, bool &isUpdateUI, Color color, int kUp, int kLeft, int kDown, int kRight)
+	: m_name(name), m_map(map), m_isUpdateUI(isUpdateUI), m_snake(color), m_speedLevel(0), m_score(0),
+	m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight), m_timer(TimerManager::get_instance().RegisterHandler<TickTock, PlayerCtrl>(100, true, *this))
+{
+}
+
+PlayerCtrl::~PlayerCtrl()
+{
+	TimerManager::get_instance().UnregiserHandler(m_timer);
+}
+
+void PlayerCtrl::Reset(Point position)
+{
+	m_snake.Reset(m_map, position);
+	m_alive = true;
+	m_speedLevel = 0;
+	m_direction = E_Direction::None;
+}
 
 //»ÆÂÌ×ÏºìÀ¶
 void PlayerCtrl::HandleFood(const Point& position)
@@ -82,7 +103,7 @@ void PlayerCtrl::UpdateDirection()
 		target = E_Direction::Right;
 	else if (IsKey(m_kDown))
 		target = E_Direction::Down;
-	
+
 	auto targetPosition = GetPositionByDirection(m_snake.get_headPosition(), target);
 	if (m_map[targetPosition] == E_CellType::Body && targetPosition != m_snake.get_tailPosition())
 		return;
@@ -98,39 +119,37 @@ bool PlayerCtrl::MoveByPosition()
 
 bool PlayerCtrl::MoveByPosition(const Point &position)
 {
-	if (m_map[position] == E_CellType::None || position == m_snake.get_tailPosition())
+	auto type = m_map.GetType(position);
+	if (type == E_CellType::None || position == m_snake.get_tailPosition())
 	{
 		m_snake.TailToHead(m_map, position);
 		HandleTerrain(position);
 	}
-	else if (m_map[position] == E_CellType::Food)
+	else if (type == E_CellType::Food)
 	{
 		HandleFood(position);
 		return true;
 	}
-	else if (m_map[position] == E_CellType::Body)
+	else if (type == E_CellType::Body)
 	{
 		if (m_snake.Contains(position))
-			m_alive = false;
-		m_enemy->m_alive = false;
+			set_Alive(false);
+		m_enemy->set_Alive(false);
 	}
-	else if (m_map[position] == E_CellType::Jump)
+	else if (type == E_CellType::Jump)
 	{
 		return MoveByPosition(GetPositionByDirection(m_map[position].jumpPoint, m_direction));
 	}
 	else
-		m_alive = false;
+		set_Alive(false);
 	return false;
 }
 
-bool PlayerCtrl::Process(int timeDelta)
+void PlayerCtrl::Process()
 {
-	m_moveRemain -= timeDelta;
-	if (m_moveRemain <= 0)
-	{
-		m_moveRemain += int(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel));
-		UpdateDirection();
-		return MoveByPosition();
-	}
-	return false;
+	m_timer.Reset(clock_t(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel)));
+	UpdateDirection();
+	if (!MoveByPosition()) return;
+	m_map.GenerateRandomFood();
+	m_isUpdateUI = true;
 }

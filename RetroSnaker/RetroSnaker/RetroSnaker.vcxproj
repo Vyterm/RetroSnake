@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp" />
+    <ClInclude Include="GameColor.hpp" />
     <ClInclude Include="GameCtrl.hpp" />
     <ClInclude Include="GameEvent.hpp" />
     <ClInclude Include="GameLib.hpp" />
