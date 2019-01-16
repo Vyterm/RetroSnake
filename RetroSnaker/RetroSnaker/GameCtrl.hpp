@@ -24,6 +24,7 @@ class PlayerCtrl : public virtual DirectionCtrl
 	Map &m_map;
 	Snake m_snake;
 	int m_score;
+	bool m_alive = true;
 public:
 	PlayerCtrl(string name, Map &map, Point position, Color color, int kUp, int kLeft, int kDown, int kRight)
 		: m_name(name), m_map(map), m_snake(map, position, color), m_score(0), m_speedLevel(0), 
@@ -39,4 +40,7 @@ public:
 
 	Color get_Color() const { return m_snake.get_color(); }
 	string get_Name() const { return m_name; }
+
+	bool get_Alive() const { return m_alive; }
+	void set_Alive(bool alive) { m_alive = alive; }
 };

@@ -70,7 +70,14 @@ inline bool GenerateRandomFood(Map &map)
 	map.ColorIndex(emptyPoint) = FOOD_COLOR;
 	return true;
 }
-static bool G_IsGameOver = false;
+struct GameOverInfo
+{
+	bool isGameOver = false;
+	PlayerCtrl *winer = nullptr;
+	PlayerCtrl *loser = nullptr;
+};
+//static bool G_IsGameOver = false;
+GameOverInfo G_GameOverInfo;
 
 inline bool ProcessSnake(Map &map, PlayerCtrl &player)
 {
@@ -78,27 +85,35 @@ inline bool ProcessSnake(Map &map, PlayerCtrl &player)
 	switch (moveState)
 	{
 	case E_MoveState::Over:
-		OverSurface(player.get_Name(), player.get_Color(), false);
-		G_IsGameOver = true;
+		G_GameOverInfo.loser = &player;
+		G_GameOverInfo.isGameOver = true;
 		break;
 	case E_MoveState::Eat:
 		if (!GenerateRandomFood(map))
 		{
-			OverSurface(player.get_Name(), player.get_Color(), true);
-			G_IsGameOver = true;
+			G_GameOverInfo.winer = &player;
+			G_GameOverInfo.isGameOver = true;
 		}
 		player.IncreaseScore();
 		player.IncreaseSpeed();
 		return true;
 	case E_MoveState::Kill:
-		OverSurface(player.get_Name(), player.get_Color(), true);
-		G_IsGameOver = true;
+		G_GameOverInfo.winer = &player;
+		G_GameOverInfo.isGameOver = true;
 		break;
 	case E_MoveState::Done:
 	default:
 		break;
 	}
 	return false;
+}
+
+inline void DrawOverPanel(PlayerCtrl &player1, PlayerCtrl &player2)
+{
+	if (G_GameOverInfo.winer == &player1 || G_GameOverInfo.loser == &player2)
+		OverSurface(player1.get_Name(), player1.get_Color(), true);
+	if (G_GameOverInfo.winer == &player2 || G_GameOverInfo.loser == &player1)
+		OverSurface(player2.get_Name(), player2.get_Color(), true);
 }
 
 void Game()
@@ -115,20 +130,21 @@ void Game()
 	GenerateRandomFood(map);
 	GenerateEntryPoint(map);
 	ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
-	while (!G_IsGameOver)
+	while (!G_GameOverInfo.isGameOver)
 	{
 		if (IsKeyDown(VK_SPACE))
 			isGamePause = !isGamePause;
 
 		if (isGamePause)
 			continue;
-		DrawMap(map);
-		Sleep(SLEEP_DELTA);
 		bool updateFlag = false;
 		updateFlag |= ProcessSnake(map, player1);
 		updateFlag |= ProcessSnake(map, player2);
 		if (updateFlag)
 			ShowMsg(player1.get_Score(), player2.get_Score(), player1.get_Speed(), player2.get_Speed());
+		DrawMap(map);
+		Sleep(SLEEP_DELTA);
+		DrawOverPanel(player1, player2);
 	}
 }
 
@@ -140,7 +156,7 @@ int main()
 	char c = '\0';
 	while ('q' != c)
 	{
-		G_IsGameOver = false;
+		G_GameOverInfo = {};
 		Game();
 		fflush(stdin);
 		c = '\0';
