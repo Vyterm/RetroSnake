@@ -25,7 +25,7 @@ inline void DrawBorder(int posXS, int posXE, int posYS, int posYE, Map *map = nu
 		SetPosition(posXS, ri);
 		for (int ci = posXS; ci <= posXE; ++ci)
 		{
-			E_CellType cellType = (ri == posYS || ri == posYE || ci == posXS || ci == posXE) ? E_CellType::Wall : E_CellType::None;
+			E_CellType cellType = (ri == posYS || ri == posYE || ci == posXS || ci == posXE) ? E_CellType::Land : E_CellType::None;
 			cout << Map::ToString({ cellType });
 		}
 	}

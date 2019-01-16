@@ -101,16 +101,12 @@ void GameApp::Reset()
 
 void GameApp::CheckOver()
 {
-	if (!m_player1.IsAlive())
-	{
-		m_player2.IncreaseScore();
-		OverSurface(m_player2, true);
-		m_isGameOver = true;
-	}
-	else if (!m_player2.IsAlive())
-	{
-		m_player1.IncreaseScore();
-		OverSurface(m_player1, true);
-		m_isGameOver = true;
-	}
+	PlayerCtrl *winer = !m_player1.IsAlive() ? &m_player2 : !m_player2.IsAlive() ? &m_player1 : nullptr;
+	if (nullptr == winer) return;
+	winer->IncreaseScore();
+	OverSurface(*winer, true);
+	m_isGameOver = true;
+	m_player1.ClearBuff();
+	m_player2.ClearBuff();
+	TimerManager::get_instance().HandleClock();
 }

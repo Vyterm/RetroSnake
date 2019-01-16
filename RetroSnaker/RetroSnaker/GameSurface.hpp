@@ -22,10 +22,11 @@ public:
 		m_text = oss.str();
 	}
 	template <typename T>
-	SurfaceText(string prefix, T player1, T player2, std::streamsize width, char fill)
+	SurfaceText(string prefix, T player1, T player2, std::streamsize width, char fill, string suffix = "")
 	{
 		std::ostringstream oss;
-		oss << prefix << std::setw(width) << std::setfill(fill) << player1 << PLAYER_SPACE << prefix << std::setw(width) << std::setfill(fill) << player2;
+		oss << prefix << std::setw(width) << std::setfill(fill) << player1 << suffix
+			<< PLAYER_SPACE << prefix << std::setw(width) << std::setfill(fill) << player2 << suffix;
 		m_text = oss.str();
 	}
 	size_t size()const { return m_text.size(); }
@@ -49,8 +50,8 @@ inline void ShowMsg(const PlayerCtrl &player1, const PlayerCtrl &player2)
 		{ "玩家一", "玩家二" },
 		{ "分数", player1.get_Score(), player2.get_Score(), 3, '0' },
 		{ "速度", player1.get_Speed(), player2.get_Speed(), 3, '0' },
-		{ "" },
-		{ "" },
+		{ "刚体:", player1.get_BuffRemainSecond(E_BuffType::Unstoppable), player2.get_BuffRemainSecond(E_BuffType::Unstoppable), 2, '0', "秒" },
+		{ "失控:", player1.get_BuffRemainSecond(E_BuffType::Incontrollable), player2.get_BuffRemainSecond(E_BuffType::Incontrollable), 2, '0', "秒" },
 		{ "" },
 		{ "" },
 		{ "" },

@@ -17,7 +17,7 @@ public:
 		clock_t m_invokeTime;
 		bool m_isLoop;
 	protected:
-		handler(clock_t invokeTime, bool isLoop) : m_invokeTime(invokeTime), m_isLoop(isLoop), m_timer(m_invokeTime) { }
+		handler(clock_t invokeTime, bool isLoop) : m_invokeTime(invokeTime), m_isLoop(isLoop), m_timer(invokeTime) { }
 	public:
 		virtual ~handler() { }
 		virtual void Invoke() = NULL;
@@ -40,20 +40,38 @@ public:
 			m_timer = invokeTime;
 			m_isLoop = isLoop;
 		}
+		void StopTimer()
+		{
+			Reset(0, false);
+		}
 	};
 	static TimerManager& get_instance() { return m_instance; }
 	template <typename TItem>
-	handler& RegisterHandler(clock_t invokeTime, bool isLoop)
+	handler& RegisterHandler()
 	{
 		auto index = m_handlers.size();
-		m_handlers.Append<TItem>(invokeTime, isLoop);
+		m_handlers.Append<TItem>();
 		return m_handlers[index];
 	}
 	template <typename TItem, typename TArg1>
-	handler& RegisterHandler(clock_t invokeTime, bool isLoop, TArg1 &arg1)
+	handler& RegisterHandler(TArg1 &arg1)
 	{
 		auto index = m_handlers.size();
-		m_handlers.Append<TItem>(invokeTime, isLoop, arg1);
+		m_handlers.Append<TItem>(arg1);
+		return m_handlers[index];
+	}
+	template <typename TItem, typename TArg1, typename TArg2>
+	handler& RegisterHandler(TArg1 &arg1, const TArg2 &arg2)
+	{
+		auto index = m_handlers.size();
+		m_handlers.Append<TItem>(arg1, arg2);
+		return m_handlers[index];
+	}
+	template <typename TItem, typename TArg1, typename TArg2, typename TArg3>
+	handler& RegisterHandler(TArg1 &arg1, const TArg2 &arg2, const TArg3 &arg3)
+	{
+		auto index = m_handlers.size();
+		m_handlers.Append<TItem>(arg1, arg2, arg3);
 		return m_handlers[index];
 	}
 	void UnregiserHandler(handler &handler)
