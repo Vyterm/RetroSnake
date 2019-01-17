@@ -4,8 +4,6 @@
 #include <iostream>
 using namespace std;
 
-inline bool IsKey(int vKey) { return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001; }
-
 #pragma region Construct & Destruct
 
 PlayerCtrl::PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, Color color, int kUp, int kLeft, int kDown, int kRight)

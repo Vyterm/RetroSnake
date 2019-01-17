@@ -1,7 +1,7 @@
 #ifndef GAME_MODEL_HPP
 #define GAME_MODEL_HPP
 
-#include "GameLib.hpp"
+#include "winapi.hpp"
 #include "GameMap.hpp"
 
 enum class E_Direction

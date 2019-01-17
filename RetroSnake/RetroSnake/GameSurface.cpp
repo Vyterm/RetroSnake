@@ -18,11 +18,6 @@ static constexpr auto GAME_MSG_E_INDEXY = MSG_HEIGHT;
 static constexpr auto GAME_MSG_S_INDEXX = GAME_WIDTH + 1;
 static constexpr auto GAME_MSG_E_INDEXX = GAME_WIDTH + MAZE_WIDTH - 1;
 
-inline bool IsKeyDown(int vKey)
-{
-	return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001;
-}
-
 void DrawBorder(int posXS, int posXE, int posYS, int posYE)
 {
 	for (int ri = posYS; ri <= posYE; ++ri)

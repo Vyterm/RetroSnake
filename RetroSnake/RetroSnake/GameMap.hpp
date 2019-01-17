@@ -1,13 +1,14 @@
 ﻿#ifndef GAME_MAP_HPP
 #define GAME_MAP_HPP
 
-#include "GameLib.hpp"
 #include "GameModel.hpp"
+#include "winapi.hpp"
 
 #include <iostream>
 #include <string>
 #include <memory>
 #include <vector>
+#include <ctime>
 
 using std::cout;
 using std::cin;

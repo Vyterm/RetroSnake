@@ -1,14 +1,14 @@
 ﻿#include "GameApp.hpp"
-#include "GameLib.hpp"
 #include "GameSurface.hpp"
 #include "GameCtrl.hpp"
 #include "vytTimer.hpp"
+#include "winapi.hpp"
 
 #include <iostream>
 #include <iomanip>
 #include <vector>
 
-#include <Windows.h>
+#include <windows.h>
 #include <conio.h>
 #include <time.h>
 #include <math.h>
@@ -17,16 +17,6 @@
 using std::cout;
 using std::cin;
 using std::endl;
-
-inline bool IsKey(int vKey)
-{
-	return (GetAsyncKeyState(vKey) & 0x8000) == 0x8000;
-}
-
-inline bool IsKeyDown(int vKey)
-{
-	return (GetAsyncKeyState(vKey) & 0x0001) == 0x0001;
-}
 
 int main()
 {

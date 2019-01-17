@@ -2,9 +2,6 @@
 
 #include "GameCtrl.hpp"
 
-#include <Windows.h>
-#include <stdlib.h>
-
 class GameApp
 {
 	bool m_isUpdateUI;

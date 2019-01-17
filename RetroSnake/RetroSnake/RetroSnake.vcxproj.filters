@@ -36,9 +36,6 @@
     <ClCompile Include="GameApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="GameLib.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GameSurface.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -51,18 +48,15 @@
     <ClCompile Include="GameSnake.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="WindowsPath.cpp">
-      <Filter>源文件\3-rd</Filter>
-    </ClCompile>
     <ClCompile Include="vytTimer.cpp">
       <Filter>源文件\Vyterm</Filter>
+    </ClCompile>
+    <ClCompile Include="winapi.cpp">
+      <Filter>源文件\3-rd</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameLib.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GameSurface.hpp">
@@ -83,14 +77,14 @@
     <ClInclude Include="GameModel.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsPath.hpp">
-      <Filter>头文件\3-rd</Filter>
-    </ClInclude>
     <ClInclude Include="vytTimer.hpp">
       <Filter>头文件\Vyterm</Filter>
     </ClInclude>
     <ClInclude Include="vytVector.hpp">
       <Filter>头文件\Vyterm</Filter>
+    </ClInclude>
+    <ClInclude Include="winapi.hpp">
+      <Filter>头文件\3-rd</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

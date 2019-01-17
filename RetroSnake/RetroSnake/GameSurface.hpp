@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_SURFACE_HPP
 #define GAME_SURFACE_HPP
 
-#include "GameLib.hpp"
+#include "winapi.hpp"
 #include "GameCtrl.hpp"
 
 #include <vector>
