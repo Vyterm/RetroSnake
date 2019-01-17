@@ -316,6 +316,11 @@ public:
 		return upperLayer;
 	}
 
+	static Color ToSubColor(E_SubType subType)
+	{
+		return { SubTypeColors[int(subType)], DEFAULT_BACK_COLOR };
+	}
+
 	static string ToString(const MapItem &item)
 	{
 		static const string images[] = { "  ", "■", "☆", "◎", "¤", "※" };

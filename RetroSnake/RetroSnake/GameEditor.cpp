@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -17,6 +18,54 @@ static const E_Color itemColors[] =
 	E_Color::LPurple,
 	E_Color::LBlue,
 	E_Color::LWhite,
+};
+
+static MapItem items[] =
+{
+	{E_CellType::None, { DEFAULT_FORE_COLOR, E_Color::Black }},
+	{E_CellType::Land, E_SubType::SubType0, { DEFAULT_FORE_COLOR, DEFAULT_BACK_COLOR }},
+	{E_CellType::Land, E_SubType::SubType1, { E_Color::Black, E_Color::LGreen }},
+	{E_CellType::Land, E_SubType::SubType3, { E_Color::Black, E_Color::LRed }},
+	{E_CellType::Land, E_SubType::SubType4, { E_Color::Black, E_Color::LBlue }},
+	{E_CellType::Head, DEFAULT_COLOR},
+	{E_CellType::Jump, DEFAULT_COLOR},
+	{E_CellType::Food, E_SubType::SubType1, GameMap::ToSubColor(E_SubType::SubType1)},
+	{E_CellType::Food, E_SubType::SubType2, GameMap::ToSubColor(E_SubType::SubType2)},
+	{E_CellType::Food, E_SubType::SubType3, GameMap::ToSubColor(E_SubType::SubType3)},
+	{E_CellType::Food, E_SubType::SubType4, GameMap::ToSubColor(E_SubType::SubType4)},
+	{E_CellType::Food, E_SubType::SubType6, GameMap::ToSubColor(E_SubType::SubType6)},
+	{E_CellType::Food, E_SubType::SubType7, GameMap::ToSubColor(E_SubType::SubType7)},
+	{E_CellType::Food, E_SubType::SubType5, GameMap::ToSubColor(E_SubType::SubType5)},
+	{E_CellType::Food, E_SubType::SubType8, GameMap::ToSubColor(E_SubType::SubType8)},
+};
+
+static const string itemNames[] =
+{
+	"空地",
+	"山峰",
+	"草丛",
+	"岩浆",
+	"冰块",
+	"出生点",
+	"传送点",
+	"左画右擦",
+	"中空填充",
+	"完整填充",
+	"白色",
+	"红色",
+	"黄色",
+	"绿色",
+	"青色",
+	"紫色",
+	"蓝色",
+	"亮白",
+	"加载地图",
+	"保存地图",
+
+	"长度权",
+	"速度权",
+	"效果权",
+	"食物数",
 };
 
 #pragma region Editor Painter
@@ -134,33 +183,46 @@ bool GameEditor::KeyEventProc(KEY_EVENT_RECORD ker)
 {
 	if (ker.wVirtualKeyCode == VK_ESCAPE) return false;
 	if (!m_isEditingNumber) return true;
-	if (!ker.bKeyDown)
-		cout << int(ker.wVirtualKeyCode) << "键盘弹起" << endl;
+	if (ker.bKeyDown) return true;
+	int keyCode = ker.wVirtualKeyCode;
+
+	// Normal is 0x30~0x39
+	keyCode -= 0x30;
+	if (keyCode < 0 || keyCode > 9)
+	{
+		// Numpad is 0x60~0x69
+		keyCode -= 0x30;
+		if (keyCode < 0 || keyCode > 9)
+			return true;
+	}
+	m_editingWeight.erase(m_editingWeight.begin());
+	m_editingWeight.push_back(keyCode + 0x30);
 	return true;
 }
 
-inline void TryUpdatePainter(const MOUSE_EVENT_RECORD &mer, EditorPainter &painter)
+inline void TryUpdatePainter(const MOUSE_EVENT_RECORD &mer, GameEditor &editor)
 {
 	if (mer.dwMousePosition.X > 80 && mer.dwMousePosition.X < 116 && mer.dwMousePosition.Y < 6)
 	{
 		int type = (mer.dwMousePosition.X/2 - 42) / 4 + (mer.dwMousePosition.Y / 4) * 4;
-		painter.set_CellType(type > 6 ? painter.get_CellType() : E_StaticCellType(type));
+		editor.get_Painter().set_CellType(type > 6 ? editor.get_Painter().get_CellType() : E_StaticCellType(type));
 	}
 	else if (mer.dwMousePosition.X > 80 && mer.dwMousePosition.X < 114 && mer.dwMousePosition.Y == 7)
 	{
 		int type = (mer.dwMousePosition.X/2 - 42) / 5;
-		painter.set_Type(type > 3 ? painter.get_Type() : E_EditType(type));
+		editor.get_Painter().set_Type(type > 3 ? editor.get_Painter().get_Type() : E_EditType(type));
 	}
 	else if (mer.dwMousePosition.X > 80 && mer.dwMousePosition.X < 116 && mer.dwMousePosition.Y > 8 && mer.dwMousePosition.Y <= 12)
 	{
 		int index = (mer.dwMousePosition.X / 2 - 42) / 4 + ((mer.dwMousePosition.Y - 8) / 3) * 4;
-		painter.set_ForeColor(itemColors[index]);
+		editor.get_Painter().set_ForeColor(itemColors[index]);
 	}
-	else if (mer.dwMousePosition.X >= 86 && mer.dwMousePosition.X < 94 && mer.dwMousePosition.Y == 15)
+	else if (mer.dwMousePosition.X >= 80 && mer.dwMousePosition.X < 116 && mer.dwMousePosition.Y >= 14 && mer.dwMousePosition.Y <=15)
 	{
-		string path = OpenFile();
+		int index = (mer.dwMousePosition.X / 2 - 42) / 4 + ((mer.dwMousePosition.Y - 14) / 3) * 4;
+		editor.ActiveInputNumber(index);
 	}
-	else if (mer.dwMousePosition.X >= 104 && mer.dwMousePosition.X < 112 && mer.dwMousePosition.Y == 15)
+	else if (mer.dwMousePosition.X >= 104 && mer.dwMousePosition.X < 112 && mer.dwMousePosition.Y == 17)
 	{
 		string path = SaveFile();
 	}
@@ -186,7 +248,7 @@ bool GameEditor::MouseEventProc(MOUSE_EVENT_RECORD mer)
 		if (mer.dwEventFlags != 0)
 			return true;
 		else
-			m_isEditingNumber = false;
+			DeactiveInputNumber();
 	}
 	SetPosition(41, 18);
 	switch (mer.dwEventFlags)
@@ -196,7 +258,7 @@ bool GameEditor::MouseEventProc(MOUSE_EVENT_RECORD mer)
 		cout << "鼠标双击" << endl;
 		break;
 	case 0:
-		TryUpdatePainter(mer, m_painter);
+		TryUpdatePainter(mer, *this);
 		if (m_painter.IsDoublePoint())
 			TryPaint(mer, m_painter);
 	case MOUSE_MOVED:
@@ -212,6 +274,44 @@ bool GameEditor::MouseEventProc(MOUSE_EVENT_RECORD mer)
 		break;
 	}
 	return true;
+}
+
+size_t GameEditor::get_FoodWeight(int index)
+{
+	if (index == 3) return m_mapModel.get_FoodCount();
+	return m_mapModel.FoodWeight(E_FoodType(items[7 + index * 2].subType)) + m_mapModel.FoodWeight(E_FoodType(items[8 + index * 2].subType));
+}
+
+void GameEditor::ActiveInputNumber(int numberIndex)
+{
+	m_isEditingNumber = true;
+	m_editingNumberIndex = numberIndex;
+	std::ostringstream oss;
+	oss << setw(2) << setfill('0') << (get_FoodWeight(numberIndex) % 100);
+	m_editingWeight = oss.str();
+}
+
+void GameEditor::DeactiveInputNumber()
+{
+	m_isEditingNumber = false;
+	size_t number = 0;
+	std::istringstream iss(m_editingWeight);
+	iss >> number;
+	size_t foodWeight = number / 2;
+	switch (m_editingNumberIndex)
+	{
+	case 0:
+	case 1:
+	case 2:
+		m_mapModel.FoodWeight(E_FoodType(items[7 + m_editingNumberIndex * 2].subType)) = foodWeight;
+		m_mapModel.FoodWeight(E_FoodType(items[8 + m_editingNumberIndex * 2].subType)) = number - foodWeight;
+		break;
+	case 3:
+		m_mapModel.set_FoodCount(number);
+		break;
+	default:
+		break;
+	}
 }
 
 #pragma endregion
@@ -235,39 +335,6 @@ void GameEditor::Refresh()
 	static bool isHighLight = true;
 	E_Color selectForeColor = m_painter.get_ForeColor();
 
-	static MapItem items[] =
-	{
-		{E_CellType::None, { DEFAULT_FORE_COLOR, E_Color::Black }},
-		{E_CellType::Land, E_SubType::SubType0, { DEFAULT_FORE_COLOR, DEFAULT_BACK_COLOR }},
-		{E_CellType::Land, E_SubType::SubType1, { E_Color::Black, E_Color::LGreen }},
-		{E_CellType::Land, E_SubType::SubType3, { E_Color::Black, E_Color::LRed }},
-		{E_CellType::Land, E_SubType::SubType4, { E_Color::Black, E_Color::LBlue }},
-		{E_CellType::Head, DEFAULT_COLOR},
-		{E_CellType::Jump, DEFAULT_COLOR},
-	};
-	static const string itemNames[] =
-	{
-		"空地",
-		"山峰",
-		"草丛",
-		"岩浆",
-		"冰块",
-		"出生点",
-		"传送点",
-		"左画右擦",
-		"中空填充",
-		"完整填充",
-		"白色",
-		"红色",
-		"黄色",
-		"绿色",
-		"青色",
-		"紫色",
-		"蓝色",
-		"亮白",
-		"加载地图",
-		"保存地图",
-	};
 	items[int(E_StaticCellType::GermPoint)].Set({ selectForeColor, DEFAULT_BACK_COLOR });
 	items[int(E_StaticCellType::JumpPoint)].Set({ selectForeColor, DEFAULT_BACK_COLOR });
 
@@ -296,7 +363,28 @@ void GameEditor::Refresh()
 		GameMap::DrawCell(startX + offset * (i % 4), startY + (i / 4) * 2 + 1, {DEFAULT_FORE_COLOR, itemColors[i]}, "      ");
 	}
 
-	startX = 43, offset = 9, startY = 16;
+	startX = 42, offset = 4, startY = 14;
+	for (int i = 0; i < 4; ++i)
+	{
+		bool isEditingThis = m_isEditingNumber && (m_editingNumberIndex == i);
+		Color textColor = isEditingThis ? Color({ E_Color::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
+		GameMap::DrawCell(startX + offset * (i % 4), startY + (i / 4) * 2, textColor, itemNames[i + 20]);
+		GameMap::DrawCell(startX + offset * (i % 4), startY + (i / 4) * 2 + 1, items[7 + i * 2]);
+		GameMap::DrawCell(startX + offset * (i % 4) + 1, startY + (i / 4) * 2 + 1, items[8 + i * 2]);
+		if (isEditingThis)
+		{
+			GameMap::DrawCell(startX + offset * (i % 4) + 2, startY + (i / 4) * 2 + 1, DEFAULT_COLOR, m_editingWeight);
+		}
+		else
+		{
+			ostringstream oss;
+			size_t weight = get_FoodWeight(i);
+			oss << setw(2) << setfill('0') << weight;
+			GameMap::DrawCell(startX + offset * (i % 4) + 2, startY + (i / 4) * 2 + 1, DEFAULT_COLOR, oss.str());
+		}
+	}
+
+	startX = 43, offset = 9, startY = 17;
 	for (int i = 0; i < 2; ++i)
 	{
 		Color textColor = DEFAULT_COLOR;
@@ -310,7 +398,7 @@ void GameEditor::Refresh()
 
 #pragma region Editor Main
 
-GameEditor::GameEditor() : m_painter(m_mapModel)
+GameEditor::GameEditor() : m_painter(m_mapModel), m_isEditingNumber(false)
 {
 	New();
 	m_hStdin = GetStdHandle(STD_INPUT_HANDLE);

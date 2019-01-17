@@ -258,7 +258,7 @@ public:
 
 	#pragma region Food Config
 
-	size_t& FoodWeight(E_FoodType type) {  }
+	size_t& FoodWeight(E_FoodType type) { return m_foodWeights[type]; }
 	size_t get_FoodCount() const { return m_foodCount; }
 	void set_FoodCount(size_t foodCount) { m_foodCount = foodCount; }
 

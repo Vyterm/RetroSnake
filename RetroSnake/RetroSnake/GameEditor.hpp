@@ -55,11 +55,18 @@ class GameEditor
 	EditorPainter m_painter;
 
 	std::queue<INPUT_RECORD> m_recordQueue;
+	int m_editingNumberIndex;
+	string m_editingWeight;
 	bool m_isEditingNumber;
 	void ObtainRecord();
 	bool HandleRecord();
 	bool KeyEventProc(KEY_EVENT_RECORD ker);
 	bool MouseEventProc(MOUSE_EVENT_RECORD mer);
+public:
+	EditorPainter &get_Painter() { return m_painter; }
+	size_t get_FoodWeight(int index);
+	void ActiveInputNumber(int numberIndex);
+	void DeactiveInputNumber();
 public:
 	GameEditor();
 	void Run();
