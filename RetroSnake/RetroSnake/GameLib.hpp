@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <Windows.h>
 #include <time.h>
-#include "GameColor.hpp"
+#include "GameModel.hpp"
 
 constexpr auto GAME_NAME = "贪吃蛇大作战(Console Version) by 郭弈天";
 constexpr auto GAME_VERSION = "Version 0.7.4";

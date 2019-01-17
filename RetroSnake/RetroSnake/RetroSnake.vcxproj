@@ -118,22 +118,20 @@
   <ItemGroup>
     <ClCompile Include="GameApp.cpp" />
     <ClCompile Include="GameCtrl.cpp" />
-    <ClCompile Include="GameEditor.cpp" />
     <ClCompile Include="GameEvent.cpp" />
     <ClCompile Include="GameLib.cpp" />
-    <ClCompile Include="GameModel.cpp" />
+    <ClCompile Include="GameSnake.cpp" />
     <ClCompile Include="GameSurface.cpp" />
     <ClCompile Include="GameTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp" />
-    <ClInclude Include="GameColor.hpp" />
     <ClInclude Include="GameCtrl.hpp" />
-    <ClInclude Include="GameEditor.hpp" />
+    <ClInclude Include="GameModel.hpp" />
     <ClInclude Include="GameEvent.hpp" />
     <ClInclude Include="GameLib.hpp" />
     <ClInclude Include="GameMap.hpp" />
-    <ClInclude Include="GameModel.hpp" />
+    <ClInclude Include="GameSnake.hpp" />
     <ClInclude Include="GameSurface.hpp" />
     <ClInclude Include="GameTimer.hpp" />
     <ClInclude Include="PointerVector.hpp" />

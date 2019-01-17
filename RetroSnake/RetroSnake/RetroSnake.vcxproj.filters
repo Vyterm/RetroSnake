@@ -30,9 +30,6 @@
     <ClCompile Include="GameSurface.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="GameModel.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GameCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -42,7 +39,7 @@
     <ClCompile Include="GameTimer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="GameEditor.cpp">
+    <ClCompile Include="GameSnake.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -54,9 +51,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GameSurface.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameModel.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GameCtrl.hpp">
@@ -74,10 +68,10 @@
     <ClInclude Include="GameMap.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="GameColor.hpp">
+    <ClInclude Include="GameSnake.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="GameEditor.hpp">
+    <ClInclude Include="GameModel.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

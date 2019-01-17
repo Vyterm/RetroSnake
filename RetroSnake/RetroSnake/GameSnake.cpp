@@ -1,4 +1,4 @@
-#include "GameModel.hpp"
+#include "GameSnake.hpp"
 
 
 Snake::Snake(Color color) : m_head(nullptr), m_tail(m_head), m_color(color), m_twinkleColor(color)

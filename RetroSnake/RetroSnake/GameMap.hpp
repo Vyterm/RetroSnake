@@ -2,8 +2,7 @@
 #define GAME_MAP_HPP
 
 #include "GameLib.hpp"
-#include "GameEditor.hpp"
-#include "GameColor.hpp"
+#include "GameModel.hpp"
 
 #include <iostream>
 #include <string>

@@ -1,7 +1,7 @@
 #ifndef GAME_CTRL_HPP
 #define GAME_CTRL_HPP
 
-#include "GameModel.hpp"
+#include "GameSnake.hpp"
 #include "GameTimer.hpp"
 
 #include <string>
