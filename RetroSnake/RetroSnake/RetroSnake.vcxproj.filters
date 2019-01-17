@@ -19,6 +19,18 @@
     <Filter Include="源文件\Experiment">
       <UniqueIdentifier>{1b3ed7ec-4b0a-45fe-9b1a-b9b35a5dd251}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\3-rd">
+      <UniqueIdentifier>{237d073f-a4e0-47ba-82f5-c10d8b198005}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\3-rd">
+      <UniqueIdentifier>{9d05f3b3-8778-4e8f-b0a0-1289ce088776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Vyterm">
+      <UniqueIdentifier>{57e94438-3c25-434f-bd9b-5539d16bf9ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Vyterm">
+      <UniqueIdentifier>{7f8f0088-acb8-4fa4-891b-8fb9f23706a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameApp.cpp">
@@ -36,11 +48,14 @@
     <ClCompile Include="GameEvent.cpp">
       <Filter>源文件\Experiment</Filter>
     </ClCompile>
-    <ClCompile Include="GameTimer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GameSnake.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsPath.cpp">
+      <Filter>源文件\3-rd</Filter>
+    </ClCompile>
+    <ClCompile Include="vytTimer.cpp">
+      <Filter>源文件\Vyterm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,12 +74,6 @@
     <ClInclude Include="GameEvent.hpp">
       <Filter>头文件\Experiment</Filter>
     </ClInclude>
-    <ClInclude Include="GameTimer.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="PointerVector.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="GameMap.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -73,6 +82,15 @@
     </ClInclude>
     <ClInclude Include="GameModel.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsPath.hpp">
+      <Filter>头文件\3-rd</Filter>
+    </ClInclude>
+    <ClInclude Include="vytTimer.hpp">
+      <Filter>头文件\Vyterm</Filter>
+    </ClInclude>
+    <ClInclude Include="vytVector.hpp">
+      <Filter>头文件\Vyterm</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

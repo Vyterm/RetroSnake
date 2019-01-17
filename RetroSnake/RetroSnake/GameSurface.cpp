@@ -111,6 +111,10 @@ void StartSurface(size_t &selectIndex)
 	}
 }
 
+void EditorSurface(GameMapModel & model)
+{
+}
+
 void OverSurface(const PlayerCtrl &winer, bool isWin)
 {
 	SetColor(DEFAULT_COLOR);
@@ -135,5 +139,45 @@ void ShowMsg(Msgs && msgs)
 		int ci = GAME_MSG_S_INDEXX + (GAME_MSG_E_INDEXX - GAME_MSG_S_INDEXX - msg.size() / 2) / 2;
 		SetPosition(ci, ri);
 		cout << msg;
+	}
+}
+
+void ShowMsg(const PlayerCtrl & player1, const PlayerCtrl & player2)
+{
+	if (&player1 == &player2)
+	{
+		ShowMsg({
+			{ "" },
+			{ "" },
+			{ "玩家一" },
+			{ "分数", player1.get_Score(), 3, '0' },
+			{ "速度", player1.get_Speed(), 3, '0' },
+			{ "刚体:", player1.get_BuffRemainSecond(E_BuffType::Unstoppable), 2, '0', "秒" },
+			{ "失控:", player1.get_BuffRemainSecond(E_BuffType::Incontrollable), 2, '0', "秒" },
+			{ "打滑:", player1.get_BuffRemainSecond(E_BuffType::Slippage), 2, '0', "秒" },
+			{ "" },
+			{ "" },
+			{ "W,A,S,D操作玩家一" },
+			{ "" },
+			{ "空格键暂停游戏" },
+			});
+	}
+	else
+	{
+		ShowMsg({
+			{ "" },
+			{ "" },
+			{ "玩家一", "玩家二" },
+			{ "分数", player1.get_Score(), player2.get_Score(), 3, '0' },
+			{ "速度", player1.get_Speed(), player2.get_Speed(), 3, '0' },
+			{ "刚体:", player1.get_BuffRemainSecond(E_BuffType::Unstoppable), player2.get_BuffRemainSecond(E_BuffType::Unstoppable), 2, '0', "秒" },
+			{ "失控:", player1.get_BuffRemainSecond(E_BuffType::Incontrollable), player2.get_BuffRemainSecond(E_BuffType::Incontrollable), 2, '0', "秒" },
+			{ "打滑:", player1.get_BuffRemainSecond(E_BuffType::Slippage), player2.get_BuffRemainSecond(E_BuffType::Slippage), 2, '0', "秒" },
+			{ "" },
+			{ "" },
+			{ "W,A,S,D操作玩家一" },
+			{ "↑,↓,←,→操作玩家二" },
+			{ "空格键暂停游戏" },
+			});
 	}
 }

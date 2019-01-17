@@ -20,7 +20,7 @@ PlayerCtrl::~PlayerCtrl()
 
 void PlayerCtrl::Clear()
 {
-	TimerManager::get_instance().UnregiserHandler(*m_timer);
+	vyt::timer::get_instance().UnregiserHandler(*m_timer);
 	for (int i = 0; i < BuffCount; ++i)
 		if (nullptr != m_buffs[i])
 		{
@@ -31,7 +31,7 @@ void PlayerCtrl::Clear()
 
 void PlayerCtrl::Reset(Point position)
 {
-	m_timer = &TimerManager::get_instance().RegisterHandler<TickTock, PlayerCtrl>(*this, 100, true);
+	m_timer = &(vyt::timer::get_instance().RegisterHandler<TickTock, PlayerCtrl>(*this, 100, true));
 	m_snake.Reset(m_map, position);
 	m_alive = true;
 	m_speedLevel = 0;
@@ -125,11 +125,11 @@ void PlayerCtrl::HandleFood(const Point& position)
 		break;
 	case E_SubType::SubType6:
 		m_snake.TailToHead(m_map, position);
-		TimerManager::get_instance().RegisterHandler<UnstoppableBuff>(*this, 15);
+		vyt::timer::get_instance().RegisterHandler<UnstoppableBuff>(*this, 15);
 		break;
 	case E_SubType::SubType7:
 		m_snake.TailToHead(m_map, position);
-		TimerManager::get_instance().RegisterHandler<IncontrollableBuff>(*m_enemy, 5);
+		vyt::timer::get_instance().RegisterHandler<IncontrollableBuff>(*m_enemy, 5);
 		break;
 	case E_SubType::SubType8:
 		m_snake.ExtendHead(m_map, position);
@@ -162,7 +162,7 @@ void PlayerCtrl::HandleTerrain(const Point& position)
 		break;
 	case E_SubType::SubType4:
 		m_snake.TailToHead(m_map, position);
-		TimerManager::get_instance().RegisterHandler<SlippageBuff>(*this, 2);
+		vyt::timer::get_instance().RegisterHandler<SlippageBuff>(*this, 2);
 		break;
 	case E_SubType::SubType5:
 		break;
@@ -192,7 +192,7 @@ void PlayerCtrl::ToNextDeathAnimation()
 #pragma region Player Buffs
 
 PlayerCtrl::PlayerBuff::PlayerBuff(PlayerCtrl & player, int clockSecond, E_BuffType type)
-	: m_player(player), TimerManager::handler(200, true), m_clockSecond(clockSecond), m_tickCount(0),
+	: m_player(player), vyt::timer::handler(200, true), m_clockSecond(clockSecond), m_tickCount(0),
 	m_type(type), m_isAppend(true), m_playerColor(player.get_Color().fore)
 {
 	if (nullptr != m_player.m_buffs[int(m_type)])

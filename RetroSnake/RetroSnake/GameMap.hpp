@@ -293,7 +293,7 @@ public:
 		if (nullptr == winer) return winer;
 		m_players[0]->Clear();
 		m_players[1]->Clear();
-		TimerManager::get_instance().HandleClock();
+		vyt::timer::get_instance().HandleClock();
 		return winer;
 	}
 

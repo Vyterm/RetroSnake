@@ -122,7 +122,8 @@
     <ClCompile Include="GameLib.cpp" />
     <ClCompile Include="GameSnake.cpp" />
     <ClCompile Include="GameSurface.cpp" />
-    <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="vytTimer.cpp" />
+    <ClCompile Include="WindowsPath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp" />
@@ -133,8 +134,9 @@
     <ClInclude Include="GameMap.hpp" />
     <ClInclude Include="GameSnake.hpp" />
     <ClInclude Include="GameSurface.hpp" />
-    <ClInclude Include="GameTimer.hpp" />
-    <ClInclude Include="PointerVector.hpp" />
+    <ClInclude Include="vytTimer.hpp" />
+    <ClInclude Include="WindowsPath.hpp" />
+    <ClInclude Include="vytVector.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

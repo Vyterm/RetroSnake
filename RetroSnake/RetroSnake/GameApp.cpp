@@ -2,8 +2,7 @@
 #include "GameLib.hpp"
 #include "GameSurface.hpp"
 #include "GameCtrl.hpp"
-#include "PointerVector.hpp"
-#include "GameTimer.hpp"
+#include "vytTimer.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -109,7 +108,7 @@ void GameApp::GameMain(GameMap & map)
 
 		if (isGamePause)
 			continue;
-		TimerManager::get_instance().HandleClock();
+		vyt::timer::get_instance().HandleClock();
 		map.Draw();
 		auto winer = map.CheckOver();
 		if (nullptr != winer)

@@ -2,7 +2,7 @@
 #define GAME_CTRL_HPP
 
 #include "GameSnake.hpp"
-#include "GameTimer.hpp"
+#include "vytTimer.hpp"
 
 #include <string>
 #include <vector>
@@ -78,13 +78,13 @@ private:
 
 	#pragma region Process Timer
 
-	TimerManager::handler *m_timer;
+	vyt::timer::handler *m_timer;
 
-	class TickTock : public TimerManager::handler
+	class TickTock : public vyt::timer::handler
 	{
 		PlayerCtrl &m_player;
 	public:
-		TickTock(PlayerCtrl &player, clock_t tickTime, bool isLoop) : TimerManager::handler(tickTime, isLoop), m_player(player) { }
+		TickTock(PlayerCtrl &player, clock_t tickTime, bool isLoop) : vyt::timer::handler(tickTime, isLoop), m_player(player) { }
 		void Invoke() { m_player.Process(); }
 	};
 
@@ -105,7 +105,7 @@ private:
 
 	#pragma region Player Buffs
 
-	class PlayerBuff : public TimerManager::handler
+	class PlayerBuff : public vyt::timer::handler
 	{
 		int m_clockSecond;
 		int m_tickCount;

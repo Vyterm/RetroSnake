@@ -1,4 +1,6 @@
-#pragma once
+#ifndef VYT_VECTOR_HPP
+#define VYT_VECTOR_HPP
+
 #include <vector>
 #include <stdexcept>
 #include <functional>
@@ -230,3 +232,5 @@ namespace vyt
 #pragma endregion
 	};
 }
+
+#endif
