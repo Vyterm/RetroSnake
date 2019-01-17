@@ -23,7 +23,9 @@ void SetConsoleWindowSize();
 void SetPosition(int x, int y);
 
 // Code from https://blog.csdn.net/zuishikonghuan/article/details/47441163
-string OpenFile(string filter = "所有文件\0*.*\0C/C++ Flie\0*.cpp;*.c;*.h\0\0");
-string SaveFile(string filter = "所有文件\0*.*\0C/C++ Flie\0*.cpp;*.c;*.h\0\0");
+string OpenFile(LPCSTR filter = "贪吃蛇地图文件(*.vrs)\0*.vrs\0\0");
+string SaveFile(LPCSTR filter = "贪吃蛇地图文件(*.vrs)\0*.vrs\0\0");
+//string OpenFile(string filter = "贪吃蛇地图文件\0*.vrs\0\0");
+//string SaveFile(string filter = "贪吃蛇地图文件\0*.vrs\0\0");
 
 #endif

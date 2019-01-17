@@ -54,6 +54,9 @@
     <ClCompile Include="winapi.cpp">
       <Filter>源文件\3-rd</Filter>
     </ClCompile>
+    <ClCompile Include="GameEditor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp">
@@ -86,5 +89,13 @@
     <ClInclude Include="winapi.hpp">
       <Filter>头文件\3-rd</Filter>
     </ClInclude>
+    <ClInclude Include="GameEditor.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="TaskList.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
 </Project>

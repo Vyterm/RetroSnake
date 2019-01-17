@@ -12,6 +12,7 @@ public:
 	void Run();
 	bool Home();
 	void Game(size_t playerCount);
+	void Editor();
 };
 
 int main();

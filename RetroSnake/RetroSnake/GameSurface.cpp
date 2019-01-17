@@ -106,10 +106,6 @@ void StartSurface(size_t &selectIndex)
 	}
 }
 
-void EditorSurface(GameMapModel & model)
-{
-}
-
 void OverSurface(const PlayerCtrl &winer, bool isWin)
 {
 	SetColor(DEFAULT_COLOR);

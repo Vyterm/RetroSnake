@@ -25,6 +25,7 @@ void PlayerCtrl::Clear()
 			m_buffs[i]->RemoveBuff();
 			m_buffs[i] = nullptr;
 		}
+	m_alive = false;
 }
 
 void PlayerCtrl::Reset(Point position)
@@ -127,7 +128,7 @@ void PlayerCtrl::HandleFood(const Point& position)
 		break;
 	case E_SubType::SubType7:
 		m_snake.TailToHead(m_map, position);
-		vyt::timer::get_instance().RegisterHandler<IncontrollableBuff>(*m_enemy, 5);
+		vyt::timer::get_instance().RegisterHandler<IncontrollableBuff>(*m_enemy, 3);
 		break;
 	case E_SubType::SubType8:
 		m_snake.ExtendHead(m_map, position);

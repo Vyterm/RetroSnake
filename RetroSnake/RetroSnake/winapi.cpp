@@ -68,17 +68,17 @@ inline string GetDocumentPath()
 	return homePath;
 }
 
-inline void InitOFN(OPENFILENAME &ofn, string filter, string title)
+inline void InitOFN(OPENFILENAME &ofn, LPCSTR filter, string title)
 {
 	ofn.lStructSize = sizeof(OPENFILENAME);//结构体大小
 	ofn.hwndOwner = NULL;//拥有着窗口句柄，为NULL表示对话框是非模态的，实际应用中一般都要有这个句柄
-	ofn.lpstrFilter = TEXT(filter.c_str());//设置过滤
+	ofn.lpstrFilter = filter;//设置过滤
 	ofn.nFilterIndex = 1;//过滤器索引
 	ofn.lpstrTitle = TEXT(title.c_str());//使用系统默认标题留空即可
 	ofn.lpstrInitialDir = GetDocumentPath().c_str();//初始目录为我的文档
 }
 
-string OpenFile(string filter)
+string OpenFile(LPCSTR filter)
 {
 	OPENFILENAME ofn = { 0 };
 	InitOFN(ofn, filter, "请选择一个文件");
@@ -96,11 +96,11 @@ string OpenFile(string filter)
 	return strFilename;
 }
 
-string SaveFile(string filter)
+string SaveFile(LPCSTR filter)
 {
 	OPENFILENAME ofn = { 0 };
 	InitOFN(ofn, filter, "保存到");
-	ofn.lpstrDefExt = TEXT("cpp");//默认追加的扩展名
+	ofn.lpstrDefExt = TEXT("vrs");//默认追加的扩展名
 
 	TCHAR strFilename[MAX_PATH] = { 0 };//用于接收文件名
 	ofn.lpstrFile = strFilename;//接收返回的文件名，注意第一个字符需要为NULL

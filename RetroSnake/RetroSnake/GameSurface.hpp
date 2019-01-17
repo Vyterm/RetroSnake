@@ -49,7 +49,6 @@ void DrawBorder(int posXS, int posXE, int posYS, int posYE);
 void DrawHollowBorder(int posXS, int posXE, int posYS, int posYE);
 void UnfinishedSurface(int x, int y, DWORD millseconds, string text);
 void StartSurface(size_t &selectIndex);
-void EditorSurface(GameMapModel &model);
 void OverSurface(const PlayerCtrl &winer, bool isWin);
 
 void ShowMsg(Msgs &&msgs);

@@ -61,6 +61,7 @@ public:
 	MapItem() { }
 	MapItem(E_CellType type) { this->type = type; }
 	MapItem(E_CellType type, Color color) { this->type = type; this->color = color; }
+	MapItem(E_CellType type, E_SubType subType, Color color) { Set(type, subType, color); }
 	MapItem& operator=(const MapItem &rhs)
 	{
 		this->type = rhs.type;
@@ -137,7 +138,7 @@ public:
 };
 class PlayerCtrl;
 
-template <int Width, int Height>
+template <size_t Width, size_t Height>
 class MapTemplate
 {
 private:
@@ -146,6 +147,7 @@ private:
 	MapItem m_items[Width][Height];
 	MapItem m_staticItems[Width][Height];
 
+	bool &m_isUpdateUI;
 	std::vector<PlayerCtrl*> m_players;
 	size_t m_activePlayerCount = 0;
 
@@ -158,26 +160,12 @@ private:
 
 	#pragma region Load Map Model
 
-	void LoadModel(GameMapModel &model)
+	void LoadStaticCell(const GameMapModel &model, int ci, int ri)
 	{
-		std::vector<Point> specialPoints = LoadStaticModel(model);
-		LoadPlayerModel(model);
-		LoadJumpModel(model);
-		GenerateRandomFood(model.get_FoodCount());
-	}
-
-	std::vector<Point> LoadStaticModel(GameMapModel & model)
-	{
-		std::vector<Point> specialPoints;
-		for (int ci = 0; ci < Width; ++ci)
-			for (int ri = 0; ri < Height; ++ri)
-				LoadStaticCell(model, ci, ri, specialPoints);
-		return specialPoints;
-	}
-
-	void LoadStaticCell(GameMapModel & model, int ci, int ri, std::vector<Point> &specialPoints)
-	{
-		switch (model.GetType(ci, ri))
+		Point position = { ci, ri };
+		m_staticItems[ci][ri].Set(E_CellType::None, E_SubType::SubType0, DEFAULT_COLOR);
+		m_items[ci][ri].Set(E_CellType::None, E_SubType::SubType0, DEFAULT_COLOR);
+		switch (model.GetType(position))
 		{
 		case E_StaticCellType::OpenSpace:
 			m_staticItems[ci][ri].Set(E_CellType::None, E_SubType::SubType0, DEFAULT_COLOR);
@@ -195,13 +183,15 @@ private:
 			m_staticItems[ci][ri].Set(E_CellType::Land, E_SubType::SubType4, { DEFAULT_BACK_COLOR, SubTypeColors[4] });
 			break;
 		case E_StaticCellType::GermPoint:
+			m_items[ci][ri].Set(E_CellType::Head, E_SubType::SubType0, { model.GetColor(position), DEFAULT_BACK_COLOR });
+			break;
 		case E_StaticCellType::JumpPoint:
-			specialPoints.push_back({ ci, ri });
+			m_staticItems[ci][ri].Set(E_CellType::Jump, E_SubType::SubType0, { model.GetColor(position), DEFAULT_BACK_COLOR });
 			break;
 		}
 	}
 
-	void LoadPlayerModel(GameMapModel & model)
+	void LoadPlayerCell(const GameMapModel &model)
 	{
 		m_activePlayerCount = model.PlayerCount();
 		for (size_t i = 0; i < m_activePlayerCount; ++i)
@@ -215,7 +205,7 @@ private:
 		}
 	}
 
-	void LoadJumpModel(GameMapModel &model)
+	void LoadJumpCell(const GameMapModel &model)
 	{
 		for (auto &jpm : model.GetJumpPoints())
 		{
@@ -231,42 +221,42 @@ private:
 public:
 	#pragma region Construct & Destruct
 
-	MapTemplate(size_t playerCount, bool &updateUI) : m_model(Width, Height)
+	MapTemplate(bool &updateUI) : m_isUpdateUI(updateUI)
 	{
 		m_players.push_back(new PlayerCtrl("玩家一", *this, updateUI, { E_Color::LCyan, DEFAULT_BACK_COLOR }, 'W', 'A', 'S', 'D'));
 		m_players.push_back(new PlayerCtrl("玩家二", *this, updateUI, { E_Color::LWhite,DEFAULT_BACK_COLOR }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
+		for (auto &player : m_players)
+			player->Clear();
 		m_position = { 0, 0 };
-		m_model.SetHollowLand(0, GAME_WIDTH, 0, GAME_HEIGHT, E_StaticCellType::JebelLand);
-		m_model.SetHollowLand(GAME_WIDTH, MAZE_WIDTH, MSG_HEIGHT, MAZE_HEIGHT, E_StaticCellType::JebelLand);
-		m_model.SetHollowLand(GAME_WIDTH, MSG_WIDTH, 0, MSG_HEIGHT, E_StaticCellType::JebelLand);
-		m_model.SetCloseyLand(10, 20, 1, 10, E_StaticCellType::GrassLand);
-		m_model.SetCloseyLand(1, 38, 38, 1, E_StaticCellType::MagmaLand);
-		m_model.SetCloseyLand(1, 38, 36, 2, E_StaticCellType::FrostLand);
-		m_model.SetCross(5, 5);
-		m_model.SetCross(34, 5);
-		m_model.SetCross(5, 34);
-		m_model.SetCross(34, 34);
-		if (playerCount == 1)
-		{
-			m_model.SetPlayer(GAME_WIDTH / 2, GAME_HEIGHT / 2);
-			m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, { E_Color::LBlue, DEFAULT_BACK_COLOR });
-			m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, { E_Color::LPurple, DEFAULT_BACK_COLOR });
-		}
-		else
-		{
-			m_model.SetPlayer(GAME_WIDTH / 2 - 5, GAME_HEIGHT / 2);
-			m_model.SetPlayer(GAME_WIDTH / 2 + 4, GAME_HEIGHT / 2);
-			m_model.SetJumpPoint({ 19, 18 }, { 49, 30 }, { E_Color::LBlue, DEFAULT_BACK_COLOR });
-			m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, { E_Color::LBlue, DEFAULT_BACK_COLOR });
-			m_model.SetJumpPoint({ 19, 30 }, { 49, 35 }, { E_Color::LPurple, DEFAULT_BACK_COLOR });
-			m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, { E_Color::LPurple, DEFAULT_BACK_COLOR });
-		}
-		m_model.set_FoodCount(3);
 	}
 	~MapTemplate()
 	{
 		for (auto &pPlayer : m_players)
 			delete pPlayer;
+	}
+
+	void SetModel(const GameMapModel &model)
+	{
+		m_model = model;
+	}
+
+	#pragma endregion
+
+	#pragma region Load Map Model Interfaces
+
+	void LoadModel(const GameMapModel &model)
+	{
+		LoadStaticModel(model);
+		LoadPlayerCell(model);
+		LoadJumpCell(model);
+		GenerateRandomFood(model.get_FoodCount());
+	}
+
+	void LoadStaticModel(const GameMapModel &model)
+	{
+		for (int ci = 0; ci < Width; ++ci)
+			for (int ri = 0; ri < Height; ++ri)
+				LoadStaticCell(model, ci, ri);
 	}
 
 	#pragma endregion
@@ -351,10 +341,19 @@ public:
 		if (!isForce && m_zCacheItems[x][y] == item)
 			return;
 		m_zCacheItems[x][y] = item;
-		SetPosition(m_position.x + x, m_position.y + y);
-		auto color = m_zCacheItems[x][y].color;
+		DrawCell(m_position.x + x, m_position.y + y, m_zCacheItems[x][y]);
+	}
+
+	static void DrawCell(int x, int y, const MapItem &item)
+	{
+		DrawCell(x, y, item.color, ToString(item));
+	}
+
+	static void DrawCell(int x, int y, Color color, const string &text)
+	{
+		SetPosition(x, y);
 		SetColor(color);
-		cout << ToString(m_zCacheItems[x][y]);
+		cout << text;
 	}
 
 	void Draw(bool isForce = false)
