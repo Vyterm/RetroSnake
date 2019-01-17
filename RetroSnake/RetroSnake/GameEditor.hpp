@@ -1,8 +1,12 @@
 #ifndef GAME_EDITOR_HPP
 #define GAME_EDITOR_HPP
 
+#include "GameColor.hpp"
+
 #include <map>
 #include <vector>
+
+constexpr auto MAX_PLAYER_COUNT = 2;
 
 enum class E_StaticCellType
 {
@@ -42,14 +46,24 @@ public:
 	int x, y;
 	bool operator==(const Point &rhs) const { return x == rhs.x && y == rhs.y; }
 	bool operator!=(const Point &rhs) const { return x != rhs.x || y != rhs.y; }
+	bool operator<(const Point &rhs) const { return x < rhs.x && y < rhs.y; }
+	bool operator<=(const Point &rhs) const { return x <= rhs.x && y <= rhs.y; }
+	bool operator>(const Point &rhs) const { return x > rhs.x && y > rhs.y; }
+	bool operator>=(const Point &rhs) const { return x >= rhs.x && y >= rhs.y; }
 	void Set(const Point& point) { x = point.x; y = point.y; }
 };
 
 struct CellModel
 {
 	E_StaticCellType type;
-	int id = 0;
 	CellModel& operator=(E_StaticCellType type) { this->type = type; return *this; }
+};
+
+struct JumpPointModel
+{
+	Point src;
+	Point dest;
+	Color color;
 };
 
 class GameMapModel
@@ -58,7 +72,13 @@ private:
 	size_t m_width, m_height;
 	CellModel *m_cellModels;
 	std::map<E_FoodType, size_t> m_foodWeights;
+	std::vector<JumpPointModel> m_jumpPoints;
+	std::vector<Point> m_germPoints;
 	size_t m_foodCount = 1;
+	//const CellModel& get_Index(size_t x, size_t y) const { return m_cellModels[x + y * m_width]; }
+	//void set_Index(size_t x, size_t y, const CellModel &cell) { m_cellModels[x + y * m_width] = cell; }
+	CellModel& Index(int x, int y) { return m_cellModels[x + y * m_width]; }
+	const CellModel& Index(int x, int y) const { return m_cellModels[x + y * m_width]; }
 public:
 	GameMapModel(size_t width, size_t height) : m_width(width), m_height(height), m_cellModels(new CellModel[width*height])
 	{
@@ -73,35 +93,59 @@ public:
 		m_foodWeights[E_FoodType::BuffGhost] = 10;
 	}
 	~GameMapModel() { delete[] m_cellModels; }
-	//const CellModel& get_Index(size_t x, size_t y) const { return m_cellModels[x + y * m_width]; }
-	//void set_Index(size_t x, size_t y, const CellModel &cell) { m_cellModels[x + y * m_width] = cell; }
-	CellModel& Index(int x, int y) { return m_cellModels[x + y * m_width]; }
-	const CellModel& Index(int x, int y) const { return m_cellModels[x + y * m_width]; }
 
-	void SetHollowLand(size_t startPosX, size_t width, size_t startPosY, size_t height, E_StaticCellType staticType)
+	void SetHollowLand(int startPosX, int width, int startPosY, int height, E_StaticCellType staticType)
 	{
-		size_t endPosX = startPosX + width - 1, endPosY = startPosY + height - 1;
-		for (size_t y = startPosY; y <= endPosY; ++y)
-			for (size_t x = startPosX; x <= endPosX; ++x)
+		int endPosX = startPosX + width - 1, endPosY = startPosY + height - 1;
+		for (int y = startPosY; y <= endPosY; ++y)
+			for (int x = startPosX; x <= endPosX; ++x)
 				if (x == startPosX || x == endPosX || y == startPosY || y == endPosY)
 					m_cellModels[x + y * m_width] = staticType;
 				else
 					m_cellModels[x + y * m_width] = E_StaticCellType::OpenSpace;
 	}
 
-	void SetCloseyLand(size_t startPosX, size_t width, size_t startPosY, size_t height, E_StaticCellType staticType)
+	void SetCloseyLand(int startPosX, int width, int startPosY, int height, E_StaticCellType staticType)
 	{
-		size_t endPosX = startPosX + width - 1, endPosY = startPosY + height - 1;
-		for (size_t y = startPosY; y <= endPosY; ++y)
-			for (size_t x = startPosX; x <= endPosX; ++x)
+		int endPosX = startPosX + width - 1, endPosY = startPosY + height - 1;
+		for (int y = startPosY; y <= endPosY; ++y)
+			for (int x = startPosX; x <= endPosX; ++x)
 				m_cellModels[x + y * m_width] = staticType;
 	}
 
-	void SetCross(size_t x, size_t y)
+	void SetCross(int x, int y)
 	{
 		Index(x - 1, y) = Index(x, y) = Index(x + 1, y)
 			= Index(x, y - 1) = Index(x, y + 1) = E_StaticCellType::JebelLand;
 	}
+
+	E_StaticCellType GetType(int x, int y)
+	{
+		return Index(x, y).type;
+	}
+
+	bool SetJumpPoint(Point src, Point dest, Color color)
+	{
+		for (auto &jpm : m_jumpPoints)
+			if (jpm.src == src || jpm.src == dest || jpm.dest == src || jpm.dest == dest)
+				return false;
+		m_jumpPoints.push_back({ src, dest, color });
+		return true;
+	}
+	const std::vector<JumpPointModel>& GetJumpPoints()
+	{
+		return m_jumpPoints;
+	}
+
+	void SetPlayer(int x, int y)
+	{
+		Index(x, y) = E_StaticCellType::GermPoint;
+		m_germPoints.push_back({ x, y });
+		if (PlayerCount() > MAX_PLAYER_COUNT)
+			m_germPoints.erase(m_germPoints.begin());
+	}
+	const Point& GetPlayer(size_t index) const { return m_germPoints[index]; }
+	size_t PlayerCount() const { return m_germPoints.size(); }
 
 	size_t& FoodWeight(E_FoodType type) {  }
 	size_t get_FoodCount() const { return m_foodCount; }

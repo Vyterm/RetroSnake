@@ -147,7 +147,7 @@ private:
 	MapItem m_staticItems[Width][Height];
 
 	std::vector<PlayerCtrl*> m_players;
-	int m_activePlayerCount = 0;
+	size_t m_activePlayerCount = 0;
 
 	Point m_position;
 	MapItem m_zCacheItems[Width][Height];
@@ -161,7 +161,8 @@ private:
 	void LoadModel(GameMapModel &model)
 	{
 		std::vector<Point> specialPoints = LoadStaticModel(model);
-		LoadPlayerModel(specialPoints, model);
+		LoadPlayerModel(model);
+		LoadJumpModel(model);
 		GenerateRandomFood(model.get_FoodCount());
 	}
 
@@ -176,7 +177,7 @@ private:
 
 	void LoadStaticCell(GameMapModel & model, int ci, int ri, std::vector<Point> &specialPoints)
 	{
-		switch (model.Index(ci, ri).type)
+		switch (model.GetType(ci, ri))
 		{
 		case E_StaticCellType::OpenSpace:
 			m_staticItems[ci][ri].Set(E_CellType::None, E_SubType::SubType0, DEFAULT_COLOR);
@@ -200,25 +201,28 @@ private:
 		}
 	}
 
-	void LoadPlayerModel(std::vector<Point> &specialPoints, GameMapModel & model)
+	void LoadPlayerModel(GameMapModel & model)
 	{
-		m_activePlayerCount = 0;
-		for (auto &point : specialPoints)
-		{
-			auto cellModel = model.Index(point.x, point.y);
-			if (cellModel.type == E_StaticCellType::GermPoint)
-			{
-				++m_activePlayerCount;
-				auto &player = (m_activePlayerCount == 1 ? *m_players[0] : *m_players[1]);
-				player.Reset(point);
-			}
-		}
+		m_activePlayerCount = model.PlayerCount();
+		for (size_t i = 0; i < m_activePlayerCount; ++i)
+			m_players[i]->Reset(model.GetPlayer(i));
 		if (m_activePlayerCount == 1)
 			m_players[0]->SetEnemy(*m_players[0]);
 		else
 		{
 			m_players[0]->SetEnemy(*m_players[1]);
 			m_players[1]->SetEnemy(*m_players[0]);
+		}
+	}
+
+	void LoadJumpModel(GameMapModel &model)
+	{
+		for (auto &jpm : model.GetJumpPoints())
+		{
+			m_items[jpm.src.x][jpm.src.y].Set(E_CellType::Jump, jpm.color);
+			m_items[jpm.src.x][jpm.src.y].jumpPoint = jpm.dest;
+			m_items[jpm.dest.x][jpm.dest.y].Set(E_CellType::Jump, jpm.color);
+			m_items[jpm.dest.x][jpm.dest.y].jumpPoint = jpm.src;
 		}
 	}
 
@@ -243,11 +247,19 @@ public:
 		m_model.SetCross(5, 34);
 		m_model.SetCross(34, 34);
 		if (playerCount == 1)
-			m_model.Index(GAME_WIDTH / 2, GAME_HEIGHT / 2) = E_StaticCellType::GermPoint;
+		{
+			m_model.SetPlayer(GAME_WIDTH / 2, GAME_HEIGHT / 2);
+			m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, { E_Color::LBlue, DEFAULT_BACK_COLOR });
+			m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, { E_Color::LPurple, DEFAULT_BACK_COLOR });
+		}
 		else
 		{
-			m_model.Index(GAME_WIDTH / 2 - 5, GAME_HEIGHT / 2) = E_StaticCellType::GermPoint;
-			m_model.Index(GAME_WIDTH / 2 + 5, GAME_HEIGHT / 2) = E_StaticCellType::GermPoint;
+			m_model.SetPlayer(GAME_WIDTH / 2 - 5, GAME_HEIGHT / 2);
+			m_model.SetPlayer(GAME_WIDTH / 2 + 4, GAME_HEIGHT / 2);
+			m_model.SetJumpPoint({ 19, 18 }, { 49, 30 }, { E_Color::LBlue, DEFAULT_BACK_COLOR });
+			m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, { E_Color::LBlue, DEFAULT_BACK_COLOR });
+			m_model.SetJumpPoint({ 19, 30 }, { 49, 35 }, { E_Color::LPurple, DEFAULT_BACK_COLOR });
+			m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, { E_Color::LPurple, DEFAULT_BACK_COLOR });
 		}
 		m_model.set_FoodCount(3);
 	}
@@ -266,9 +278,6 @@ public:
 		srand((unsigned)time(nullptr));
 		ClearCell();
 		LoadModel(m_model);
-		// ToDo: Refactor to model
-		GenerateEntryPoint({ E_Color::LBlue, DEFAULT_BACK_COLOR });
-		GenerateEntryPoint({ E_Color::LPurple, DEFAULT_BACK_COLOR });
 		SetColor(DEFAULT_COLOR);
 		system("cls");
 		Draw();
@@ -402,21 +411,6 @@ public:
 		for (size_t i = 0; i < count; ++i)
 			if (!GenerateRandomFood())
 				return false;
-		return true;
-	}
-
-	bool GenerateEntryPoint(const Color &color)
-	{
-		Point emptyPoint;
-		if (!SearchEmptyPosition(emptyPoint))
-			return false;
-		m_items[emptyPoint.x][emptyPoint.y].Set(E_CellType::Jump, color);
-		// ToDo: Temp solution, wait to refactor.
-		Point jumpPoint = { rand() % (MAZE_WIDTH - 2) + (GAME_WIDTH + 1),rand() % (MAZE_HEIGHT - 2) + (MSG_HEIGHT + 1) };
-		m_items[emptyPoint.x][emptyPoint.y].jumpPoint = jumpPoint;
-		m_items[jumpPoint.x][jumpPoint.y].Set(E_CellType::Jump, color);
-		m_items[jumpPoint.x][jumpPoint.y].jumpPoint = emptyPoint;
-
 		return true;
 	}
 
