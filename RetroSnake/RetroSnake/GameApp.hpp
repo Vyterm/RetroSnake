@@ -11,7 +11,7 @@ public:
 	GameApp();
 	void Run();
 	bool Home();
-	void Game(size_t playerCount);
+	void Game();
 	void Editor();
 };
 

@@ -63,8 +63,7 @@ void UnfinishedSurface(int x, int y, DWORD millseconds, string text)
 void StartSurface(size_t &selectIndex)
 {
 	Msgs msgs = {
-		{"单人游戏"},
-		{"双人游戏"},
+		{"开始游戏"},
 		{"游戏设置"},
 		{"地图编辑器"},
 		{"退出游戏"}

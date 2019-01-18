@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <fstream>
 
 constexpr auto GAME_NAME = "贪吃蛇大作战(Console Version) by 郭弈天";
 constexpr auto GAME_VERSION = "Version 0.7.4";
@@ -51,6 +52,19 @@ struct Color
 	bool operator==(const Color &rhs) const { return fore == rhs.fore && back == rhs.back; }
 	bool operator!=(const Color &rhs) const { return fore != rhs.fore || back != rhs.back; }
 	void Set(const Color& color) { fore = color.fore; back = color.back; }
+	friend std::ostream& operator<<(std::ostream& os, Color& color)
+	{
+		os << int(color.fore) << " " << int(color.back) << " ";
+		return os;
+	}
+	friend std::istream& operator>>(std::istream& is, Color& color)
+	{
+		int fore, back;
+		is >> fore >> back;
+		color.fore = E_Color(fore);
+		color.back = E_Color(back);
+		return is;
+	}
 };
 
 constexpr E_Color DEFAULT_FORE_COLOR = E_Color::White;
@@ -72,6 +86,16 @@ public:
 	bool operator>(const Point &rhs) const { return x > rhs.x && y > rhs.y; }
 	bool operator>=(const Point &rhs) const { return x >= rhs.x && y >= rhs.y; }
 	void Set(const Point& point) { x = point.x; y = point.y; }
+	friend std::ostream& operator<<(std::ostream& os, Point& point)
+	{
+		os << point.x << " " << point.y << " ";
+		return os;
+	}
+	friend std::istream& operator>>(std::istream& is, Point& point)
+	{
+		is >> point.x >> point.y;
+		return is;
+	}
 };
 
 #pragma endregion
@@ -118,6 +142,21 @@ struct CellModel
 	E_Color foreColor;
 	CellModel& operator=(E_StaticCellType type) { this->type = type; return *this; }
 	CellModel& operator=(E_Color foreColor) { this->foreColor = foreColor; return *this; }
+	friend std::ostream& operator<<(std::ostream& os, CellModel& model)
+	{
+		os << int(model.type) << " ";
+		os << int(model.foreColor) << " ";
+		return os;
+	}
+	friend std::istream& operator>>(std::istream& is, CellModel& model)
+	{
+		int it, ifc;
+		is >> it;
+		is >> ifc;
+		model.type = E_StaticCellType(it);
+		model.foreColor = E_Color(ifc);
+		return is;
+	}
 };
 
 struct JumpModel
@@ -125,12 +164,40 @@ struct JumpModel
 	Point src;
 	Point dest;
 	Color color;
+	friend std::ostream& operator<<(std::ostream& os, JumpModel& model)
+	{
+		os << model.src << " ";
+		os << model.dest << " ";
+		os << model.color << " ";
+		return os;
+	}
+	friend std::istream& operator>>(std::istream& is, JumpModel& model)
+	{
+		is >> model.src;
+		is >> model.dest;
+		is >> model.color;
+		return is;
+	}
 };
 
 struct PlayerModel
 {
 	Point position;
 	E_Color foreColor;
+	friend std::ostream& operator<<(std::ostream& os, PlayerModel& model)
+	{
+		os << model.position << " ";
+		os << int(model.foreColor) << " ";
+		return os;
+	}
+	friend std::istream& operator>>(std::istream& is, PlayerModel& model)
+	{
+		int foreColor;
+		is >> model.position;
+		is >> foreColor;
+		model.foreColor = E_Color(foreColor);
+		return is;
+	}
 };
 
 template <size_t Width, size_t Height>
@@ -231,6 +298,15 @@ public:
 		return true;
 	}
 
+	void TryRemoveJumpPoint(Point position)
+	{
+		for (auto iter = m_jumpPoints.begin(); iter != m_jumpPoints.end();)
+			if (iter->src == position || iter->dest == position)
+				iter = m_jumpPoints.erase(iter);
+			else
+				++iter;
+	}
+
 	#pragma endregion
 
 	#pragma region Germ Point
@@ -263,6 +339,62 @@ public:
 	void set_FoodCount(size_t foodCount) { m_foodCount = foodCount; }
 
 	#pragma endregion
+
+	#pragma region Save & Load
+
+	friend std::ostream& operator<<(std::ostream& os, MapModelTemplate &mapModel)
+	{
+		for (int x = 0; x < Width; ++x)
+			for (int y = 0; y < Height; ++y)
+				os << mapModel.m_cellModels[x][y];
+		os << mapModel.m_foodWeights.size() << " ";
+		for (auto iter = mapModel.m_foodWeights.begin(); iter != mapModel.m_foodWeights.end(); ++iter)
+		{
+			os << int(iter->first) << " ";
+			os << iter->second << " ";
+		}
+		os << mapModel.m_jumpPoints.size() << " ";
+		for (auto &jp : mapModel.m_jumpPoints) os << jp;
+		os << mapModel.m_germPoints.size() << " ";
+		for (auto &gp : mapModel.m_germPoints) os << gp;
+		os << mapModel.m_foodCount << " ";
+		return os;
+	}
+
+	friend std::istream& operator>>(std::istream& is, MapModelTemplate &mapModel)
+	{
+		for (int x = 0; x < Width; ++x)
+			for (int y = 0; y < Height; ++y)
+				is >> mapModel.m_cellModels[x][y];
+		size_t size;
+		is >> size;
+		for (size_t i = 0; i < size; ++i)
+		{
+			int type;
+			size_t weight;
+			is >> type >> weight;
+			mapModel.m_foodWeights[E_FoodType(type)] = weight;
+		}
+		is >> size;
+		for (size_t i = 0; i < size; ++i)
+		{
+			JumpModel jm;
+			is >> jm;
+			mapModel.m_jumpPoints.push_back(jm);
+		}
+		is >> size;
+		for (size_t i = 0; i < size; ++i)
+		{
+			Point pm;
+			is >> pm;
+			mapModel.m_germPoints.push_back(pm);
+		}
+		is >> mapModel.m_foodCount;
+		return is;
+	}
+
+	#pragma endregion
+
 };
 
 typedef MapModelTemplate<GAME_WIDTH + MAZE_WIDTH, GAME_HEIGHT> GameMapModel;

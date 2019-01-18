@@ -185,9 +185,10 @@ private:
 		case E_StaticCellType::GermPoint:
 			m_items[ci][ri].Set(E_CellType::Head, E_SubType::SubType0, { model.GetColor(position), DEFAULT_BACK_COLOR });
 			break;
-		case E_StaticCellType::JumpPoint:
-			m_staticItems[ci][ri].Set(E_CellType::Jump, E_SubType::SubType0, { model.GetColor(position), DEFAULT_BACK_COLOR });
-			break;
+		// Some bug need be fixed
+		//case E_StaticCellType::JumpPoint:
+		//	m_staticItems[ci][ri].Set(E_CellType::Jump, E_SubType::SubType0, { model.GetColor(position), DEFAULT_BACK_COLOR });
+		//	break;
 		}
 	}
 
@@ -248,7 +249,8 @@ public:
 	{
 		LoadStaticModel(model);
 		LoadPlayerCell(model);
-		LoadJumpCell(model);
+		// Some bug need be fixed
+		//LoadJumpCell(model);
 		GenerateRandomFood(model.get_FoodCount());
 	}
 
@@ -257,6 +259,7 @@ public:
 		for (int ci = 0; ci < Width; ++ci)
 			for (int ri = 0; ri < Height; ++ri)
 				LoadStaticCell(model, ci, ri);
+		LoadJumpCell(model);
 	}
 
 	#pragma endregion

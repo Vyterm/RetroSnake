@@ -129,7 +129,11 @@ bool EditorPainter::DrawEditLeftKey(Point &position)
 bool EditorPainter::DrawEditRightKey(Point &position)
 {
 	if (!m_pointSet.Clear(m_model))
+	{
 		m_model.SetType(position, E_StaticCellType::OpenSpace);
+		// ToDo: Refactor
+		m_model.TryRemoveJumpPoint(position);
+	}
 	return true;
 }
 
@@ -222,9 +226,15 @@ inline void TryUpdatePainter(const MOUSE_EVENT_RECORD &mer, GameEditor &editor)
 		int index = (mer.dwMousePosition.X / 2 - 42) / 4 + ((mer.dwMousePosition.Y - 14) / 3) * 4;
 		editor.ActiveInputNumber(index);
 	}
+	else if (mer.dwMousePosition.X >= 86 && mer.dwMousePosition.X < 94 && mer.dwMousePosition.Y == 17)
+	{
+		if (mer.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED)
+			editor.Load();
+	}
 	else if (mer.dwMousePosition.X >= 104 && mer.dwMousePosition.X < 112 && mer.dwMousePosition.Y == 17)
 	{
-		string path = SaveFile();
+		if (mer.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED)
+			editor.Save();
 	}
 }
 
@@ -437,10 +447,21 @@ void GameEditor::New()
 
 void GameEditor::Load()
 {
+	m_mapModel.Clear();
+	string path = OpenFile();
+	std::ifstream ifs;
+	ifs.open(path);
+	ifs >> m_mapModel;
+	ifs.close();
 }
 
 void GameEditor::Save()
 {
+	string path = SaveFile();
+	std::ofstream ofs;
+	ofs.open(path);
+	ofs << m_mapModel;
+	ofs.close();
 }
 
 #pragma endregion

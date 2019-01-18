@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <vector>
 
 #include <windows.h>
@@ -18,52 +19,6 @@
 using std::cout;
 using std::cin;
 using std::endl;
-
-int main()
-{
-	GameApp app;
-	app.Run();
-
-	return 0;
-}
-
-GameApp::GameApp() : m_isUpdateUI(false)
-{
-}
-
-void GameApp::Run()
-{
-	SetTitle(GAME_NAME);
-	SetConsoleWindowSize();
-	ResetCursor();
-
-	while (Home())
-		continue;
-}
-
-bool GameApp::Home()
-{
-	size_t selectIndex = 0;
-	StartSurface(selectIndex);
-	switch (selectIndex)
-	{
-	case 0:
-		Game(1);
-		break;
-	case 1:
-		Game(2);
-		break;
-	case 2:
-		UnfinishedSurface(23, 20, 300, "游戏设置尚未完成，敬请期待");
-		break;
-	case 3:
-		Editor();
-		break;
-	case 4:
-		return false;
-	}
-	return true;
-}
 
 inline GameMapModel GenerateMapModel(size_t playerCount)
 {
@@ -97,10 +52,87 @@ inline GameMapModel GenerateMapModel(size_t playerCount)
 	return m_model;
 }
 
-void GameApp::Game(size_t playerCount)
+int main()
+{
+	GameApp app;
+	app.Run();
+
+	//auto model = GenerateMapModel(2);
+	//string path = SaveFile();
+	//std::ofstream ofs;
+	//ofs.open(path);
+	//ofs << model;
+	//ofs.close();
+
+	//GameMapModel reloadModel;
+	//path = OpenFile();
+	//std::ifstream ifs;
+	//ifs.open(path);
+	//ifs >> reloadModel;
+	//ifs.close();
+
+	//for (int x = 0; x < GameMapModel::WIDTH; ++x)
+	//	for (int y = 0; y < GameMapModel::HEIGHT; ++y)
+	//		if (model.GetType({ x,y }) != reloadModel.GetType({ x,y }))
+	//			cout << "x:" << x << " y:" << y << " 's type diff" << endl;
+	//if (model.get_FoodCount() != reloadModel.get_FoodCount())
+	//	cout << "GetFoodCount's type diff" << endl;
+
+	//cout << "Reload Successful" << endl;
+
+	//cin.get();
+
+	return 0;
+}
+
+GameApp::GameApp() : m_isUpdateUI(false)
+{
+}
+
+void GameApp::Run()
+{
+	SetTitle(GAME_NAME);
+	SetConsoleWindowSize();
+	ResetCursor();
+
+	while (Home())
+		continue;
+}
+
+bool GameApp::Home()
+{
+	size_t selectIndex = 0;
+	StartSurface(selectIndex);
+	switch (selectIndex)
+	{
+	case 0:
+		Game();
+		break;
+	case 1:
+		UnfinishedSurface(23, 20, 300, "游戏设置尚未完成，敬请期待");
+		break;
+	case 2:
+		Editor();
+		break;
+	case 3:
+		return false;
+	}
+	return true;
+}
+
+void GameApp::Game()
 {
 	GameMap map(m_isUpdateUI);
-	map.SetModel(GenerateMapModel(playerCount));
+
+	GameMapModel reloadModel;
+	string path = OpenFile();
+	std::ifstream ifs;
+	ifs.open(path);
+	ifs >> reloadModel;
+	ifs.close();
+
+	//map.SetModel(GenerateMapModel(playerCount));
+	map.SetModel(reloadModel);
 	char c = '\0';
 	while ('q' != c)
 	{
