@@ -20,6 +20,14 @@ using std::cout;
 using std::cin;
 using std::endl;
 
+static LPCSTR BGAudioPath[] =
+{
+	"sound_bg1.wav",
+	"sound_bg2.wav",
+	"sound_bg3.wav",
+	"sound_bg4.wav",
+	"sound_bg5.wav",
+};
 inline GameMapModel GenerateMapModel(size_t playerCount)
 {
 	GameMapModel m_model;
@@ -102,7 +110,7 @@ void GameApp::Run()
 bool GameApp::Home()
 {
 	//PlaySound(TEXT("C:\\Project\\RetroSnake\\RetroSnake\\RetroSnake\\Debug\\background.wav"), NULL, SND_FILENAME | SND_ASYNC);
-	PlaySound(TEXT("background.wav"), NULL, SND_FILENAME | SND_ASYNC);
+	PlaySound(TEXT(BGAudioPath[rand()%5]), NULL, SND_FILENAME | SND_ASYNC);
 	size_t selectIndex = 0;
 	StartSurface(selectIndex);
 	switch (selectIndex)

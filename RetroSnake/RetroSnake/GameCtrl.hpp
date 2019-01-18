@@ -66,8 +66,8 @@ public:
 			m_alive = alive;
 		else
 			m_alive = !m_map.IsBlocked(m_snake.get_headPosition());
-		if (!alive)
-			PlaySound(TEXT("sound_over.wav"), NULL, SND_FILENAME | SND_ASYNC);
+		//if (!alive)
+		//	PlaySound(TEXT("sound_over.wav"), NULL, SND_FILENAME | SND_ASYNC);
 	}
 	bool IsAlive() const { return m_alive; }
 

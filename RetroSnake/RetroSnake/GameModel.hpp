@@ -6,7 +6,7 @@
 #include <fstream>
 
 constexpr auto GAME_NAME = "贪吃蛇大作战(Console Version) by 郭弈天";
-constexpr auto GAME_VERSION = "Version 0.7.4";
+constexpr auto GAME_VERSION = "Version 0.8.2";
 
 constexpr auto WIN_HEIGHT = 43;
 constexpr auto WIN_WIDTH = 120;
