@@ -5,6 +5,9 @@
 #include <string>
 #include <windows.h>
 
+#include <Mmsystem.h>
+#pragma comment(lib,"winmm.lib")
+
 using std::string;
 
 bool IsKey(int vKey);

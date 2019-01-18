@@ -101,6 +101,8 @@ void GameApp::Run()
 
 bool GameApp::Home()
 {
+	//PlaySound(TEXT("C:\\Project\\RetroSnake\\RetroSnake\\RetroSnake\\Debug\\background.wav"), NULL, SND_FILENAME | SND_ASYNC);
+	PlaySound(TEXT("background.wav"), NULL, SND_FILENAME | SND_ASYNC);
 	size_t selectIndex = 0;
 	StartSurface(selectIndex);
 	switch (selectIndex)

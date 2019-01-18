@@ -300,6 +300,7 @@ void PlayerCtrl::Process()
 	if (!m_alive) return;
 	UpdateDirection();
 	if (!MoveByPosition()) return;
+	//PlaySound(TEXT("sound_eat.wav"), NULL, SND_FILENAME | SND_ASYNC);
 	m_map.GenerateRandomFood();
 	m_isUpdateUI = true;
 }
