@@ -73,10 +73,10 @@ void StartSurface(size_t &selectIndex)
 	DrawHollowBorder(0, 59, 0, 3);
 	DrawHollowBorder(0, 59, 3, 40);
 	SetPosition(21, 1);
-	SetColor({ E_Color::LCyan, DEFAULT_BACK_COLOR });
+	SetColor({ E_4BitColor::LCyan, DEFAULT_BACK_COLOR });
 	cout << GAME_NAME;
 	SetPosition(27, 2);
-	SetColor({ E_Color::LWhite, DEFAULT_BACK_COLOR });
+	SetColor({ E_4BitColor::LWhite, DEFAULT_BACK_COLOR });
 	cout << GAME_VERSION;
 	for (size_t i = 0; i < msgs.size(); ++i)
 	{

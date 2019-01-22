@@ -31,7 +31,7 @@ void SetTitle(const char * title)
 	SetConsoleTitle(title);
 }
 
-void SetColor(Color color)
+void SetColor(ConsoleColor color)
 {
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);                    //获取当前窗口句柄
 	SetConsoleTextAttribute(handle, short(color.fore) + short(color.back) * 0x10);//设置颜色
@@ -89,8 +89,9 @@ string OpenFile(LPCSTR filter)
 
 	ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;//文件、目录必须存在，隐藏只读选项
 
-	while (!GetOpenFileName(&ofn))
-		MessageBox(NULL, TEXT("请选择一个文件"), NULL, MB_ICONERROR);
+	//while (!GetOpenFileName(&ofn))
+	//	MessageBox(NULL, TEXT("请选择一个文件"), NULL, MB_ICONERROR);
+	if (!GetOpenFileName(&ofn)) return "";
 	
 	//MessageBox(NULL, strFilename, TEXT("选择的文件"), 0);
 	return strFilename;

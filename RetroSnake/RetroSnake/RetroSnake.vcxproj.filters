@@ -31,6 +31,9 @@
     <Filter Include="源文件\Vyterm">
       <UniqueIdentifier>{7f8f0088-acb8-4fa4-891b-8fb9f23706a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Gamelib">
+      <UniqueIdentifier>{033424f9-4f93-4491-89ba-0f2a7c09ef34}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameApp.cpp">
@@ -55,6 +58,9 @@
       <Filter>源文件\3-rd</Filter>
     </ClCompile>
     <ClCompile Include="GameEditor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GameGraphic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -91,6 +97,21 @@
     </ClInclude>
     <ClInclude Include="GameEditor.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameGraphic.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameLayer.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMapItem.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMath.hpp">
+      <Filter>头文件\Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="GameColor.hpp">
+      <Filter>头文件\Gamelib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

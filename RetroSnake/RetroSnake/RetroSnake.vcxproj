@@ -120,6 +120,7 @@
     <ClCompile Include="GameCtrl.cpp" />
     <ClCompile Include="GameEditor.cpp" />
     <ClCompile Include="GameEvent.cpp" />
+    <ClCompile Include="GameGraphic.cpp" />
     <ClCompile Include="GameSnake.cpp" />
     <ClCompile Include="GameSurface.cpp" />
     <ClCompile Include="vytTimer.cpp" />
@@ -127,8 +128,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp" />
+    <ClInclude Include="GameColor.hpp" />
     <ClInclude Include="GameCtrl.hpp" />
     <ClInclude Include="GameEditor.hpp" />
+    <ClInclude Include="GameGraphic.hpp" />
+    <ClInclude Include="GameLayer.hpp" />
+    <ClInclude Include="GameMapItem.hpp" />
+    <ClInclude Include="GameMath.hpp" />
     <ClInclude Include="GameModel.hpp" />
     <ClInclude Include="GameEvent.hpp" />
     <ClInclude Include="GameMap.hpp" />

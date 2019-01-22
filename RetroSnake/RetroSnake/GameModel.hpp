@@ -1,12 +1,15 @@
 #ifndef GAME_EDITOR_HPP
 #define GAME_EDITOR_HPP
 
+#include "GameMath.hpp"
+#include "GameColor.hpp"
+
 #include <map>
 #include <vector>
 #include <fstream>
 
 constexpr auto GAME_NAME = "贪吃蛇大作战(Console Version) by 郭弈天";
-constexpr auto GAME_VERSION = "Version 0.8.2";
+constexpr auto GAME_VERSION = "Version 0.8.3";
 
 constexpr auto WIN_HEIGHT = 43;
 constexpr auto WIN_WIDTH = 120;
@@ -18,87 +21,6 @@ constexpr auto MAZE_HEIGHT = 20;
 constexpr auto MAZE_WIDTH = 20;
 
 constexpr auto MAX_PLAYER_COUNT = 2;
-
-#pragma region Color About
-
-/*
-亮	红	绿	蓝
-1	1	1	1
-0x0~0xF表示暗黑色至亮白色
-*/
-enum class E_Color : short
-{
-	Black = 0B0000,
-	Blue = 0B0001,
-	Green = 0B0010,
-	Cyan = 0B0011,
-	Red = 0B0100,
-	Purple = 0B0101,
-	Yellow = 0B0110,
-	White = 0B0111,
-
-	Gray = 0B1000,
-	LBlue = 0B1001,
-	LGreen = 0B1010,
-	LCyan = 0B1011,
-	LRed = 0B1100,
-	LPurple = 0B1101,
-	LYellow = 0B1110,
-	LWhite = 0B1111,
-};
-struct Color
-{
-	E_Color fore, back;
-	bool operator==(const Color &rhs) const { return fore == rhs.fore && back == rhs.back; }
-	bool operator!=(const Color &rhs) const { return fore != rhs.fore || back != rhs.back; }
-	void Set(const Color& color) { fore = color.fore; back = color.back; }
-	friend std::ostream& operator<<(std::ostream& os, Color& color)
-	{
-		os << int(color.fore) << " " << int(color.back) << " ";
-		return os;
-	}
-	friend std::istream& operator>>(std::istream& is, Color& color)
-	{
-		int fore, back;
-		is >> fore >> back;
-		color.fore = E_Color(fore);
-		color.back = E_Color(back);
-		return is;
-	}
-};
-
-constexpr E_Color DEFAULT_FORE_COLOR = E_Color::White;
-constexpr E_Color DEFAULT_BACK_COLOR = E_Color::Gray;
-constexpr Color DEFAULT_COLOR = { DEFAULT_FORE_COLOR, DEFAULT_BACK_COLOR };
-
-#pragma endregion
-
-#pragma region Point About
-
-struct Point
-{
-public:
-	int x, y;
-	bool operator==(const Point &rhs) const { return x == rhs.x && y == rhs.y; }
-	bool operator!=(const Point &rhs) const { return x != rhs.x || y != rhs.y; }
-	bool operator<(const Point &rhs) const { return x < rhs.x && y < rhs.y; }
-	bool operator<=(const Point &rhs) const { return x <= rhs.x && y <= rhs.y; }
-	bool operator>(const Point &rhs) const { return x > rhs.x && y > rhs.y; }
-	bool operator>=(const Point &rhs) const { return x >= rhs.x && y >= rhs.y; }
-	void Set(const Point& point) { x = point.x; y = point.y; }
-	friend std::ostream& operator<<(std::ostream& os, Point& point)
-	{
-		os << point.x << " " << point.y << " ";
-		return os;
-	}
-	friend std::istream& operator>>(std::istream& is, Point& point)
-	{
-		is >> point.x >> point.y;
-		return is;
-	}
-};
-
-#pragma endregion
 
 #pragma region Cell Defines
 
@@ -139,9 +61,9 @@ enum class E_FoodType
 struct CellModel
 {
 	E_StaticCellType type;
-	E_Color foreColor;
+	E_4BitColor foreColor;
 	CellModel& operator=(E_StaticCellType type) { this->type = type; return *this; }
-	CellModel& operator=(E_Color foreColor) { this->foreColor = foreColor; return *this; }
+	CellModel& operator=(E_4BitColor foreColor) { this->foreColor = foreColor; return *this; }
 	friend std::ostream& operator<<(std::ostream& os, CellModel& model)
 	{
 		os << int(model.type) << " ";
@@ -154,16 +76,16 @@ struct CellModel
 		is >> it;
 		is >> ifc;
 		model.type = E_StaticCellType(it);
-		model.foreColor = E_Color(ifc);
+		model.foreColor = E_4BitColor(ifc);
 		return is;
 	}
 };
 
 struct JumpModel
 {
-	Point src;
-	Point dest;
-	Color color;
+	Vector2 src;
+	Vector2 dest;
+	ConsoleColor color;
 	friend std::ostream& operator<<(std::ostream& os, JumpModel& model)
 	{
 		os << model.src << " ";
@@ -182,8 +104,8 @@ struct JumpModel
 
 struct PlayerModel
 {
-	Point position;
-	E_Color foreColor;
+	Vector2 position;
+	E_4BitColor foreColor;
 	friend std::ostream& operator<<(std::ostream& os, PlayerModel& model)
 	{
 		os << model.position << " ";
@@ -195,7 +117,7 @@ struct PlayerModel
 		int foreColor;
 		is >> model.position;
 		is >> foreColor;
-		model.foreColor = E_Color(foreColor);
+		model.foreColor = E_4BitColor(foreColor);
 		return is;
 	}
 };
@@ -207,14 +129,14 @@ private:
 	CellModel m_cellModels[Width][Height];
 	std::map<E_FoodType, size_t> m_foodWeights;
 	std::vector<JumpModel> m_jumpPoints;
-	std::vector<Point> m_germPoints;
+	std::vector<Vector2> m_germPoints;
 	size_t m_foodCount = 1;
 	//const CellModel& get_Index(size_t x, size_t y) const { return m_cellModels[x + y * m_width]; }
 	//void set_Index(size_t x, size_t y, const CellModel &cell) { m_cellModels[x + y * m_width] = cell; }
 	CellModel& Index(int x, int y) { return m_cellModels[x][y]; }
 	const CellModel& Index(int x, int y) const { return m_cellModels[x][y]; }
-	CellModel& Index(const Point &position) { return m_cellModels[position.x][position.y]; }
-	const CellModel& Index(const Point &position) const { return m_cellModels[position.x][position.y]; }
+	CellModel& Index(const Vector2 &position) { return m_cellModels[position.x][position.y]; }
+	const CellModel& Index(const Vector2 &position) const { return m_cellModels[position.x][position.y]; }
 public:
 	static const size_t WIDTH = Width;
 	static const size_t HEIGHT = Height;
@@ -243,7 +165,7 @@ public:
 
 	#pragma region Land Shape
 
-	void SetHollowLand(Point startPos, Point endPos, E_StaticCellType staticType)
+	void SetHollowLand(Vector2 startPos, Vector2 endPos, E_StaticCellType staticType)
 	{
 		for (int y = startPos.y; y <= endPos.y; ++y)
 			for (int x = startPos.x; x <= endPos.x; ++x)
@@ -253,20 +175,20 @@ public:
 					m_cellModels[x][y] = E_StaticCellType::OpenSpace;
 	}
 
-	void SetCloseyLand(Point startPos, Point endPos, E_StaticCellType staticType)
+	void SetCloseyLand(Vector2 startPos, Vector2 endPos, E_StaticCellType staticType)
 	{
 		for (int y = startPos.y; y <= endPos.y; ++y)
 			for (int x = startPos.x; x <= endPos.x; ++x)
 				m_cellModels[x][y] = staticType;
 	}
 
-	void SetCross(Point position)
+	void SetCross(Vector2 position)
 	{
 		Index(position.x - 1, position.y) = Index(position.x, position.y) = Index(position.x + 1, position.y)
 			= Index(position.x, position.y - 1) = Index(position.x, position.y + 1) = E_StaticCellType::JebelLand;
 	}
 
-	void SetType(Point position, E_StaticCellType type, E_Color foreColor = DEFAULT_FORE_COLOR)
+	void SetType(Vector2 position, E_StaticCellType type, E_4BitColor foreColor = DEFAULT_FORE_COLOR)
 	{
 		if (type == E_StaticCellType::GermPoint)
 			SetPlayer(position, foreColor);
@@ -274,21 +196,21 @@ public:
 			Index(position.x, position.y) = { type, foreColor };
 	}
 
-	E_StaticCellType GetType(const Point &position) const
+	E_StaticCellType GetType(const Vector2 &position) const
 	{
 		return Index(position.x, position.y).type;
 	}
 
-	E_Color GetColor(const Point &position) const
+	E_4BitColor GetColor(const Vector2 &position) const
 	{
 		return Index(position).foreColor;
 	}
 
 	#pragma endregion
 
-	#pragma region Jump Point
+	#pragma region Jump Vector2
 
-	bool SetJumpPoint(Point src, Point dest, E_Color foreColor)
+	bool SetJumpPoint(Vector2 src, Vector2 dest, E_4BitColor foreColor)
 	{
 		for (auto &jpm : m_jumpPoints)
 			if (jpm.src == src || jpm.src == dest || jpm.dest == src || jpm.dest == dest)
@@ -298,7 +220,7 @@ public:
 		return true;
 	}
 
-	void TryRemoveJumpPoint(Point position)
+	void TryRemoveJumpPoint(Vector2 position)
 	{
 		for (auto iter = m_jumpPoints.begin(); iter != m_jumpPoints.end();)
 			if (iter->src == position || iter->dest == position)
@@ -309,14 +231,14 @@ public:
 
 	#pragma endregion
 
-	#pragma region Germ Point
+	#pragma region Germ Vector2
 
 	const std::vector<JumpModel>& GetJumpPoints() const
 	{
 		return m_jumpPoints;
 	}
 
-	void SetPlayer(Point position, E_Color foreColor)
+	void SetPlayer(Vector2 position, E_4BitColor foreColor)
 	{
 		Index(position) = { E_StaticCellType::GermPoint, foreColor };
 		m_germPoints.push_back(position);
@@ -327,7 +249,7 @@ public:
 			m_germPoints.erase(m_germPoints.begin());
 		}
 	}
-	const Point& GetPlayer(size_t index) const { return m_germPoints[index]; }
+	const Vector2& GetPlayer(size_t index) const { return m_germPoints[index]; }
 	size_t PlayerCount() const { return m_germPoints.size(); }
 
 	#pragma endregion
@@ -385,7 +307,7 @@ public:
 		is >> size;
 		for (size_t i = 0; i < size; ++i)
 		{
-			Point pm;
+			Vector2 pm;
 			is >> pm;
 			mapModel.m_germPoints.push_back(pm);
 		}

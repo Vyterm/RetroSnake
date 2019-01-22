@@ -1,7 +1,7 @@
 #include "GameSnake.hpp"
 
 
-Snake::Snake(Color color) : m_head(nullptr), m_tail(m_head), m_color(color), m_twinkleColor(color)
+Snake::Snake(ConsoleColor color) : m_head(nullptr), m_tail(m_head), m_color(color), m_twinkleColor(color)
 {
 }
 
@@ -21,7 +21,7 @@ Snake::~Snake()
 	Clear();
 }
 
-void Snake::Reset(GameMap & map, Point position)
+void Snake::Reset(GameMap & map, Vector2 position)
 {
 	Clear();
 	m_tail = m_head = new SnakePart(position);
@@ -40,7 +40,7 @@ void Snake::Clear()
 	m_tail = nullptr;
 }
 
-void Snake::Twinkle(GameMap &map, const Color & color)
+void Snake::Twinkle(GameMap &map, const ConsoleColor & color)
 {
 	if (nullptr == m_head || nullptr == m_tail) return;
 	m_twinkleColor = color;
@@ -69,7 +69,7 @@ void Snake::Reverse(GameMap & map)
 	m_tail = last;
 }
 
-void Snake::TailToHead(GameMap &map, Point position)
+void Snake::TailToHead(GameMap &map, Vector2 position)
 {
 	SnakePart *newTail;
 	if (nullptr != m_tail->m_next)
@@ -97,7 +97,7 @@ void Snake::TailToHead(GameMap &map, Point position)
 	m_tail = newTail;
 }
 
-void Snake::ExtendHead(GameMap &map, Point position)
+void Snake::ExtendHead(GameMap &map, Vector2 position)
 {
 	m_head->m_next = new SnakePart(position);
 	m_head->m_next->m_last = m_head;
@@ -106,7 +106,7 @@ void Snake::ExtendHead(GameMap &map, Point position)
 	map[m_head->m_position].Set(E_CellType::Head, m_twinkleColor);
 }
 
-void Snake::ExtendTail(GameMap & map, Point position)
+void Snake::ExtendTail(GameMap & map, Vector2 position)
 {
 	m_tail->m_last = new SnakePart(position);
 	m_tail->m_last->m_next = m_tail;
@@ -152,7 +152,7 @@ bool Snake::RemoveTail(GameMap & map)
 	}
 }
 
-bool Snake::Contains(Point position)
+bool Snake::Contains(Vector2 position)
 {
 	auto tmpBody = m_head;
 	while (nullptr != tmpBody)

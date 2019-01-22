@@ -17,36 +17,36 @@ class Snake
 {
 	class SnakePart
 	{
-		Point m_position;
+		Vector2 m_position;
 		SnakePart *m_last, *m_next;
 	public:
-		SnakePart(Point position) : m_position(position), m_last(nullptr), m_next(nullptr) { }
+		SnakePart(Vector2 position) : m_position(position), m_last(nullptr), m_next(nullptr) { }
 		friend class Snake;
 	};
 	SnakePart *m_head, *m_tail;
-	Color m_color, m_twinkleColor;
+	ConsoleColor m_color, m_twinkleColor;
 public:
-	Snake(Color color);
+	Snake(ConsoleColor color);
 	Snake(Snake &&snake);
 	~Snake();
 
-	void Reset(GameMap &map, Point position);
+	void Reset(GameMap &map, Vector2 position);
 	void Clear();
 
-	Point get_headPosition() const { return m_head->m_position; }
-	Point get_tailPosition() const { return m_tail->m_position; }
-	Color get_color() const { return m_color; }
-	void Twinkle(GameMap &map, const Color &color);
+	Vector2 get_headPosition() const { return m_head->m_position; }
+	Vector2 get_tailPosition() const { return m_tail->m_position; }
+	ConsoleColor get_color() const { return m_color; }
+	void Twinkle(GameMap &map, const ConsoleColor &color);
 	void Reverse(GameMap &map);
-	void TailToHead(GameMap &map, Point position);
-	void ExtendHead(GameMap &map, Point position);
-	void ExtendTail(GameMap &map, Point position);
+	void TailToHead(GameMap &map, Vector2 position);
+	void ExtendHead(GameMap &map, Vector2 position);
+	void ExtendTail(GameMap &map, Vector2 position);
 	bool RemoveHead(GameMap &map);
 	bool RemoveTail(GameMap &map);
-	bool Contains(Point position);
+	bool Contains(Vector2 position);
 };
 
-inline Point GetPositionByDirection(Point startPos, E_Direction direction)
+inline Vector2 GetPositionByDirection(Vector2 startPos, E_Direction direction)
 {
 	int shift = int(direction);
 	startPos.x -= (shift >> 0) & 1;

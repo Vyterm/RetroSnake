@@ -8,25 +8,25 @@
 
 using namespace std;
 
-static const E_Color itemColors[] =
+static const E_4BitColor itemColors[] =
 {
-	E_Color::White,
-	E_Color::LRed,
-	E_Color::LYellow,
-	E_Color::LGreen,
-	E_Color::LCyan,
-	E_Color::LPurple,
-	E_Color::LBlue,
-	E_Color::LWhite,
+	E_4BitColor::White,
+	E_4BitColor::LRed,
+	E_4BitColor::LYellow,
+	E_4BitColor::LGreen,
+	E_4BitColor::LCyan,
+	E_4BitColor::LPurple,
+	E_4BitColor::LBlue,
+	E_4BitColor::LWhite,
 };
 
 static MapItem items[] =
 {
-	{E_CellType::None, { DEFAULT_FORE_COLOR, E_Color::Black }},
+	{E_CellType::None, { DEFAULT_FORE_COLOR, E_4BitColor::Black }},
 	{E_CellType::Land, E_SubType::SubType0, { DEFAULT_FORE_COLOR, DEFAULT_BACK_COLOR }},
-	{E_CellType::Land, E_SubType::SubType1, { E_Color::Black, E_Color::LGreen }},
-	{E_CellType::Land, E_SubType::SubType3, { E_Color::Black, E_Color::LRed }},
-	{E_CellType::Land, E_SubType::SubType4, { E_Color::Black, E_Color::LBlue }},
+	{E_CellType::Land, E_SubType::SubType1, { E_4BitColor::Black, E_4BitColor::LGreen }},
+	{E_CellType::Land, E_SubType::SubType3, { E_4BitColor::Black, E_4BitColor::LRed }},
+	{E_CellType::Land, E_SubType::SubType4, { E_4BitColor::Black, E_4BitColor::LBlue }},
 	{E_CellType::Head, DEFAULT_COLOR},
 	{E_CellType::Jump, DEFAULT_COLOR},
 	{E_CellType::Food, E_SubType::SubType1, GameMap::ToSubColor(E_SubType::SubType1)},
@@ -76,7 +76,7 @@ void EditorPainter::set_Type(E_EditType type)
 	m_type = type;
 }
 
-void EditorPainter::set_ForeColor(E_Color foreColor)
+void EditorPainter::set_ForeColor(E_4BitColor foreColor)
 {
 	if (m_pointSet.isValid)
 		m_model.SetType(m_pointSet.position, m_cellType, foreColor);
@@ -94,7 +94,7 @@ bool EditorPainter::IsDoublePoint() const
 	return m_type != E_EditType::PenEraser || m_cellType == E_StaticCellType::JumpPoint;
 }
 
-bool EditorPainter::DrawEditLeftKey(Point &position)
+bool EditorPainter::DrawEditLeftKey(Vector2 &position)
 {
 	bool isDoublePoint = IsDoublePoint();
 	if (isDoublePoint)
@@ -102,8 +102,8 @@ bool EditorPainter::DrawEditLeftKey(Point &position)
 		if (m_pointSet.isValid)
 		{
 			m_pointSet.isValid = false;
-			Point minPos = { m_pointSet.position.x < position.x ? m_pointSet.position.x : position.x, m_pointSet.position.y < position.y ? m_pointSet.position.y : position.y };
-			Point maxPos = { m_pointSet.position.x > position.x ? m_pointSet.position.x : position.x, m_pointSet.position.y > position.y ? m_pointSet.position.y : position.y };
+			Vector2 minPos = { m_pointSet.position.x < position.x ? m_pointSet.position.x : position.x, m_pointSet.position.y < position.y ? m_pointSet.position.y : position.y };
+			Vector2 maxPos = { m_pointSet.position.x > position.x ? m_pointSet.position.x : position.x, m_pointSet.position.y > position.y ? m_pointSet.position.y : position.y };
 			if (m_cellType == E_StaticCellType::JumpPoint)
 				m_model.SetJumpPoint(m_pointSet.position, position, m_foreColor);
 			else if (m_cellType == E_StaticCellType::GermPoint)
@@ -126,7 +126,7 @@ bool EditorPainter::DrawEditLeftKey(Point &position)
 	return true;
 }
 
-bool EditorPainter::DrawEditRightKey(Point &position)
+bool EditorPainter::DrawEditRightKey(Vector2 &position)
 {
 	if (!m_pointSet.Clear(m_model))
 	{
@@ -137,7 +137,7 @@ bool EditorPainter::DrawEditRightKey(Point &position)
 	return true;
 }
 
-bool EditorPainter::DrawEdit(Point position, E_EditMode mode)
+bool EditorPainter::DrawEdit(Vector2 position, E_EditMode mode)
 {
 	if (mode == E_EditMode::LeftKey)
 		return DrawEditLeftKey(position);
@@ -240,7 +240,7 @@ inline void TryUpdatePainter(const MOUSE_EVENT_RECORD &mer, GameEditor &editor)
 
 inline void TryPaint(const MOUSE_EVENT_RECORD &mer, EditorPainter &painter)
 {
-	Point position = { mer.dwMousePosition.X / 2, mer.dwMousePosition.Y };
+	Vector2 position = { mer.dwMousePosition.X / 2, mer.dwMousePosition.Y };
 	if ((position.x >= 1 && position.x <= 38 && position.y >= 1 && position.y <= 38) ||
 		(position.x >= 41 && position.x <= 58 && position.y >= 21 && position.y <= 38))
 	{
@@ -343,7 +343,7 @@ void GameEditor::Refresh()
 	//static bool isHighLight = false;
 	//isHighLight = ++invokeCount % 5 == 0;
 	static bool isHighLight = true;
-	E_Color selectForeColor = m_painter.get_ForeColor();
+	E_4BitColor selectForeColor = m_painter.get_ForeColor();
 
 	items[int(E_StaticCellType::GermPoint)].Set({ selectForeColor, DEFAULT_BACK_COLOR });
 	items[int(E_StaticCellType::JumpPoint)].Set({ selectForeColor, DEFAULT_BACK_COLOR });
@@ -353,7 +353,7 @@ void GameEditor::Refresh()
 	int startX = 42, offset = 4, startY = 2;
 	for (int i = 0; i < 7; ++i)
 	{
-		Color textColor = int(selectType) == i ? Color({ E_Color::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
+		ConsoleColor textColor = int(selectType) == i ? ConsoleColor({ E_4BitColor::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
 		GameMap::DrawCell(startX + offset * (i%4), startY + (i / 4) * 2, textColor, itemNames[i]);
 		GameMap::DrawCell(startX + offset * (i%4), startY + (i / 4) * 2 + 1, items[i]);
 	}
@@ -361,14 +361,14 @@ void GameEditor::Refresh()
 	startX = 42, offset = 5, startY = 7;
 	for (int i = 0; i < 3; ++i)
 	{
-		Color textColor = int(selectEditType) == i ? Color({ E_Color::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
+		ConsoleColor textColor = int(selectEditType) == i ? ConsoleColor({ E_4BitColor::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
 		GameMap::DrawCell(startX + offset * (i%4), startY + (i / 4) * 2, textColor, itemNames[i + 7]);
 	}
 
 	startX = 42, offset = 4, startY = 9;
 	for (int i = 0; i < 8; ++i)
 	{
-		Color textColor = selectForeColor == itemColors[i] ? Color({ E_Color::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
+		ConsoleColor textColor = selectForeColor == itemColors[i] ? ConsoleColor({ E_4BitColor::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
 		GameMap::DrawCell(startX + offset * (i % 4), startY + (i / 4) * 2, textColor, itemNames[i + 10]);
 		GameMap::DrawCell(startX + offset * (i % 4), startY + (i / 4) * 2 + 1, {DEFAULT_FORE_COLOR, itemColors[i]}, "      ");
 	}
@@ -377,7 +377,7 @@ void GameEditor::Refresh()
 	for (int i = 0; i < 4; ++i)
 	{
 		bool isEditingThis = m_isEditingNumber && (m_editingNumberIndex == i);
-		Color textColor = isEditingThis ? Color({ E_Color::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
+		ConsoleColor textColor = isEditingThis ? ConsoleColor({ E_4BitColor::LWhite, DEFAULT_BACK_COLOR }) : DEFAULT_COLOR;
 		GameMap::DrawCell(startX + offset * (i % 4), startY + (i / 4) * 2, textColor, itemNames[i + 20]);
 		GameMap::DrawCell(startX + offset * (i % 4), startY + (i / 4) * 2 + 1, items[7 + i * 2]);
 		GameMap::DrawCell(startX + offset * (i % 4) + 1, startY + (i / 4) * 2 + 1, items[8 + i * 2]);
@@ -397,7 +397,7 @@ void GameEditor::Refresh()
 	startX = 43, offset = 9, startY = 17;
 	for (int i = 0; i < 2; ++i)
 	{
-		Color textColor = DEFAULT_COLOR;
+		ConsoleColor textColor = DEFAULT_COLOR;
 		GameMap::DrawCell(startX + offset * (i % 4), startY + (i / 4) * 2, textColor, itemNames[i + 18]);
 	}
 
@@ -447,8 +447,9 @@ void GameEditor::New()
 
 void GameEditor::Load()
 {
-	m_mapModel.Clear();
 	string path = OpenFile();
+	if ("" == path) return;
+	m_mapModel.Clear();
 	std::ifstream ifs;
 	ifs.open(path);
 	ifs >> m_mapModel;

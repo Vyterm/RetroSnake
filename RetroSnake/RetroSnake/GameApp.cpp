@@ -43,18 +43,18 @@ inline GameMapModel GenerateMapModel(size_t playerCount)
 	m_model.SetCross({ 34, 34 });
 	if (playerCount == 1)
 	{
-		m_model.SetPlayer({ GAME_WIDTH / 2, GAME_HEIGHT / 2 }, E_Color::LCyan);
-		m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, E_Color::LBlue);
-		m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, E_Color::LPurple);
+		m_model.SetPlayer({ GAME_WIDTH / 2, GAME_HEIGHT / 2 }, E_4BitColor::LCyan);
+		m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, E_4BitColor::LBlue);
+		m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, E_4BitColor::LPurple);
 	}
 	else
 	{
-		m_model.SetPlayer({ GAME_WIDTH / 2 - 5, GAME_HEIGHT / 2 }, E_Color::LCyan);
-		m_model.SetPlayer({ GAME_WIDTH / 2 + 4, GAME_HEIGHT / 2 }, E_Color::LWhite);
-		m_model.SetJumpPoint({ 19, 18 }, { 49, 30 }, E_Color::LBlue);
-		m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, E_Color::LBlue);
-		m_model.SetJumpPoint({ 19, 30 }, { 49, 35 }, E_Color::LPurple);
-		m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, E_Color::LPurple);
+		m_model.SetPlayer({ GAME_WIDTH / 2 - 5, GAME_HEIGHT / 2 }, E_4BitColor::LCyan);
+		m_model.SetPlayer({ GAME_WIDTH / 2 + 4, GAME_HEIGHT / 2 }, E_4BitColor::LWhite);
+		m_model.SetJumpPoint({ 19, 18 }, { 49, 30 }, E_4BitColor::LBlue);
+		m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, E_4BitColor::LBlue);
+		m_model.SetJumpPoint({ 19, 30 }, { 49, 35 }, E_4BitColor::LPurple);
+		m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, E_4BitColor::LPurple);
 	}
 	m_model.set_FoodCount(3);
 	return m_model;
@@ -136,6 +136,7 @@ void GameApp::Game()
 
 	GameMapModel reloadModel;
 	string path = OpenFile();
+	if ("" == path) return;
 	std::ifstream ifs;
 	ifs.open(path);
 	ifs >> reloadModel;

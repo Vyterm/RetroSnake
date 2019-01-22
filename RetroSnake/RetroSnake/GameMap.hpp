@@ -2,6 +2,7 @@
 #define GAME_MAP_HPP
 
 #include "GameModel.hpp"
+#include "GameMapItem.hpp"
 #include "winapi.hpp"
 
 #include <iostream>
@@ -15,124 +16,14 @@ using std::cin;
 using std::endl;
 using std::string;
 
-#pragma region CellType & Colors
-
-enum class E_CellType
-{
-	None = 0,
-	Land = 1,
-	Food = 2,
-	Head = 3,
-	Body = 4,
-	Jump = 5,
-};
-
-enum class E_SubType
-{
-	// 作为食物是普通食物，作为地形是山峰
-	SubType0,
-	// 作为食物使对方变长，作为地形是草地
-	SubType1,
-	// 作为食物使自己变短，作为地形是
-	SubType2,
-	// 作为食物使自己增速，作为地形是岩浆
-	SubType3,
-	// 作为食物使对方减速，作为地形是冰块
-	SubType4,
-	// 作为食物使对方反转，作为地形是
-	SubType5,
-	// 作为食物自己变刚体，作为地形是
-	SubType6,
-	// 作为食物对方变失控，作为地形是
-	SubType7,
-	// 作为食物自己变幽灵，作为地形是
-	SubType8,
-};
-
-constexpr E_Color SubTypeColors[] = { E_Color::White, E_Color::LGreen, E_Color::LPurple, E_Color::LRed, E_Color::LBlue, E_Color::Black, E_Color::LYellow, E_Color::Green, E_Color::Cyan };
-
-class MapItem
-{
-public:
-	E_CellType type = E_CellType::None;
-	E_SubType subType = E_SubType::SubType0;
-	Color color = { DEFAULT_FORE_COLOR, DEFAULT_BACK_COLOR };
-	Point jumpPoint;
-	MapItem() { }
-	MapItem(E_CellType type) { this->type = type; }
-	MapItem(E_CellType type, Color color) { this->type = type; this->color = color; }
-	MapItem(E_CellType type, E_SubType subType, Color color) { Set(type, subType, color); }
-	MapItem& operator=(const MapItem &rhs)
-	{
-		this->type = rhs.type;
-		this->subType = rhs.subType;
-		this->color = rhs.color;
-		this->jumpPoint = rhs.jumpPoint;
-		return *this;
-	}
-
-	void SetQuote(const std::shared_ptr<void> &quote)
-	{
-		m_weakQuote = quote;
-	}
-	bool TryGetQuote(std::shared_ptr<void> &quote)
-	{
-		quote = m_weakQuote.lock();
-		return m_weakQuote.expired();
-	}
-	/*
-	亮	红	绿	蓝
-	1	1	1	1
-	0x0~0xF表示暗黑色至亮白色
-	*/
-	void Set(Color color) { Set(type, subType, color); }
-	void Set(E_CellType type, Color color) { Set(type, E_SubType::SubType0, color); }
-	void Set(E_CellType type, E_SubType subType, Color color)
-	{
-		this->type = type;
-		this->subType = subType;
-		this->color = color;
-	}
-	MapItem& operator=(E_CellType type)
-	{
-		this->type = type;
-		return *this;
-	}
-	MapItem& operator=(E_SubType subType)
-	{
-		this->subType = subType;
-		return *this;
-	}
-	MapItem& operator=(Color color)
-	{
-		this->color = color;
-		return *this;
-	}
-	bool operator==(const MapItem &rhs) const { return type == rhs.type && subType == rhs.subType && color == rhs.color; }
-	bool operator!=(const MapItem &rhs) const { return type != rhs.type || subType != rhs.subType || color != rhs.color; }
-	bool operator==(const E_CellType &rhs) const { return rhs == type; }
-	bool operator!=(const E_CellType &rhs) const { return rhs != type; }
-	bool operator==(const E_SubType &rhs) const { return rhs == subType; }
-	bool operator!=(const E_SubType &rhs) const { return rhs != subType; }
-	bool operator==(const Color &rhs) const { return rhs == color; }
-	bool operator!=(const Color &rhs) const { return rhs != color; }
-	friend bool operator==(const E_CellType &lhs, const MapItem &rhs) { return lhs == rhs.type; }
-	friend bool operator==(const E_SubType &lhs, const MapItem &rhs) { return lhs == rhs.subType; }
-	friend bool operator==(const Color &lhs, const MapItem &rhs) { return lhs == rhs.color; }
-private:
-	std::weak_ptr<void> m_weakQuote;
-};
-
-#pragma endregion
-
 template <int Width, int Height>
 class LayerTemplate
 {
 protected:
 	MapItem m_items[Width][Height];
 public:
-	const MapItem& operator[](Point position) const { return m_items[position.x][position.y]; }
-	MapItem& operator[](Point position) { return m_items[position.x][position.y]; }
+	const MapItem& operator[](Vector2 position) const { return m_items[position.x][position.y]; }
+	MapItem& operator[](Vector2 position) { return m_items[position.x][position.y]; }
 	const MapItem& Index(int x, int y) const { return m_items[x][y]; }
 	MapItem& Index(int x, int y) { return m_items[x][y]; }
 };
@@ -151,7 +42,7 @@ private:
 	std::vector<PlayerCtrl*> m_players;
 	size_t m_activePlayerCount = 0;
 
-	Point m_position;
+	Vector2 m_position;
 	MapItem m_zCacheItems[Width][Height];
 
 	GameMapModel m_model;
@@ -162,7 +53,7 @@ private:
 
 	void LoadStaticCell(const GameMapModel &model, int ci, int ri)
 	{
-		Point position = { ci, ri };
+		Vector2 position = { ci, ri };
 		m_staticItems[ci][ri].Set(E_CellType::None, E_SubType::SubType0, DEFAULT_COLOR);
 		m_items[ci][ri].Set(E_CellType::None, E_SubType::SubType0, DEFAULT_COLOR);
 		switch (model.GetType(position))
@@ -224,8 +115,8 @@ public:
 
 	MapTemplate(bool &updateUI) : m_isUpdateUI(updateUI)
 	{
-		m_players.push_back(new PlayerCtrl("玩家一", *this, updateUI, { E_Color::LCyan, DEFAULT_BACK_COLOR }, 'W', 'A', 'S', 'D'));
-		m_players.push_back(new PlayerCtrl("玩家二", *this, updateUI, { E_Color::LWhite,DEFAULT_BACK_COLOR }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
+		m_players.push_back(new PlayerCtrl("玩家一", *this, updateUI, { E_4BitColor::LCyan, DEFAULT_BACK_COLOR }, 'W', 'A', 'S', 'D'));
+		m_players.push_back(new PlayerCtrl("玩家二", *this, updateUI, { E_4BitColor::LWhite,DEFAULT_BACK_COLOR }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
 		for (auto &player : m_players)
 			player->Clear();
 		m_position = { 0, 0 };
@@ -306,20 +197,20 @@ public:
 		{
 			auto type = upperLayer.type == E_CellType::Head ? E_CellType::Head : E_CellType::Land;
 			auto subType = upperLayer.type == E_CellType::Head ? E_SubType::SubType0 : E_SubType::SubType1;
-			Color color = { upperLayer.color.fore, m_staticItems[x][y].color.back };
+			ConsoleColor color = { upperLayer.color.fore, m_staticItems[x][y].color.back };
 			upperLayer.Set(type, subType, color);
 		}
 		else if (m_staticItems[x][y] == E_SubType::SubType4)
 		{
 			auto type = upperLayer.type;
 			auto subType = upperLayer.subType;
-			Color color = { upperLayer.color.fore, m_staticItems[x][y].color.back };
+			ConsoleColor color = { upperLayer.color.fore, m_staticItems[x][y].color.back };
 			upperLayer.Set(type, subType, color);
 		}
 		return upperLayer;
 	}
 
-	static Color ToSubColor(E_SubType subType)
+	static ConsoleColor ToSubColor(E_SubType subType)
 	{
 		return { SubTypeColors[int(subType)], DEFAULT_BACK_COLOR };
 	}
@@ -357,7 +248,7 @@ public:
 		DrawCell(x, y, item.color, ToString(item));
 	}
 
-	static void DrawCell(int x, int y, Color color, const string &text)
+	static void DrawCell(int x, int y, ConsoleColor color, const string &text)
 	{
 		SetPosition(x, y);
 		SetColor(color);
@@ -382,9 +273,9 @@ public:
 
 	#pragma region Create Methods
 
-	bool SearchEmptyPosition(Point &emptyPoint)
+	bool SearchEmptyPosition(Vector2 &emptyPoint)
 	{
-		std::vector<Point> emptyPoints;
+		std::vector<Vector2> emptyPoints;
 		for (int ri = 0; ri < GAME_HEIGHT; ++ri)
 			for (int ci = 0; ci < GAME_WIDTH; ++ci)
 				if (E_CellType::None == m_staticItems[ci][ri] && E_CellType::None == m_items[ci][ri])
@@ -397,7 +288,7 @@ public:
 
 	bool GenerateRandomFood()
 	{
-		Point emptyPoint;
+		Vector2 emptyPoint;
 		if (!SearchEmptyPosition(emptyPoint))
 			return false;
 		auto randomType = rand() % 100;
@@ -425,23 +316,23 @@ public:
 
 	#pragma region CellType Methods
 
-	const MapItem& operator[](Point position) const { return m_items[position.x][position.y]; }
-	MapItem& operator[](Point position) { return m_items[position.x][position.y]; }
+	const MapItem& operator[](Vector2 position) const { return m_items[position.x][position.y]; }
+	MapItem& operator[](Vector2 position) { return m_items[position.x][position.y]; }
 	const MapItem& Index(int x, int y) const { return m_items[x][y]; }
 	MapItem& Index(int x, int y) { return m_items[x][y]; }
-	const MapItem& GetItem(Point position) { return E_CellType::None == m_items[position.x][position.y] ? m_staticItems[position.x][position.y] : m_items[position.x][position.y]; }
-	const MapItem& GetStaticItem(Point position) { return m_staticItems[position.x][position.y]; }
+	const MapItem& GetItem(Vector2 position) { return E_CellType::None == m_items[position.x][position.y] ? m_staticItems[position.x][position.y] : m_items[position.x][position.y]; }
+	const MapItem& GetStaticItem(Vector2 position) { return m_staticItems[position.x][position.y]; }
 
 	bool MoveAble(int x, int y)
 	{
 		auto item = GetItem({ x, y });
-		return E_CellType::None == item.type ||
+		return E_CellType::None == item.type || E_CellType::Food == item.type || E_CellType::Jump == item.type || 
 			(E_CellType::Land == item.type && E_SubType::SubType1 == item.subType) ||
 			//(E_CellType::Land == item.type && E_SubType::SubType4 == item.subType) ||
 			(E_CellType::Land == item.type && E_SubType::SubType4 == item.subType);
 	}
 
-	bool IsBlocked(const Point &position)
+	bool IsBlocked(const Vector2 &position)
 	{
 		bool isBlocked = true;
 		isBlocked &= !MoveAble(position.x + 1, position.y);

@@ -55,8 +55,8 @@ public:
 
 	int get_BuffRemainSecond(E_BuffType type) const { return m_buffs[int(type)] == nullptr ? 0 : m_buffs[int(type)]->RemainSecond(); }
 
-	void set_Color(const Color &color) { m_snake.Twinkle(m_map, color); }
-	Color get_Color() const { return m_snake.get_color(); }
+	void set_Color(const ConsoleColor &color) { m_snake.Twinkle(m_map, color); }
+	ConsoleColor get_Color() const { return m_snake.get_color(); }
 	string get_Name() const { return m_name; }
 
 	bool get_Alive() const { return m_alive; }
@@ -94,10 +94,10 @@ private:
 
 	void UpdateDirection();
 	bool MoveByPosition();
-	bool MoveByPosition(const Point &position);
+	bool MoveByPosition(const Vector2 &position);
 
-	void HandleFood(const Point& position);
-	void HandleTerrain(const Point& position);
+	void HandleFood(const Vector2& position);
+	void HandleTerrain(const Vector2& position);
 
 	void Reverse();
 
@@ -111,14 +111,14 @@ private:
 	{
 		int m_clockSecond;
 		int m_tickCount;
-		E_Color m_playerColor;
+		E_4BitColor m_playerColor;
 		E_BuffType m_type;
 	protected:
 		PlayerCtrl &m_player;
 		bool m_isAppend;
 		PlayerBuff(PlayerCtrl &player, int clockSecond, E_BuffType type);
 		virtual ~PlayerBuff();
-		virtual E_Color ShiningColour() const { return m_playerColor; }
+		virtual E_4BitColor ShiningColour() const { return m_playerColor; }
 		virtual void Invoke();
 	public:
 		virtual void Copy(const PlayerBuff *buff);
@@ -130,7 +130,7 @@ private:
 	{
 	public:
 		UnstoppableBuff(PlayerCtrl &player, int clockSecond);
-		E_Color ShiningColour() const { return E_Color::LYellow; }
+		E_4BitColor ShiningColour() const { return E_4BitColor::LYellow; }
 		virtual void RemoveBuff() override;
 	};
 	class IncontrollableBuff : public PlayerBuff
@@ -138,7 +138,7 @@ private:
 		int m_kUp, m_kLeft, m_kDown, m_kRight;
 	public:
 		IncontrollableBuff(PlayerCtrl &player, int clockSecond);
-		E_Color ShiningColour() const { return E_Color::Green; }
+		E_4BitColor ShiningColour() const { return E_4BitColor::Green; }
 		virtual void RemoveBuff() override;
 	};
 	class SlippageBuff : public PlayerBuff
@@ -151,11 +151,11 @@ private:
 	#pragma endregion
 
 public:
-	PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, Color color, int kUp, int kLeft, int kDown, int kRight);
+	PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, ConsoleColor color, int kUp, int kLeft, int kDown, int kRight);
 	~PlayerCtrl();
 
 	void Clear();
-	void Reset(Point position);
+	void Reset(Vector2 position);
 
 	void Process() override;
 };

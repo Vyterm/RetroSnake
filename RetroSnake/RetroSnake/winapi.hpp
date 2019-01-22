@@ -19,7 +19,7 @@ void ResetCursor();
  // 设置控制台标题
 void SetTitle(const char * title);
 // 设置控制台颜色
-void SetColor(Color);
+void SetColor(ConsoleColor);
 // 根据宽高设置控制台窗口的大小
 void SetConsoleWindowSize();
 // 设置光标的x、y坐标-正常坐标轴(x左至右，y上至下)

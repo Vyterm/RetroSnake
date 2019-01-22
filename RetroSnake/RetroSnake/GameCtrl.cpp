@@ -6,7 +6,7 @@ using namespace std;
 
 #pragma region Construct & Destruct
 
-PlayerCtrl::PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, Color color, int kUp, int kLeft, int kDown, int kRight)
+PlayerCtrl::PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, ConsoleColor color, int kUp, int kLeft, int kDown, int kRight)
 	: m_name(name), m_map(map), m_isUpdateUI(isUpdateUI), m_snake(color), m_speedLevel(0), m_score(0),
 	m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight)
 {
@@ -28,7 +28,7 @@ void PlayerCtrl::Clear()
 	m_alive = false;
 }
 
-void PlayerCtrl::Reset(Point position)
+void PlayerCtrl::Reset(Vector2 position)
 {
 	m_timer = &(vyt::timer::get_instance().RegisterHandler<TickTock, PlayerCtrl>(*this, 100, true));
 	m_snake.Reset(m_map, position);
@@ -66,7 +66,7 @@ bool PlayerCtrl::MoveByPosition()
 	return MoveByPosition(GetPositionByDirection(m_snake.get_headPosition(), m_direction));
 }
 
-bool PlayerCtrl::MoveByPosition(const Point &position)
+bool PlayerCtrl::MoveByPosition(const Vector2 &position)
 {
 	auto type = m_map.GetItem(position).type;
 	if (type == E_CellType::None || position == m_snake.get_tailPosition())
@@ -82,7 +82,8 @@ bool PlayerCtrl::MoveByPosition(const Point &position)
 	{
 		if (m_snake.Contains(position))
 			set_Alive(false);
-		m_enemy->set_Alive(false);
+		else
+			m_enemy->set_Alive(false);
 	}
 	else if (type == E_CellType::Jump)
 		return MoveByPosition(GetPositionByDirection(m_map[position].jumpPoint, m_direction));
@@ -91,7 +92,7 @@ bool PlayerCtrl::MoveByPosition(const Point &position)
 	return false;
 }
 
-void PlayerCtrl::HandleFood(const Point& position)
+void PlayerCtrl::HandleFood(const Vector2& position)
 {
 	++m_speedLevel;
 	switch (m_map.GetItem(position).subType)
@@ -102,7 +103,7 @@ void PlayerCtrl::HandleFood(const Point& position)
 		break;
 	case E_SubType::SubType1:
 		m_snake.TailToHead(m_map, position);
-		Point tail = m_enemy->m_snake.get_tailPosition();
+		Vector2 tail = m_enemy->m_snake.get_tailPosition();
 		if (!m_enemy->MoveByPosition())
 			m_enemy->m_snake.ExtendTail(m_map, tail);
 		break;
@@ -138,7 +139,7 @@ void PlayerCtrl::HandleFood(const Point& position)
 	}
 }
 
-void PlayerCtrl::HandleTerrain(const Point& position)
+void PlayerCtrl::HandleTerrain(const Vector2& position)
 {
 	auto item = m_map.GetItem(position);
 	switch (item.subType)
