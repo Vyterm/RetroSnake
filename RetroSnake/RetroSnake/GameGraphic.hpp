@@ -20,8 +20,22 @@ namespace game
 		RenderColor m_foreColor;
 		RenderColor m_backColor;
 	public:
-		RenderItem& operator=(const string &text) { m_text = text.substr(0, 2); }
-		RenderItem& operator=(const RenderColor &color) { m_foreColor = color; }
+		RenderItem() { }
+		RenderItem(RenderColor backColor) : m_backColor(backColor) {}
+		RenderItem& operator=(const string &text) { m_text = text; return *this; }
+		RenderItem& operator=(const RenderColor &color) { m_foreColor = color; return *this; }
+		bool operator==(const RenderItem& rhs) const
+		{
+			return m_text == rhs.m_text &&
+				m_foreColor == rhs.m_foreColor &&
+				m_backColor == rhs.m_backColor;
+		}
+		bool operator!=(const RenderItem& rhs) const
+		{
+			return m_text != rhs.m_text ||
+				m_foreColor != rhs.m_foreColor ||
+				m_backColor != rhs.m_backColor;
+		}
 		void Print(Vector2 position) const;
 	};
 
@@ -29,11 +43,12 @@ namespace game
 	{
 	private:
 		RenderItem m_zCacheItems[LAYER_WIDTH][LAYER_HEIGHT];
+		void DrawCell(size_t x, size_t y, bool isForce);
 	public:
-		void PrintString(const Vector2 &position, const string &text, const RenderColor &color)
-		{
-
-		}
+		RenderLayer() { }
+		void SetString(const Vector2 &position, const string &text, const RenderColor &color);
+		void Draw();
+		void Draw(bool isForce);
 	};
 }
 

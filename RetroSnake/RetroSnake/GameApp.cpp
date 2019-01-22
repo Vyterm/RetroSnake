@@ -2,6 +2,7 @@
 #include "GameSurface.hpp"
 #include "GameCtrl.hpp"
 #include "GameEditor.hpp"
+#include "GameGraphic.hpp"
 #include "vytTimer.hpp"
 #include "winapi.hpp"
 
@@ -28,67 +29,15 @@ static LPCSTR BGAudioPath[] =
 	"sound_bg4.wav",
 	"sound_bg5.wav",
 };
-inline GameMapModel GenerateMapModel(size_t playerCount)
-{
-	GameMapModel m_model;
-	m_model.SetHollowLand({ 0, 0 }, { (GAME_WIDTH + 0 - 1), (GAME_HEIGHT + 0 - 1) }, E_StaticCellType::JebelLand);
-	m_model.SetHollowLand({ GAME_WIDTH, MSG_HEIGHT }, { (MAZE_WIDTH + GAME_WIDTH - 1), (MAZE_HEIGHT + MSG_HEIGHT - 1) }, E_StaticCellType::JebelLand);
-	m_model.SetHollowLand({ GAME_WIDTH, 0 }, { (MSG_WIDTH + GAME_WIDTH - 1), (MSG_HEIGHT + 0 - 1) }, E_StaticCellType::JebelLand);
-	m_model.SetCloseyLand({ 10, 1 }, { (20 + 10 - 1), (10 + 1 - 1) }, E_StaticCellType::GrassLand);
-	m_model.SetCloseyLand({ 1, 38 }, { (38 + 1 - 1), (1 + 38 - 1) }, E_StaticCellType::MagmaLand);
-	m_model.SetCloseyLand({ 1, 36 }, { (38 + 1 - 1), (2 + 36 - 1) }, E_StaticCellType::FrostLand);
-	m_model.SetCross({ 5, 5 });
-	m_model.SetCross({ 34, 5 });
-	m_model.SetCross({ 5, 34 });
-	m_model.SetCross({ 34, 34 });
-	if (playerCount == 1)
-	{
-		m_model.SetPlayer({ GAME_WIDTH / 2, GAME_HEIGHT / 2 }, E_4BitColor::LCyan);
-		m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, E_4BitColor::LBlue);
-		m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, E_4BitColor::LPurple);
-	}
-	else
-	{
-		m_model.SetPlayer({ GAME_WIDTH / 2 - 5, GAME_HEIGHT / 2 }, E_4BitColor::LCyan);
-		m_model.SetPlayer({ GAME_WIDTH / 2 + 4, GAME_HEIGHT / 2 }, E_4BitColor::LWhite);
-		m_model.SetJumpPoint({ 19, 18 }, { 49, 30 }, E_4BitColor::LBlue);
-		m_model.SetJumpPoint({ 20, 18 }, { 50, 30 }, E_4BitColor::LBlue);
-		m_model.SetJumpPoint({ 19, 30 }, { 49, 35 }, E_4BitColor::LPurple);
-		m_model.SetJumpPoint({ 20, 30 }, { 50, 35 }, E_4BitColor::LPurple);
-	}
-	m_model.set_FoodCount(3);
-	return m_model;
-}
 
 int main()
 {
+	//game::RenderLayer render;
+	//render.SetString({ 10,10 }, "Crazy", { 2,1,2,0 });
+	//render.Draw();
+
 	GameApp app;
 	app.Run();
-
-	//auto model = GenerateMapModel(2);
-	//string path = SaveFile();
-	//std::ofstream ofs;
-	//ofs.open(path);
-	//ofs << model;
-	//ofs.close();
-
-	//GameMapModel reloadModel;
-	//path = OpenFile();
-	//std::ifstream ifs;
-	//ifs.open(path);
-	//ifs >> reloadModel;
-	//ifs.close();
-
-	//for (int x = 0; x < GameMapModel::WIDTH; ++x)
-	//	for (int y = 0; y < GameMapModel::HEIGHT; ++y)
-	//		if (model.GetType({ x,y }) != reloadModel.GetType({ x,y }))
-	//			cout << "x:" << x << " y:" << y << " 's type diff" << endl;
-	//if (model.get_FoodCount() != reloadModel.get_FoodCount())
-	//	cout << "GetFoodCount's type diff" << endl;
-
-	//cout << "Reload Successful" << endl;
-
-	//cin.get();
 
 	return 0;
 }
@@ -142,7 +91,6 @@ void GameApp::Game()
 	ifs >> reloadModel;
 	ifs.close();
 
-	//map.SetModel(GenerateMapModel(playerCount));
 	map.SetModel(reloadModel);
 	char c = '\0';
 	while ('q' != c)
