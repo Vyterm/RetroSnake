@@ -63,6 +63,9 @@
     <ClCompile Include="GameGraphic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="GameBuff.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp">
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="GameColor.hpp">
       <Filter>头文件\Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="GameBuff.hpp">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

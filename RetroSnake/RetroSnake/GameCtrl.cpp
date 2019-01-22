@@ -5,16 +5,13 @@
 using namespace std;
 
 #pragma region Construct & Destruct
-
-PlayerCtrl::PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, ConsoleColor color, int kUp, int kLeft, int kDown, int kRight)
-	: m_name(name), m_map(map), m_isUpdateUI(isUpdateUI), m_snake(color), m_speedLevel(0), m_score(0),
-	m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight)
+PlayerCtrl::PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, int kUp, int kLeft, int kDown, int kRight)
+	: m_name(name), m_map(map), m_isUpdateUI(isUpdateUI), m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight)
 {
+
 }
 
-PlayerCtrl::~PlayerCtrl()
-{
-}
+PlayerCtrl::~PlayerCtrl() {}
 
 void PlayerCtrl::Clear()
 {
@@ -25,12 +22,31 @@ void PlayerCtrl::Clear()
 			m_buffs[i]->RemoveBuff();
 			m_buffs[i] = nullptr;
 		}
-	m_alive = false;
 }
 
 void PlayerCtrl::Reset(Vector2 position)
 {
-	m_timer = &(vyt::timer::get_instance().RegisterHandler<TickTock, PlayerCtrl>(*this, 100, true));
+	m_timer = &(vyt::timer::get_instance().RegisterHandler<ticktock>(*this, 100, true));
+}
+
+SnakePlayerCtrl::SnakePlayerCtrl(string name, GameMap &map, bool &isUpdateUI, E_4BitColor color, int kUp, int kLeft, int kDown, int kRight)
+	: PlayerCtrl(name, map, isUpdateUI, kUp, kLeft, kDown, kRight), m_snake(color), m_speedLevel(0), m_score(0)
+{
+}
+
+SnakePlayerCtrl::~SnakePlayerCtrl()
+{
+}
+
+void SnakePlayerCtrl::Clear()
+{
+	PlayerCtrl::Clear();
+	m_alive = false;
+}
+
+void SnakePlayerCtrl::Reset(Vector2 position)
+{
+	PlayerCtrl::Reset(position);
 	m_snake.Reset(m_map, position);
 	m_alive = true;
 	m_speedLevel = 0;
@@ -39,11 +55,30 @@ void PlayerCtrl::Reset(Vector2 position)
 
 #pragma endregion
 
+#pragma region Properties
+
+void PlayerCtrl::get_keyCtrl(int &kUp, int &kLeft, int &kDown, int &kRight)
+{
+	kUp = m_kUp;
+	kLeft = m_kLeft;
+	kDown = m_kDown;
+	kRight = m_kRight;
+}
+void PlayerCtrl::set_keyCtrl(int kUp, int kLeft, int kDown, int kRight)
+{
+	m_kUp = kUp;
+	m_kLeft = kLeft;
+	m_kDown = kDown;
+	m_kRight = kRight;
+}
+
+#pragma endregion
+
 #pragma region Process Methods
 
-void PlayerCtrl::UpdateDirection()
+E_Direction PlayerCtrl::UpdateDirection()
 {
-	E_Direction target = m_direction;
+	E_Direction target;
 	if (IsKey(m_kLeft))
 		target = E_Direction::Left;
 	else if (IsKey(m_kUp))
@@ -52,21 +87,30 @@ void PlayerCtrl::UpdateDirection()
 		target = E_Direction::Right;
 	else if (IsKey(m_kDown))
 		target = E_Direction::Down;
+	else
+		target = E_Direction::None;
+	return target;
+}
 
+void SnakePlayerCtrl::UpdateDirection()
+{
+	E_Direction target = PlayerCtrl::UpdateDirection();
+	if (target == E_Direction::None)
+		return;
 	auto targetPosition = GetPositionByDirection(m_snake.get_headPosition(), target);
 	if (m_map[targetPosition] == E_CellType::Body && targetPosition != m_snake.get_tailPosition())
 		return;
 	m_direction = target;
 }
 
-bool PlayerCtrl::MoveByPosition()
+bool SnakePlayerCtrl::MoveByPosition()
 {
 	if (E_Direction::None == m_direction)
 		return false;
 	return MoveByPosition(GetPositionByDirection(m_snake.get_headPosition(), m_direction));
 }
 
-bool PlayerCtrl::MoveByPosition(const Vector2 &position)
+bool SnakePlayerCtrl::MoveByPosition(const Vector2 &position)
 {
 	auto type = m_map.GetItem(position).type;
 	if (type == E_CellType::None || position == m_snake.get_tailPosition())
@@ -92,7 +136,7 @@ bool PlayerCtrl::MoveByPosition(const Vector2 &position)
 	return false;
 }
 
-void PlayerCtrl::HandleFood(const Vector2& position)
+void SnakePlayerCtrl::HandleFood(const Vector2& position)
 {
 	++m_speedLevel;
 	switch (m_map.GetItem(position).subType)
@@ -139,7 +183,7 @@ void PlayerCtrl::HandleFood(const Vector2& position)
 	}
 }
 
-void PlayerCtrl::HandleTerrain(const Vector2& position)
+void SnakePlayerCtrl::HandleTerrain(const Vector2& position)
 {
 	auto item = m_map.GetItem(position);
 	switch (item.subType)
@@ -177,125 +221,19 @@ void PlayerCtrl::HandleTerrain(const Vector2& position)
 	}
 }
 
-void PlayerCtrl::Reverse()
+void SnakePlayerCtrl::Reverse()
 {
 	m_direction = GetReverseDirection(m_direction);
 	m_snake.Reverse(m_map);
 }
 
-void PlayerCtrl::ToNextDeathAnimation()
+void SnakePlayerCtrl::ToNextDeathAnimation()
 {
 }
 
 #pragma endregion
 
-#pragma region Player Buffs
-
-PlayerCtrl::PlayerBuff::PlayerBuff(PlayerCtrl & player, int clockSecond, E_BuffType type)
-	: m_player(player), vyt::timer::handler(200, true), m_clockSecond(clockSecond), m_tickCount(0),
-	m_type(type), m_isAppend(true), m_playerColor(player.get_Color().fore)
-{
-	if (nullptr != m_player.m_buffs[int(m_type)])
-	{
-		m_player.m_buffs[int(m_type)]->Copy(this);
-		StopTimer();
-		m_isAppend = false;
-	}
-	else
-		m_player.m_buffs[int(m_type)] = this;
-}
-
-PlayerCtrl::PlayerBuff::~PlayerBuff()
-{
-	m_player.set_Color({ m_playerColor, DEFAULT_BACK_COLOR });
-	if (m_player.m_buffs[int(m_type)] == this)
-		m_player.m_buffs[int(m_type)] = nullptr;
-}
-
-void PlayerCtrl::PlayerBuff::Invoke()
-{
-	++m_tickCount;
-	if (m_tickCount % 3 == 0)
-		m_player.set_Color({ ShiningColour(), DEFAULT_BACK_COLOR });
-	if (m_tickCount < 5) return;
-	m_tickCount -= 5;
-	m_player.set_Color({ m_playerColor, DEFAULT_BACK_COLOR });
-
-	if (--m_clockSecond < 0)
-		RemoveBuff();
-	m_player.m_isUpdateUI = true;
-}
-
-void PlayerCtrl::PlayerBuff::Copy(const PlayerBuff * buff)
-{
-	m_clockSecond = buff->m_clockSecond;
-	m_player.m_isUpdateUI = true;
-}
-
-int PlayerCtrl::PlayerBuff::RemainSecond() const
-{
-	return m_clockSecond;
-}
-
-void PlayerCtrl::PlayerBuff::RemoveBuff()
-{
-	StopTimer();
-}
-
-PlayerCtrl::UnstoppableBuff::UnstoppableBuff(PlayerCtrl & player, int clockSecond) : PlayerBuff(player, clockSecond, E_BuffType::Unstoppable)
-{
-	if (m_isAppend)
-	{
-		m_player.m_unstoppable = true;
-		m_player.m_speedLevel += 20;
-	}
-}
-
-void PlayerCtrl::UnstoppableBuff::RemoveBuff()
-{
-	PlayerBuff::RemoveBuff();
-	m_player.m_unstoppable = !m_player.m_unstoppable;
-	m_player.m_speedLevel -= 20;
-}
-
-PlayerCtrl::IncontrollableBuff::IncontrollableBuff(PlayerCtrl & player, int clockSecond)
-	: PlayerBuff(player, clockSecond, E_BuffType::Incontrollable),
-	m_kUp(m_player.m_kUp), m_kLeft(m_player.m_kLeft), m_kDown(m_player.m_kDown), m_kRight(m_player.m_kRight)
-{
-	if (m_isAppend)
-	{
-		//m_player.m_kUp = m_player.m_kLeft = m_player.m_kDown = m_player.m_kRight = 0;
-		m_player.m_kUp = m_kDown;
-		m_player.m_kLeft = m_kRight;
-		m_player.m_kDown = m_kUp;
-		m_player.m_kRight = m_kLeft;
-	}
-}
-
-void PlayerCtrl::IncontrollableBuff::RemoveBuff()
-{
-	PlayerBuff::RemoveBuff();
-	m_player.m_kUp = m_kUp;
-	m_player.m_kLeft = m_kLeft;
-	m_player.m_kDown = m_kDown;
-	m_player.m_kRight = m_kRight;
-}
-
-PlayerCtrl::SlippageBuff::SlippageBuff(PlayerCtrl & player, int clockSecond) : PlayerBuff(player, clockSecond, E_BuffType::Slippage)
-{
-	if (m_isAppend)
-		m_player.m_speedLevel += 80;
-}
-
-void PlayerCtrl::SlippageBuff::RemoveBuff()
-{
-	PlayerBuff::RemoveBuff();
-	m_player.m_speedLevel -= 80;
-}
-
-#pragma endregion
-
-void PlayerCtrl::Process()
+void SnakePlayerCtrl::Process()
 {
 	m_timer->Reset(clock_t(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel)));
 	if (!m_alive) return;

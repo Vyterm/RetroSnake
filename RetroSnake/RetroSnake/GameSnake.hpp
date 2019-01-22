@@ -24,9 +24,9 @@ class Snake
 		friend class Snake;
 	};
 	SnakePart *m_head, *m_tail;
-	ConsoleColor m_color, m_twinkleColor;
+	E_4BitColor m_color, m_twinkleColor;
 public:
-	Snake(ConsoleColor color);
+	Snake(E_4BitColor color);
 	Snake(Snake &&snake);
 	~Snake();
 
@@ -35,8 +35,8 @@ public:
 
 	Vector2 get_headPosition() const { return m_head->m_position; }
 	Vector2 get_tailPosition() const { return m_tail->m_position; }
-	ConsoleColor get_color() const { return m_color; }
-	void Twinkle(GameMap &map, const ConsoleColor &color);
+	E_4BitColor get_color() const { return m_color; }
+	void Twinkle(GameMap &map, const E_4BitColor &color);
 	void Reverse(GameMap &map);
 	void TailToHead(GameMap &map, Vector2 position);
 	void ExtendHead(GameMap &map, Vector2 position);

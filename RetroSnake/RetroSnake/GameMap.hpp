@@ -28,6 +28,7 @@ public:
 	MapItem& Index(int x, int y) { return m_items[x][y]; }
 };
 class PlayerCtrl;
+class SnakePlayerCtrl;
 
 template <size_t Width, size_t Height>
 class MapTemplate
@@ -115,8 +116,8 @@ public:
 
 	MapTemplate(bool &updateUI) : m_isUpdateUI(updateUI)
 	{
-		m_players.push_back(new PlayerCtrl("玩家一", *this, updateUI, { E_4BitColor::LCyan, DEFAULT_BACK_COLOR }, 'W', 'A', 'S', 'D'));
-		m_players.push_back(new PlayerCtrl("玩家二", *this, updateUI, { E_4BitColor::LWhite,DEFAULT_BACK_COLOR }, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
+		m_players.push_back(new SnakePlayerCtrl("玩家一", *this, updateUI, E_4BitColor::LCyan, 'W', 'A', 'S', 'D'));
+		m_players.push_back(new SnakePlayerCtrl("玩家二", *this, updateUI, E_4BitColor::LWhite, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
 		for (auto &player : m_players)
 			player->Clear();
 		m_position = { 0, 0 };
@@ -172,9 +173,9 @@ public:
 	{
 		PlayerCtrl *winer = nullptr;
 		if (m_activePlayerCount == 2)
-			winer = !m_players[0]->IsAlive() ? m_players[1] : !m_players[1]->IsAlive() ? m_players[0] : nullptr;
+			winer = !m_players[0]->get_Alive() ? m_players[1] : !m_players[1]->get_Alive() ? m_players[0] : nullptr;
 		else
-			winer = !m_players[0]->IsAlive() ? m_players[0] : nullptr;
+			winer = !m_players[0]->get_Alive() ? m_players[0] : nullptr;
 		if (nullptr == winer) return winer;
 		m_players[0]->Clear();
 		m_players[1]->Clear();

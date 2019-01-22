@@ -110,7 +110,7 @@ void OverSurface(const PlayerCtrl &winer, bool isWin)
 	SetColor(DEFAULT_COLOR);
 	DrawBorder(GAME_OVER_S_INDEXX, GAME_OVER_E_INDEXX, GAME_OVER_S_INDEXY, GAME_OVER_E_INDEXY);
 	SetPosition(GAME_OVER_S_INDEXX + 13, GAME_OVER_S_INDEXY + 4);
-	SetColor(winer.get_Color());
+	SetColor({ winer.get_Color(), DEFAULT_BACK_COLOR });
 	cout << winer.get_Name();
 	SetColor(DEFAULT_COLOR);
 	cout << (isWin ? "胜利" : "失败");

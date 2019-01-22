@@ -117,6 +117,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameApp.cpp" />
+    <ClCompile Include="GameBuff.cpp" />
     <ClCompile Include="GameCtrl.cpp" />
     <ClCompile Include="GameEditor.cpp" />
     <ClCompile Include="GameEvent.cpp" />
@@ -128,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApp.hpp" />
+    <ClInclude Include="GameBuff.hpp" />
     <ClInclude Include="GameColor.hpp" />
     <ClInclude Include="GameCtrl.hpp" />
     <ClInclude Include="GameEditor.hpp" />
