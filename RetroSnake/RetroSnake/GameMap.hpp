@@ -29,6 +29,7 @@ public:
 };
 class PlayerCtrl;
 class SnakePlayerCtrl;
+class TankPlayerCtrl;
 
 template <size_t Width, size_t Height>
 class MapTemplate
@@ -116,8 +117,10 @@ public:
 
 	MapTemplate(bool &updateUI) : m_isUpdateUI(updateUI)
 	{
-		m_players.push_back(new SnakePlayerCtrl("玩家一", *this, updateUI, E_4BitColor::LCyan, 'W', 'A', 'S', 'D'));
-		m_players.push_back(new SnakePlayerCtrl("玩家二", *this, updateUI, E_4BitColor::LWhite, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
+		//m_players.push_back(new SnakePlayerCtrl("玩家一", *this, updateUI, E_4BitColor::LCyan, 'W', 'A', 'S', 'D'));
+		//m_players.push_back(new SnakePlayerCtrl("玩家二", *this, updateUI, E_4BitColor::LWhite, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
+		m_players.push_back(new TankPlayerCtrl("玩家一", *this, updateUI, E_4BitColor::LCyan, 'W', 'A', 'S', 'D'));
+		m_players.push_back(new TankPlayerCtrl("玩家二", *this, updateUI, E_4BitColor::LWhite, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
 		for (auto &player : m_players)
 			player->Clear();
 		m_position = { 0, 0 };
@@ -218,7 +221,7 @@ public:
 
 	static string ToString(const MapItem &item)
 	{
-		static const string images[] = { "  ", "■", "☆", "◎", "¤", "※" };
+		static const string images[] = { "  ", "■", "☆", "◎", "¤", "※", "〓" };
 		//static const string images[] = { "  ", "〓", "❀", "◎", "¤", "※" };
 		if (item.type == E_CellType::Land)
 		{

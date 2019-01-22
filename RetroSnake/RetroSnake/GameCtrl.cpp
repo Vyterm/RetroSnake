@@ -6,7 +6,7 @@ using namespace std;
 
 #pragma region Construct & Destruct
 PlayerCtrl::PlayerCtrl(string name, GameMap &map, bool &isUpdateUI, int kUp, int kLeft, int kDown, int kRight)
-	: m_name(name), m_map(map), m_isUpdateUI(isUpdateUI), m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight)
+	: m_name(name), m_map(map), m_isUpdateUI(isUpdateUI), m_kUp(kUp), m_kLeft(kLeft), m_kDown(kDown), m_kRight(kRight), m_speedLevel(0), m_score(0)
 {
 
 }
@@ -22,15 +22,17 @@ void PlayerCtrl::Clear()
 			m_buffs[i]->RemoveBuff();
 			m_buffs[i] = nullptr;
 		}
+	m_alive = false;
 }
 
 void PlayerCtrl::Reset(Vector2 position)
 {
 	m_timer = &(vyt::timer::get_instance().RegisterHandler<ticktock>(*this, 100, true));
+	m_alive = true;
 }
 
 SnakePlayerCtrl::SnakePlayerCtrl(string name, GameMap &map, bool &isUpdateUI, E_4BitColor color, int kUp, int kLeft, int kDown, int kRight)
-	: PlayerCtrl(name, map, isUpdateUI, kUp, kLeft, kDown, kRight), m_snake(color), m_speedLevel(0), m_score(0)
+	: PlayerCtrl(name, map, isUpdateUI, kUp, kLeft, kDown, kRight), m_snake(color)
 {
 }
 
@@ -41,16 +43,31 @@ SnakePlayerCtrl::~SnakePlayerCtrl()
 void SnakePlayerCtrl::Clear()
 {
 	PlayerCtrl::Clear();
-	m_alive = false;
 }
 
 void SnakePlayerCtrl::Reset(Vector2 position)
 {
 	PlayerCtrl::Reset(position);
 	m_snake.Reset(m_map, position);
-	m_alive = true;
 	m_speedLevel = 0;
 	m_direction = E_Direction::None;
+}
+
+TankPlayerCtrl::TankPlayerCtrl(string name, GameMap & map, bool & isUpdateUI, E_4BitColor color, int kUp, int kLeft, int kDown, int kRight)
+	: PlayerCtrl(name, map, isUpdateUI, kUp, kLeft, kDown, kRight), m_color(color)
+{
+}
+
+void TankPlayerCtrl::Clear()
+{
+	PlayerCtrl::Clear();
+}
+
+void TankPlayerCtrl::Reset(Vector2 position)
+{
+	PlayerCtrl::Reset(position);
+	m_position = position;
+	DrawTank();
 }
 
 #pragma endregion
@@ -233,6 +250,37 @@ void SnakePlayerCtrl::ToNextDeathAnimation()
 
 #pragma endregion
 
+#pragma region Tank Process Methods
+
+void TankPlayerCtrl::ClearTank()
+{
+	m_map.Index(m_position.x, m_position.y) = E_CellType::None;
+	m_map.Index(m_position.x - 1, m_position.y) = E_CellType::None;
+	m_map.Index(m_position.x + 1, m_position.y) = E_CellType::None;
+	m_map.Index(m_position.x, m_position.y - 1) = E_CellType::None;
+	m_map.Index(m_position.x - 1, m_position.y - 1) = E_CellType::None;
+	m_map.Index(m_position.x + 1, m_position.y - 1) = E_CellType::None;
+	m_map.Index(m_position.x, m_position.y + 1) = E_CellType::None;
+	m_map.Index(m_position.x - 1, m_position.y + 1) = E_CellType::None;
+	m_map.Index(m_position.x + 1, m_position.y + 1) = E_CellType::None;
+}
+
+void TankPlayerCtrl::DrawTank()
+{
+	m_map.Index(m_position.x, m_position.y) = E_CellType::Tank;
+	m_map.Index(m_position.x - 1, m_position.y) = E_CellType::Tank;
+	m_map.Index(m_position.x + 1, m_position.y) = E_CellType::Tank;
+	m_map.Index(m_position.x, m_position.y - 1) = E_CellType::Tank;
+	m_map.Index(m_position.x - 1, m_position.y - 1) = E_CellType::Tank;
+	m_map.Index(m_position.x + 1, m_position.y - 1) = E_CellType::Tank;
+	m_map.Index(m_position.x, m_position.y + 1) = E_CellType::Tank;
+	m_map.Index(m_position.x - 1, m_position.y + 1) = E_CellType::Tank;
+	m_map.Index(m_position.x + 1, m_position.y + 1) = E_CellType::Tank;
+}
+
+#pragma endregion
+
+
 void SnakePlayerCtrl::Process()
 {
 	m_timer->Reset(clock_t(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel)));
@@ -242,4 +290,15 @@ void SnakePlayerCtrl::Process()
 	//PlaySound(TEXT("sound_eat.wav"), NULL, SND_FILENAME | SND_ASYNC);
 	m_map.GenerateRandomFood();
 	m_isUpdateUI = true;
+}
+
+void TankPlayerCtrl::Process()
+{
+	m_timer->Reset(clock_t(SPEED_DELTA * pow(ACCELERATING_FACTOR, m_speedLevel)));
+	if (!m_alive) return;
+	E_Direction target = PlayerCtrl::UpdateDirection();
+	if (E_Direction::None == target) return;
+	ClearTank();
+	m_position = GetPositionByDirection(m_position, target);
+	DrawTank();
 }

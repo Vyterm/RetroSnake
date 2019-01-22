@@ -23,6 +23,7 @@ protected:
 	string m_name;
 	bool m_alive = true, m_unstoppable = false;
 	bool &m_isUpdateUI;
+	int m_speedLevel, m_score;;
 public:
 	string get_Name() const { return m_name; }
 
@@ -35,13 +36,13 @@ public:
 	void get_keyCtrl(int &kUp, int &kLeft, int &kDown, int &kRight);
 	void set_keyCtrl(int kUp, int kLeft, int kDown, int kRight);
 
-	virtual void set_Speed(int speed) = NULL;
-	virtual int get_Speed() const = NULL;
+	void IncreaseScore() { ++m_score; }
+	int get_Score() const { return m_score; }
+	void set_Speed(int speed) { m_speedLevel = speed; }
+	int get_Speed() const { return int(SPEED_DELTA / pow(ACCELERATING_FACTOR, m_speedLevel)); }
 	virtual void set_Color(const E_4BitColor &color) = NULL;
 	virtual E_4BitColor get_Color() const = NULL;
 	virtual void SetEnemy(PlayerCtrl &enemy) = NULL;
-	virtual int get_Score() const = NULL;
-	virtual void IncreaseScore() = NULL;
 protected:
 	E_Direction UpdateDirection();
 	vyt::timer::handler *m_timer;
@@ -72,7 +73,6 @@ class SnakePlayerCtrl : public PlayerCtrl
 {
 private:
 	#pragma region Fields
-	int m_speedLevel, m_score;
 	Snake m_snake;
 	SnakePlayerCtrl *m_enemy = nullptr;
 	E_Direction m_direction;
@@ -80,11 +80,7 @@ private:
 	#pragma endregion
 public:
 	#pragma region Properties
-	void set_Speed(int speed) { m_speedLevel = speed; }
-	int get_Speed() const { return int(SPEED_DELTA / pow(ACCELERATING_FACTOR, m_speedLevel)); }
 
-	void IncreaseScore() { ++m_score; }
-	int get_Score() const { return m_score; }
 
 	void set_Color(const E_4BitColor &color) { m_snake.Twinkle(m_map, color); }
 	E_4BitColor get_Color() const { return m_snake.get_color(); }
@@ -124,6 +120,27 @@ private:
 public:
 	SnakePlayerCtrl(string name, GameMap &map, bool &isUpdateUI, E_4BitColor color, int kUp, int kLeft, int kDown, int kRight);
 	~SnakePlayerCtrl();
+
+	void Clear();
+	void Reset(Vector2 position);
+
+	void Process();
+};
+
+class TankPlayerCtrl : public PlayerCtrl
+{
+private:
+	E_4BitColor m_color;
+	Vector2 m_position;
+public:
+	virtual void set_Color(const E_4BitColor &color) { m_color = color; }
+	virtual E_4BitColor get_Color() const { return m_color; }
+	virtual void SetEnemy(PlayerCtrl &enemy) { }
+private:
+	void ClearTank();
+	void DrawTank();
+public:
+	TankPlayerCtrl(string name, GameMap &map, bool &isUpdateUI, E_4BitColor color, int kUp, int kLeft, int kDown, int kRight);
 
 	void Clear();
 	void Reset(Vector2 position);

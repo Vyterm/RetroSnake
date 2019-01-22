@@ -11,6 +11,7 @@ enum class E_CellType
 	Head = 3,
 	Body = 4,
 	Jump = 5,
+	Tank = 6,
 };
 
 enum class E_SubType
