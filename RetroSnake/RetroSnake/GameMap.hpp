@@ -117,10 +117,10 @@ public:
 
 	MapTemplate(bool &updateUI) : m_isUpdateUI(updateUI)
 	{
-		//m_players.push_back(new SnakePlayerCtrl("玩家一", *this, updateUI, E_4BitColor::LCyan, 'W', 'A', 'S', 'D'));
-		//m_players.push_back(new SnakePlayerCtrl("玩家二", *this, updateUI, E_4BitColor::LWhite, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
-		m_players.push_back(new TankPlayerCtrl("玩家一", *this, updateUI, E_4BitColor::LCyan, 'W', 'A', 'S', 'D'));
-		m_players.push_back(new TankPlayerCtrl("玩家二", *this, updateUI, E_4BitColor::LWhite, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
+		m_players.push_back(new SnakePlayerCtrl("玩家一", *this, updateUI, E_4BitColor::LCyan, 'W', 'A', 'S', 'D'));
+		m_players.push_back(new SnakePlayerCtrl("玩家二", *this, updateUI, E_4BitColor::LWhite, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
+		//m_players.push_back(new TankPlayerCtrl("玩家一", *this, updateUI, E_4BitColor::LCyan, 'W', 'A', 'S', 'D'));
+		//m_players.push_back(new TankPlayerCtrl("玩家二", *this, updateUI, E_4BitColor::LWhite, VK_UP, VK_LEFT, VK_DOWN, VK_RIGHT));
 		for (auto &player : m_players)
 			player->Clear();
 		m_position = { 0, 0 };
@@ -295,14 +295,14 @@ public:
 		Vector2 emptyPoint;
 		if (!SearchEmptyPosition(emptyPoint))
 			return false;
-		auto randomType = rand() % 100;
-		E_SubType subType = randomType < 0 ? E_SubType::SubType0 :
-			randomType < 15 ? E_SubType::SubType1 :
-			randomType < 30 ? E_SubType::SubType2 :
-			randomType < 50 ? E_SubType::SubType3 :
-			randomType < 70 ? E_SubType::SubType4 :
-			randomType < 75 ? E_SubType::SubType5 :
-			randomType < 80 ? E_SubType::SubType6 : E_SubType::SubType7;
+		auto randomType = (unsigned)rand() % 100;
+		E_SubType subType = randomType < m_model.FoodWeight(E_FoodType::NormalEffect) ? E_SubType::SubType0 :
+			randomType < m_model.FoodWeight(E_FoodType::AppendLength) ? E_SubType::SubType1 :
+			randomType < m_model.FoodWeight(E_FoodType::RemoveLength) ? E_SubType::SubType2 :
+			randomType < m_model.FoodWeight(E_FoodType::Acceleration) ? E_SubType::SubType3 :
+			randomType < m_model.FoodWeight(E_FoodType::Deceleration) ? E_SubType::SubType4 :
+			randomType < m_model.FoodWeight(E_FoodType::Reverse		) ? E_SubType::SubType5 :
+			randomType < m_model.FoodWeight(E_FoodType::BuffStrong	) ? E_SubType::SubType6 : E_SubType::SubType7;
 
 		m_items[emptyPoint.x][emptyPoint.y].Set(E_CellType::Food, subType, { SubTypeColors[int(subType)] ,DEFAULT_BACK_COLOR });
 		return true;

@@ -19,105 +19,132 @@
     <Filter Include="源文件\Experiment">
       <UniqueIdentifier>{1b3ed7ec-4b0a-45fe-9b1a-b9b35a5dd251}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\3-rd">
+    <Filter Include="头文件\Game">
+      <UniqueIdentifier>{74bf77c3-eca7-42f8-9264-5c29053c2b34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Game\Gamelib">
+      <UniqueIdentifier>{033424f9-4f93-4491-89ba-0f2a7c09ef34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Game\Gamelib\3-rd">
       <UniqueIdentifier>{237d073f-a4e0-47ba-82f5-c10d8b198005}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\3-rd">
-      <UniqueIdentifier>{9d05f3b3-8778-4e8f-b0a0-1289ce088776}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\Vyterm">
+    <Filter Include="头文件\Game\Gamelib\Vyterm">
       <UniqueIdentifier>{57e94438-3c25-434f-bd9b-5539d16bf9ce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Vyterm">
-      <UniqueIdentifier>{7f8f0088-acb8-4fa4-891b-8fb9f23706a7}</UniqueIdentifier>
+    <Filter Include="头文件\Game\GameType">
+      <UniqueIdentifier>{d6f10649-4a9c-4af7-af71-9cf6bb4a23f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\Gamelib">
-      <UniqueIdentifier>{033424f9-4f93-4491-89ba-0f2a7c09ef34}</UniqueIdentifier>
+    <Filter Include="头文件\Game\GameCtrl">
+      <UniqueIdentifier>{25c6754d-731f-4adc-a776-22d2afc8a797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Game\GameView">
+      <UniqueIdentifier>{5950da44-9745-4fc8-972c-fc7d65c8ba9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Game">
+      <UniqueIdentifier>{a8351809-a96d-4098-9658-fa0bdd61f2a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Game\GameType">
+      <UniqueIdentifier>{8d8cb6f3-ba66-42ab-bc27-79c6a0d8e77d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Game\GameCtrl">
+      <UniqueIdentifier>{94c8059a-30ce-40f6-9965-a10039b7a9ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Game\GameView">
+      <UniqueIdentifier>{ba12ae57-77d6-4831-9675-827acd86e280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Game\GameLib">
+      <UniqueIdentifier>{8bca24c4-543d-42ad-8751-7c3625fcd194}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Game\GameLib\3-rd">
+      <UniqueIdentifier>{9d05f3b3-8778-4e8f-b0a0-1289ce088776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Game\GameLib\Vyterm">
+      <UniqueIdentifier>{7f8f0088-acb8-4fa4-891b-8fb9f23706a7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GameApp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSurface.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="GameCtrl.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GameEvent.cpp">
       <Filter>源文件\Experiment</Filter>
     </ClCompile>
-    <ClCompile Include="GameSnake.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="vytTimer.cpp">
-      <Filter>源文件\Vyterm</Filter>
+      <Filter>源文件\Game\GameLib\Vyterm</Filter>
     </ClCompile>
     <ClCompile Include="winapi.cpp">
-      <Filter>源文件\3-rd</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEditor.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="GameGraphic.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Game\GameLib\3-rd</Filter>
     </ClCompile>
     <ClCompile Include="GameBuff.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Game\GameCtrl</Filter>
+    </ClCompile>
+    <ClCompile Include="GameCtrl.cpp">
+      <Filter>源文件\Game\GameCtrl</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSnake.cpp">
+      <Filter>源文件\Game\GameType</Filter>
+    </ClCompile>
+    <ClCompile Include="GameGraphic.cpp">
+      <Filter>源文件\Game\GameView</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSurface.cpp">
+      <Filter>源文件\Game\GameView</Filter>
+    </ClCompile>
+    <ClCompile Include="GameApp.cpp">
+      <Filter>源文件\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="GameEditor.cpp">
+      <Filter>源文件\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameApp.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSurface.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameCtrl.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="GameEvent.hpp">
       <Filter>头文件\Experiment</Filter>
     </ClInclude>
-    <ClInclude Include="GameMap.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSnake.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameModel.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="vytTimer.hpp">
-      <Filter>头文件\Vyterm</Filter>
+      <Filter>头文件\Game\Gamelib\Vyterm</Filter>
     </ClInclude>
     <ClInclude Include="vytVector.hpp">
-      <Filter>头文件\Vyterm</Filter>
+      <Filter>头文件\Game\Gamelib\Vyterm</Filter>
     </ClInclude>
     <ClInclude Include="winapi.hpp">
-      <Filter>头文件\3-rd</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEditor.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameGraphic.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameLayer.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="GameMapItem.hpp">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Game\Gamelib\3-rd</Filter>
     </ClInclude>
     <ClInclude Include="GameMath.hpp">
-      <Filter>头文件\Gamelib</Filter>
+      <Filter>头文件\Game\Gamelib</Filter>
     </ClInclude>
     <ClInclude Include="GameColor.hpp">
-      <Filter>头文件\Gamelib</Filter>
+      <Filter>头文件\Game\Gamelib</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSnake.hpp">
+      <Filter>头文件\Game\GameType</Filter>
     </ClInclude>
     <ClInclude Include="GameBuff.hpp">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Game\GameCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCtrl.hpp">
+      <Filter>头文件\Game\GameCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMapItem.hpp">
+      <Filter>头文件\Game\GameType</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMap.hpp">
+      <Filter>头文件\Game\GameType</Filter>
+    </ClInclude>
+    <ClInclude Include="GameModel.hpp">
+      <Filter>头文件\Game\GameType</Filter>
+    </ClInclude>
+    <ClInclude Include="GameLayer.hpp">
+      <Filter>头文件\Game\GameView</Filter>
+    </ClInclude>
+    <ClInclude Include="GameGraphic.hpp">
+      <Filter>头文件\Game\GameView</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSurface.hpp">
+      <Filter>头文件\Game\GameView</Filter>
+    </ClInclude>
+    <ClInclude Include="GameApp.hpp">
+      <Filter>头文件\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEditor.hpp">
+      <Filter>头文件\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
