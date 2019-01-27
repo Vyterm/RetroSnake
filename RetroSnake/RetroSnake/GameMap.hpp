@@ -296,13 +296,20 @@ public:
 		if (!SearchEmptyPosition(emptyPoint))
 			return false;
 		auto randomType = (unsigned)rand() % 100;
-		E_SubType subType = randomType < m_model.FoodWeight(E_FoodType::NormalEffect) ? E_SubType::SubType0 :
-			randomType < m_model.FoodWeight(E_FoodType::AppendLength) ? E_SubType::SubType1 :
-			randomType < m_model.FoodWeight(E_FoodType::RemoveLength) ? E_SubType::SubType2 :
-			randomType < m_model.FoodWeight(E_FoodType::Acceleration) ? E_SubType::SubType3 :
-			randomType < m_model.FoodWeight(E_FoodType::Deceleration) ? E_SubType::SubType4 :
-			randomType < m_model.FoodWeight(E_FoodType::Reverse		) ? E_SubType::SubType5 :
-			randomType < m_model.FoodWeight(E_FoodType::BuffStrong	) ? E_SubType::SubType6 : E_SubType::SubType7;
+		//E_SubType subType = randomType < m_model.FoodWeight(E_FoodType::NormalEffect) ? E_SubType::SubType0 :
+		//	randomType < m_model.FoodWeight(E_FoodType::AppendLength) ? E_SubType::SubType1 :
+		//	randomType < m_model.FoodWeight(E_FoodType::RemoveLength) ? E_SubType::SubType2 :
+		//	randomType < m_model.FoodWeight(E_FoodType::Acceleration) ? E_SubType::SubType3 :
+		//	randomType < m_model.FoodWeight(E_FoodType::Deceleration) ? E_SubType::SubType4 :
+		//	randomType < m_model.FoodWeight(E_FoodType::Reverse		) ? E_SubType::SubType5 :
+		//	randomType < m_model.FoodWeight(E_FoodType::BuffStrong	) ? E_SubType::SubType6 : E_SubType::SubType7;
+		E_SubType subType = randomType < 0 ? E_SubType::SubType0 :
+			randomType < 20 ? E_SubType::SubType1 :
+			randomType < 30 ? E_SubType::SubType2 :
+			randomType < 40 ? E_SubType::SubType3 :
+			randomType < 60 ? E_SubType::SubType4 :
+			randomType < 65 ? E_SubType::SubType5 :
+			randomType < 95 ? E_SubType::SubType6 : E_SubType::SubType7;
 
 		m_items[emptyPoint.x][emptyPoint.y].Set(E_CellType::Food, subType, { SubTypeColors[int(subType)] ,DEFAULT_BACK_COLOR });
 		return true;

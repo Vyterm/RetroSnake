@@ -186,11 +186,11 @@ void SnakePlayerCtrl::HandleFood(const Vector2& position)
 		break;
 	case E_SubType::SubType6:
 		m_snake.TailToHead(m_map, position);
-		vyt::timer::get_instance().RegisterHandler<UnstoppableBuff>(*this, 15);
+		vyt::timer::get_instance().RegisterHandler<UnstoppableBuff>(*this, 99);
 		break;
 	case E_SubType::SubType7:
 		m_snake.TailToHead(m_map, position);
-		vyt::timer::get_instance().RegisterHandler<IncontrollableBuff>(*m_enemy, 3);
+		vyt::timer::get_instance().RegisterHandler<IncontrollableBuff>(*m_enemy, 1);
 		break;
 	case E_SubType::SubType8:
 		m_snake.ExtendHead(m_map, position);
